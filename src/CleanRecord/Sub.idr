@@ -45,7 +45,8 @@ elemFromSub (Keep e _) Here = e
 elemFromSub (Keep e sub) (There later) = elemFromDrop (elemFromSub sub later)
 
 public export
-notInSub : DecEq key => {k: key} -> Sub ys xs -> Not (v ** Elem k v xs) -> IsNo (decKey k ys)
+notInSub : DecEq key =>
+           {k: key} -> Sub ys xs -> Not (v ** Elem k v xs) -> NotKey k ys
 notInSub sub contra {k} {ys} with (decKey k ys)
   | (Yes (t ** loc)) = absurd (contra (t ** elemFromSub sub loc))
   | (No _) = SoFalse

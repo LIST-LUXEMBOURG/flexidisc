@@ -10,7 +10,7 @@ public export
 data IsNub : Vect n (a, b) -> Type where
   Nil : IsNub []
   (::) : DecEq key =>
-         {k : key} -> IsNo (decKey k xs) -> IsNub xs -> IsNub ((k, v)::xs)
+         {k : key} -> NotKey k xs -> IsNub xs -> IsNub ((k, v)::xs)
 
 ||| Decide whether a list is made of different elements or not
 public export
@@ -37,8 +37,8 @@ mapElemOnUpdate (y ** There e) {p = (There later)} {xs = x :: xs} with (mapElemO
 
 public export
 updatePreservesNotField : DecEq key =>
-                          {x : key} -> (p : IsNo (decKey x xs)) ->
-                          IsNo (decKey x (updateElem xs e new))
+                          {x : key} -> (p : NotKey x xs) ->
+                          NotKey x (updateElem xs e new)
 updatePreservesNotField p = notElemFromEvidence (getContra p . mapElemOnUpdate)
 
 public export

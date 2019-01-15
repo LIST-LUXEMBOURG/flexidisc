@@ -74,9 +74,13 @@ decKey k ((k', v') :: xs) with (decEq k k')
                          There later => absurd (notThere (ty ** later)))
 
 public export
+NotKey : DecEq key => (k : key) -> (xs : Vect n (key, value)) -> Type
+NotKey k xs = IsNo (decKey k xs)
+
+public export
 notElemFromEvidence : DecEq key =>
                       {k : key} ->
-                      (prf : Not (v ** Elem k v xs)) -> IsNo (decKey k xs)
+                      (prf : Not (v ** Elem k v xs)) -> NotKey k xs
 notElemFromEvidence prf {k} {xs} with (decKey k xs)
   | (Yes y) = absurd (prf y)
   | (No contra) = SoFalse

@@ -69,7 +69,7 @@ export
 data Record' : (Header' n label) -> Type where
   Nil : Record' ([] ** [])
   (::) : DecEq label =>
-         {l : label} -> {auto newPrf : IsNo (decKey l xs)} ->
+         {l : label} -> {auto newPrf : NotKey l xs} ->
          t -> Record' (xs ** prf) ->
          Record' (((l, t) :: xs) ** (newPrf::prf))
 

@@ -42,7 +42,7 @@ elemFromOrdSub (Skip ord) loc           = There (elemFromOrdSub ord loc)
 public export
 notInOrdSub : DecEq key =>
               {k : key} -> OrdSub ys xs -> Not (v ** Elem k v xs) ->
-              IsNo (decKey k ys)
+              NotKey k ys
 notInOrdSub sub contra {k} {ys} with (decKey k ys)
   | (Yes (t ** loc)) = absurd (contra (t ** elemFromOrdSub sub loc))
   | (No f) = SoFalse
