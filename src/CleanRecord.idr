@@ -1,5 +1,6 @@
 module CleanRecord
 
+import public CleanRecord.Disjoint
 import public CleanRecord.Elem
 import public CleanRecord.IsNo
 import public CleanRecord.Nub
@@ -65,17 +66,18 @@ updateHeaderField name header nubProof new {p} =
   updateHeaderElem header nubProof p new
 
 
-export
+public export
 data Record' : (Header' n label) -> Type where
   Nil : Record' ([] ** [])
   (::) : DecEq label =>
-         {l : label} -> {auto newPrf : NotKey l xs} ->
+         {l : label} ->
+         {auto newPrf : NotKey l xs} ->
          t -> Record' (xs ** prf) ->
          Record' (((l, t) :: xs) ** (newPrf::prf))
 
 %name Record' rec, xs, ys, zs
 
-export
+public export
 Record : DecEq label => (h : Vect n (Field label)) -> {auto prf : IsNub h} -> Type
 Record xs = Record' (Header xs)
 
@@ -96,6 +98,12 @@ t_record_3 = ["Test", 42]
 
 t_record_3' : Record ["Foo" := String, "Bar" := Nat]
 t_record_3' = "Test" :: t_record1
+
+t_record_4 : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
+t_record_4 = Just "Test2" :: t_record_3
+
+t_record_4' : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
+t_record_4' = [Nothing, "Test", 19]
 
 export
 atElem : (rec : Record' (xs ** prf)) -> (loc : Elem label ty xs) -> ty
@@ -185,7 +193,55 @@ t_rearrange : Record ["Bar" := Nat, "Foo" := String]
 t_rearrange = rearrange t_record_3
 
 export
+merge : DecEq label =>
+        {left : Vect n (Field label)} ->
+        Record' (left ** leftNub) -> Record' (right ** rightNub) ->
+        {auto prf : Disjoint left right} ->
+        Record' (left ++ right ** disjointNub left leftNub right rightNub prf)
+merge [] rightRec = rightRec
+merge (x :: leftRec) rightRec {prf = pf :: prf} = x :: merge leftRec rightRec
+
+t_merge : Record ["Foo" := Nat] -> Record ["Bar" := String] ->
+          Record ["Foo" := Nat, "Bar" := String]
+t_merge x y = merge x y
+
+public export
+mergeOnHeader : DecEq label =>
+                (k : label) ->
+                (ty : Type) ->
+                (left  : Vect n (label, Type)) -> (nubLeft : IsNub left) ->
+                (right : Vect (S m) (label, Type)) -> (nubRight : IsNub right) ->
+                (rightLoc : Elem k ty right) ->
+                (prf : Disjoint left (dropElem right rightLoc)) ->
+                Header' (n + m) label
+mergeOnHeader k ty left nubLeft right nubRight rightLoc {prf} =
+  (  left ++ dropElem right rightLoc
+  ** disjointNub left nubLeft
+       (dropElem right rightLoc)
+       (isNubFromOrdSub (ordSubFromDrop right rightLoc) nubRight)
+       prf
+  )
+
+export
+mergeOn : (DecEq label, Eq ty) =>
+          (k : label) ->
+          Record' (left  ** leftNub)  ->
+          Record' (right ** rightNub) ->
+          {auto leftLoc  : Elem k ty left}  ->
+          {auto rightLoc : Elem k ty right} ->
+          {auto prf : Disjoint left (dropElem right rightLoc)} ->
+          Maybe (Record' (mergeOnHeader k ty left leftNub right rightNub rightLoc prf))
+mergeOn k left right = let
+  l = get k left
+  r = get k right
+  in guard (l == r) *> pure (merge left (dropField k right))
+
+
+
+export
 decKey : DecEq a =>
            {header : Vect n (Field a)} ->
            (k : a) -> (rec : Record' (header ** nubProof)) -> Dec (ty ** Elem k ty header)
 decKey k rec {header} = decKey k header
+
+
