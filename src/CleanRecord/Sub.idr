@@ -1,6 +1,6 @@
 module CleanRecord.Sub
 
-import CleanRecord.Elem
+import CleanRecord.Row
 import CleanRecord.IsNo
 import CleanRecord.Nub
 import CleanRecord.OrdSub
@@ -16,7 +16,7 @@ data Sub : (sub : Vect n (key, value)) ->
            Type where
   Empty : Sub [] []
   Skip  : Sub sub initial -> Sub sub ((k,v) :: initial)
-  Keep  : (e : Elem k v initial) -> Sub keep (dropElem initial e) -> Sub ((k,v)::keep) initial
+  Keep  : (e : Row k v initial) -> Sub keep (dropRow initial e) -> Sub ((k,v)::keep) initial
 
 public export
 subEmpty' : (xs : Vect n (key, value)) -> Sub [] xs
@@ -38,27 +38,18 @@ subRefl {xs} = subRefl' xs
 
 
 public export
-elemFromSub : Sub xs ys -> Elem x ty xs -> Elem x ty ys
-elemFromSub Empty y = y
-elemFromSub (Skip z) loc = There (elemFromSub z loc)
-elemFromSub (Keep e _) Here = e
-elemFromSub (Keep e sub) (There later) = elemFromDrop (elemFromSub sub later)
+rowFromSub : Sub xs ys -> Row x ty xs -> Row x ty ys
+rowFromSub Empty y = y
+rowFromSub (Skip z) loc = There (rowFromSub z loc)
+rowFromSub (Keep e _) Here = e
+rowFromSub (Keep e sub) (There later) = rowFromDrop (rowFromSub sub later)
 
 public export
 notInSub : DecEq key =>
-           {k: key} -> Sub ys xs -> Not (v ** Elem k v xs) -> NotKey k ys
+           {k: key} -> Sub ys xs -> Not (v ** Row k v xs) -> NotKey k ys
 notInSub sub contra {k} {ys} with (decKey k ys)
-  | (Yes (t ** loc)) = absurd (contra (t ** elemFromSub sub loc))
+  | (Yes (t ** loc)) = absurd (contra (t ** rowFromSub sub loc))
   | (No _) = SoFalse
-
-
-public export
-removeFromNubIsNotThere : DecEq key =>
-                          {k : key} ->
-                          IsNub xs -> (ePre : Elem k v xs) -> Not (v' ** Elem k v' (dropElem xs ePre))
-removeFromNubIsNotThere (p :: _) Here next = absurd (getContra p next)
-removeFromNubIsNotThere (p :: prf) (There later) (_ ** Here) {v} = absurd (getContra p (v ** later))
-removeFromNubIsNotThere (p :: prf) (There later) (x ** There loc) = removeFromNubIsNotThere prf later (x ** loc)
 
 
 public export

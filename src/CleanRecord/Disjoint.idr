@@ -1,6 +1,6 @@
 module CleanRecord.Disjoint
 
-import CleanRecord.Elem
+import CleanRecord.Row
 import CleanRecord.IsNo
 import CleanRecord.Nub
 import Data.Vect
@@ -8,13 +8,13 @@ import Data.Vect
 %default total
 
 public export
-notThereToo : Not (v ** Elem k v (x::xs)) -> Not (v' ** Elem k v' xs)
+notThereToo : Not (v ** Row k v (x::xs)) -> Not (v' ** Row k v' xs)
 notThereToo contra (v' ** loc) = contra (v' ** There loc)
 
 public export
-notInAny : (xContra : Not (vx ** Elem k vx xs)) ->
-           (yContra : Not (vy ** Elem k vy ys)) ->
-           (v ** Elem k v (xs ++ ys)) -> Void
+notInAny : (xContra : Not (vx ** Row k vx xs)) ->
+           (yContra : Not (vy ** Row k vy ys)) ->
+           (v ** Row k v (xs ++ ys)) -> Void
 notInAny xContra yContra (v ** pf) {xs = []} =
   yContra (v ** pf)
 notInAny xContra yContra (vx ** Here) {xs = ((kx, vx) :: xs)} =
@@ -39,15 +39,15 @@ disjointNub : DecEq key =>
               IsNub (left ++ right)
 disjointNub [] _ _ nubRight _ = nubRight
 disjointNub ((k, v) :: left) (prf :: nubLeft) right nubRight (disKV :: disjoint)
-  =  notElemFromEvidence (notInAny (getContra prf) (getContra disKV))
+  =  notRowFromEvidence (notInAny (getContra prf) (getContra disKV))
   :: disjointNub left nubLeft right nubRight disjoint
 
 public export
 disjointDropLeft : (left : Vect (S n) (key, value)) ->
                    (right : Vect m (key, value)) ->
-                   (loc : Elem k v left) ->
+                   (loc : Row k v left) ->
                    Disjoint left right ->
-                   Disjoint (dropElem left loc) right
+                   Disjoint (dropRow left loc) right
 disjointDropLeft ((k, v) :: xs) right Here (_::dis) = dis
 disjointDropLeft {n = S n} ((k, v) :: xs) right (There later) (d::dis) =
   d :: disjointDropLeft xs right later dis
@@ -55,24 +55,24 @@ disjointDropLeft {n = S n} ((k, v) :: xs) right (There later) (d::dis) =
 public export
 relaxNotKeyContra : DecEq label =>
                     {k : label} ->
-                    {loc : Elem k _ xs} ->
-                    Not (v ** Elem x v xs) ->
-                    Not (v ** Elem x v (dropElem xs loc))
-relaxNotKeyContra contra (v ** prf) = contra (v ** elemFromDrop prf)
+                    {loc : Row k _ xs} ->
+                    Not (v ** Row x v xs) ->
+                    Not (v ** Row x v (dropRow xs loc))
+relaxNotKeyContra contra (v ** prf) = contra (v ** rowFromDrop prf)
 
 public export
 relaxNotKey : DecEq label =>
               (xs  : Vect (S n) (label, value)) ->
-              (loc : Elem k ty xs) ->
-              NotKey x xs -> NotKey x (dropElem xs loc)
-relaxNotKey _ _ prf = notElemFromEvidence (relaxNotKeyContra (getContra prf))
+              (loc : Row k ty xs) ->
+              NotKey x xs -> NotKey x (dropRow xs loc)
+relaxNotKey _ _ prf = notRowFromEvidence (relaxNotKeyContra (getContra prf))
 
 public export
 disjointDropRight : (left : Vect n (key, value)) ->
                     (right : Vect (S m) (key, value)) ->
-                    (loc : Elem k v right) ->
+                    (loc : Row k v right) ->
                     Disjoint left right ->
-                    Disjoint left (dropElem right loc)
+                    Disjoint left (dropRow right loc)
 disjointDropRight [] right loc [] = []
 disjointDropRight ((kl, vl) :: left) right loc (d :: dis) =
   relaxNotKey right loc d :: disjointDropRight left right loc dis

@@ -1,6 +1,6 @@
 module CleanRecord.OrdSub
 
-import CleanRecord.Elem
+import CleanRecord.Row
 import CleanRecord.IsNo
 import CleanRecord.Nub
 import Data.Vect
@@ -8,7 +8,7 @@ import Data.Vect
 %default total
 
 ||| Proof that a vector is a subset of another one,
-||| preserving the order of the elements
+||| preserving the order of the rowents
 public export
 data OrdSub : (xs : Vect n a) -> (ys : Vect m a) -> Type where
   Empty : OrdSub [] []
@@ -34,21 +34,21 @@ ordSubRefl : OrdSub xs xs
 ordSubRefl {xs} = ordSubRefl' xs
 
 public export
-elemFromOrdSub : OrdSub xs ys -> Elem x ty xs -> Elem x ty ys
-elemFromOrdSub (Keep _)   Here          = Here
-elemFromOrdSub (Keep ord) (There later) = There (elemFromOrdSub ord later)
-elemFromOrdSub (Skip ord) loc           = There (elemFromOrdSub ord loc)
+rowFromOrdSub : OrdSub xs ys -> Row x ty xs -> Row x ty ys
+rowFromOrdSub (Keep _)   Here          = Here
+rowFromOrdSub (Keep ord) (There later) = There (rowFromOrdSub ord later)
+rowFromOrdSub (Skip ord) loc           = There (rowFromOrdSub ord loc)
 
 public export
 notInOrdSub : DecEq key =>
-              {k : key} -> OrdSub ys xs -> Not (v ** Elem k v xs) ->
+              {k : key} -> OrdSub ys xs -> Not (v ** Row k v xs) ->
               NotKey k ys
 notInOrdSub sub contra {k} {ys} with (decKey k ys)
-  | (Yes (t ** loc)) = absurd (contra (t ** elemFromOrdSub sub loc))
+  | (Yes (t ** loc)) = absurd (contra (t ** rowFromOrdSub sub loc))
   | (No f) = SoFalse
 
 public export
-ordSubFromDrop : (xs : Vect (S n) (key, value)) -> (loc : Elem k v xs) -> OrdSub (dropElem xs loc) xs
+ordSubFromDrop : (xs : Vect (S n) (key, value)) -> (loc : Row k v xs) -> OrdSub (dropRow xs loc) xs
 ordSubFromDrop ((k, v) :: ys) Here = Skip ordSubRefl
 ordSubFromDrop {n = S n} (_ :: ys) (There later) = Keep (ordSubFromDrop ys later)
 

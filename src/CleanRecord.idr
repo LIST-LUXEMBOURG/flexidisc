@@ -1,10 +1,11 @@
 module CleanRecord
 
 import public CleanRecord.Disjoint
-import public CleanRecord.Elem
+import public CleanRecord.Row
 import public CleanRecord.IsNo
 import public CleanRecord.Nub
 import public CleanRecord.OrdSub
+import public CleanRecord.Permutation
 import public CleanRecord.Sub
 
 import Data.Vect
@@ -31,28 +32,28 @@ Header : DecEq a => (xs : Vect n (Field a)) -> {auto prf : IsNub xs} -> Header' 
 Header xs {prf} = (xs ** prf)
 
 public export
-dropHeaderElem : (header : Vect (S n) (Field label)) -> (nubProof : IsNub header) ->
-                 (loc : Elem k v header) ->
+dropHeaderRow : (header : Vect (S n) (Field label)) -> (nubProof : IsNub header) ->
+                 (loc : Row k v header) ->
                  Header' n label
-dropHeaderElem header nubProof loc =
-  (dropElem header loc ** isNubFromOrdSub (ordSubFromDrop header loc) nubProof)
+dropHeaderRow header nubProof loc =
+  (dropRow header loc ** isNubFromOrdSub (ordSubFromDrop header loc) nubProof)
 
 public export
 dropHeaderField : (k : label) ->
                   (header : Vect (S n) (Field label)) ->
                   (nubProof : IsNub header) ->
-                  {auto p : Elem k v header} ->
+                  {auto p : Row k v header} ->
                   Header' n label
-dropHeaderField name header nubProof {p} = dropHeaderElem header nubProof p
+dropHeaderField name header nubProof {p} = dropHeaderRow header nubProof p
 
 public export
-updateHeaderElem : (header : Vect n (Field label)) ->
+updateHeaderRow : (header : Vect n (Field label)) ->
                    (nubProof : IsNub header) ->
-                   (loc : Elem k v header) ->
+                   (loc : Row k v header) ->
                    (new : Type) ->
                    Header' n label
-updateHeaderElem header nubProof loc new =
-  (updateElem header loc new ** updatePreservesNub nubProof)
+updateHeaderRow header nubProof loc new =
+  (updateRow header loc new ** updatePreservesNub nubProof)
 
 
 public export
@@ -60,10 +61,10 @@ updateHeaderField : (k : label) ->
                     (header : Vect n (Field label)) ->
                     (nubProof : IsNub header) ->
                     (new : Type) ->
-                    {auto p : Elem k v header} ->
+                    {auto p : Row k v header} ->
                     Header' n label
 updateHeaderField name header nubProof new {p} =
-  updateHeaderElem header nubProof p new
+  updateHeaderRow header nubProof p new
 
 
 public export
@@ -106,13 +107,13 @@ t_record_4' : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
 t_record_4' = [Nothing, "Test", 19]
 
 export
-atElem : (rec : Record' (xs ** prf)) -> (loc : Elem label ty xs) -> ty
-atElem (x :: _) Here = x
-atElem (_ :: rec) (There later) = atElem rec later
+atRow : (rec : Record' (xs ** prf)) -> (loc : Row label ty xs) -> ty
+atRow (x :: _) Here = x
+atRow (_ :: rec) (There later) = atRow rec later
 
 export
-get : (field : a) -> (rec : Record' (xs ** prf)) -> {auto p : Elem field ty xs} -> ty
-get field rec {p} = atElem rec p
+get : (field : a) -> (rec : Record' (xs ** prf)) -> {auto p : Row field ty xs} -> ty
+get field rec {p} = atRow rec p
 
 t_get_1 : String
 t_get_1 = get "Foo" t_record_3
@@ -129,49 +130,49 @@ ordSubRecord (x :: xs) (Skip sub) = ordSubRecord xs sub
 ordSubRecord (x :: xs) (Keep sub) = x :: ordSubRecord xs sub
 
 export
-dropElem : {header : Vect (S n) (Field a)} ->
-           (rec : Record' (header ** nubProof)) -> (p : Elem k v header) ->
-           Record' (dropHeaderElem header nubProof p)
-dropElem rec p {header} = ordSubRecord rec (ordSubFromDrop header p)
+dropRow : {header : Vect (S n) (Field a)} ->
+           (rec : Record' (header ** nubProof)) -> (p : Row k v header) ->
+           Record' (dropHeaderRow header nubProof p)
+dropRow rec p {header} = ordSubRecord rec (ordSubFromDrop header p)
 
 export
 dropField : {header : Vect (S n) (Field a)} ->
             (k : a) -> (rec : Record' (header ** nubProof)) ->
-            {auto p : Elem k v header} ->
+            {auto p : Row k v header} ->
             Record' (dropHeaderField k header nubProof)
 dropField name rec {p} {header} = ordSubRecord rec (ordSubFromDrop header p)
 
 t_drop_1 : Record ["Bar" := Nat]
-t_drop_1 = dropElem t_record_3 Here
+t_drop_1 = dropRow t_record_3 Here
 
 t_drop_2 : Record ["Bar" := Nat]
 t_drop_2 = dropField "Foo" t_record_3
 
 t_drop_3 : Record ["Foo" := String]
-t_drop_3 = dropElem t_record_3 (There Here)
+t_drop_3 = dropRow t_record_3 (There Here)
 
 t_drop_4 : Record ["Foo" := String]
 t_drop_4 = dropField "Bar" t_record_3
 
 export
-updateElem : {header : Vect n (Field a)} ->
+updateRow : {header : Vect n (Field a)} ->
              (rec : Record' (header ** nubProof)) ->
-             (loc : Elem k ty header) -> (ty -> tNew) ->
-             Record' (updateHeaderElem header nubProof loc tNew)
-updateElem (x :: xs) Here f = f x :: xs
-updateElem (x :: xs) (There later) f = x :: updateElem xs later f
+             (loc : Row k ty header) -> (ty -> tNew) ->
+             Record' (updateHeaderRow header nubProof loc tNew)
+updateRow (x :: xs) Here f = f x :: xs
+updateRow (x :: xs) (There later) f = x :: updateRow xs later f
 
 export
 updateField : {header : Vect n (Field a)} ->
              (k : a) ->
              (ty -> tNew) ->
              (rec : Record' (header ** nubProof)) ->
-             {auto p : Elem k ty header} ->
+             {auto p : Row k ty header} ->
              Record' (updateHeaderField k header nubProof tNew)
-updateField k f xs {p} = updateElem xs p f
+updateField k f xs {p} = updateRow xs p f
 
 t_update_1 : Record ["Foo" := Nat, "Bar" := Nat]
-t_update_1 = updateElem t_record_3 Here length
+t_update_1 = updateRow t_record_3 Here length
 
 t_update_2 : Record ["Foo" := String, "Bar" := String]
 t_update_2 = updateField "Bar" (const "BAAAAAR") t_record_3
@@ -182,15 +183,34 @@ subRecord : Record' (header ** nubProof) ->
             Record' (sub ** isNubFromSub subPrf nubProof)
 subRecord [] Empty = []
 subRecord (x :: rec) (Skip sub) = subRecord rec sub
-subRecord rec (Keep e sub) {nubProof = p :: pf} = atElem rec e :: subRecord (dropElem rec e) sub
+subRecord rec (Keep e sub) {nubProof = p :: pf} = atRow rec e :: subRecord (dropRow rec e) sub
 
 export
-rearrange : Record' (pre ** nubProof) -> {auto prf : Sub post pre} ->
-            Record' (post ** isNubFromSub prf nubProof)
-rearrange rec {prf} = subRecord rec prf
+sub : Record' (pre ** nubProof) -> {auto prf : Sub post pre} ->
+      Record' (post ** isNubFromSub prf nubProof)
+sub rec {prf} = subRecord rec prf
 
-t_rearrange : Record ["Bar" := Nat, "Foo" := String]
-t_rearrange = rearrange t_record_3
+t_sub_1 : Record ["Bar" := Nat, "Foo" := String]
+t_sub_1 = sub t_record_4
+
+t_sub_2 : Record ["Bar" := Nat, "Foo" := String]
+t_sub_2 = sub t_record_3
+
+export
+permuteRecord : Record' (header ** nubProof) ->
+            (permPrf : Permute sub header) ->
+            Record' (sub ** isNubFromPermute permPrf nubProof)
+permuteRecord [] Empty = []
+permuteRecord rec (Keep e sub) {nubProof = p :: pf} = atRow rec e :: permuteRecord (dropRow rec e) sub
+
+export
+rearrange : Record' (pre ** nubProof) -> {auto prf : Permute post pre} ->
+            Record' (post ** isNubFromPermute prf nubProof)
+rearrange rec {prf} = permuteRecord rec prf
+
+t_rearrange_1 : Record ["Bar" := Nat, "Foo" := String]
+t_rearrange_1 = rearrange t_record_3
+
 
 export
 merge : DecEq label =>
@@ -211,13 +231,13 @@ mergeOnHeader : DecEq label =>
                 (ty : Type) ->
                 (left  : Vect n (label, Type)) -> (nubLeft : IsNub left) ->
                 (right : Vect (S m) (label, Type)) -> (nubRight : IsNub right) ->
-                (rightLoc : Elem k ty right) ->
-                (prf : Disjoint left (dropElem right rightLoc)) ->
+                (rightLoc : Row k ty right) ->
+                (prf : Disjoint left (dropRow right rightLoc)) ->
                 Header' (n + m) label
 mergeOnHeader k ty left nubLeft right nubRight rightLoc {prf} =
-  (  left ++ dropElem right rightLoc
+  (  left ++ dropRow right rightLoc
   ** disjointNub left nubLeft
-       (dropElem right rightLoc)
+       (dropRow right rightLoc)
        (isNubFromOrdSub (ordSubFromDrop right rightLoc) nubRight)
        prf
   )
@@ -227,9 +247,9 @@ mergeOn : (DecEq label, Eq ty) =>
           (k : label) ->
           Record' (left  ** leftNub)  ->
           Record' (right ** rightNub) ->
-          {auto leftLoc  : Elem k ty left}  ->
-          {auto rightLoc : Elem k ty right} ->
-          {auto prf : Disjoint left (dropElem right rightLoc)} ->
+          {auto leftLoc  : Row k ty left}  ->
+          {auto rightLoc : Row k ty right} ->
+          {auto prf : Disjoint left (dropRow right rightLoc)} ->
           Maybe (Record' (mergeOnHeader k ty left leftNub right rightNub rightLoc prf))
 mergeOn k left right = let
   l = get k left
@@ -241,7 +261,7 @@ mergeOn k left right = let
 export
 decKey : DecEq a =>
            {header : Vect n (Field a)} ->
-           (k : a) -> (rec : Record' (header ** nubProof)) -> Dec (ty ** Elem k ty header)
+           (k : a) -> (rec : Record' (header ** nubProof)) -> Dec (ty ** Row k ty header)
 decKey k rec {header} = decKey k header
 
 
