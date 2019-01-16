@@ -12,3 +12,8 @@ public export
 getContra : {witness : Dec prop} -> IsNo witness -> (Not prop)
 getContra x {witness = (Yes prf)} impossible
 getContra x {witness = (No contra)} = contra
+
+public export
+uniqueNo : (prop : Dec any) -> (x : IsNo prop) -> (y : IsNo prop) -> x = y
+uniqueNo (Yes _) SoFalse _ impossible
+uniqueNo (No contra) SoFalse SoFalse = Refl
