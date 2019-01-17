@@ -93,3 +93,50 @@ MkRecord [1, "John", "Doe", 42] (SoFalse :: SoFalse :: SoFalse :: SoFalse :: [])
                                                                                            ("Lastname", String),
                                                                                            ("Age", Nat)]
 ```
+
+## Record projection and reordering
+
+We can also easily delete rows or reorder them.
+As in many libraries support of extensible records,
+the rows order is significant in `CleanRecord`.
+Although, in many situations, we don't want to consider
+this order.
+A workaround is to provide a way to easily reorder a record:
+
+```
+*CleanRecord> namedRec ["Lastname" ::= "Doe", "Firstname" ::= "John", "Age" ::= the Nat 42]
+MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Lastname", String),
+                                                                             ("Firstname", String),
+                                                                             ("Age", Nat)]
+*CleanRecord> the (Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]) $ reorder it
+MkRecord ["John", "Doe", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Firstname", String),
+                                                                             ("Lastname", String),
+                                                                             ("Age", Nat)]
+```
+
+`reorder` ensures that all the rows are still in the record after the
+preservation.
+You can, however, decide to use a more permisive functions, `project`,
+if you want to skip som of the rows of the original record:
+
+```
+*CleanRecord> namedRec ["Lastname" ::= "Doe", "Firstname" ::= "John", "Age" ::= the Nat 42]
+MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Lastname", String),
+                                                                             ("Firstname", String),
+                                                                             ("Age", Nat)]
+*CleanRecord> the (Record ["Firstname" := String]) $ project it
+MkRecord ["John"] (SoFalse :: []) : Record [("Firstname", String)]
+```
+
+You can also decides to drop a specific row:
+
+```
+*CleanRecord> namedRec ["Lastname" ::= "Doe", "Firstname" ::= "John", "Age" ::= the Nat 42]
+MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Lastname", String),
+                                                                             ("Firstname", String),
+                                                                             ("Age", Nat)]
+*CleanRecord> dropByName "Age" it
+MkRecord ["Doe", "John"] (SoFalse :: SoFalse :: []) : Record [("Lastname", String),
+                                                              ("Firstname", String)]
+
+```
