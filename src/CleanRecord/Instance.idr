@@ -6,7 +6,6 @@ import Data.Vect as V
 %default total
 
 infix 8 ::=
-infixr 7 &:
 
 namespace Record
 
@@ -35,25 +34,25 @@ t_recordVect_2 = ["Foo" ::= "TEST", "Bar" ::=  42, "FooBar" ::= Nothing]
 
 
 export
-build' : RecordVect header -> {auto prf: IsNub header} -> Record' (header ** prf)
-build' x {prf = []} = []
-build' ((MkRow x) :: y) {prf = (p :: prf)} = x :: build' y
+buildAsIs : RecordVect header -> {auto prf: IsNub header} -> Record' (header ** prf)
+buildAsIs x {prf = []} = []
+buildAsIs ((MkRow x) :: y) {prf = (p :: prf)} = x :: buildAsIs y
 
 export
 build : RecordVect pre ->
         {auto nubProof : IsNub pre} ->
         {auto prf: Permute post pre} ->
         Record' (post ** isNubFromPermute prf nubProof)
-build xs = rearrange (build' xs)
+build xs = rearrange (buildAsIs xs)
 
 t_build : Record ["Name" := String, "Age" := Nat]
-t_build = build' ["Name" ::= "John Doe", "Age" ::= 42]
+t_build = buildAsIs ["Name" ::= "John Doe", "Age" ::= 42]
 
 t_build_2 : Record ["Name" := String, "Age" := Nat]
 t_build_2 = build ["Age" ::= 42, "Name" ::= "John Doe"]
 
 t_build_3 : Record ["Name" := String, "Age" := Nat, "Marital" := Maybe String]
-t_build_3 = build' ["Name" ::= "John Doe", "Age" ::= 42, "Marital" ::= Nothing]
+t_build_3 = buildAsIs ["Name" ::= "John Doe", "Age" ::= 42, "Marital" ::= Nothing]
 
 t_build_4 : Record ["Name" := String, "Age" := Nat, "Marital" := Maybe String]
 t_build_4 = build ["Age" ::= the Nat 42, "Name" ::= "John Doe", "Marital" ::= Nothing]

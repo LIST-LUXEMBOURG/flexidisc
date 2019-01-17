@@ -8,7 +8,7 @@ import public CleanRecord.OrdSub
 import public CleanRecord.Permutation
 import public CleanRecord.Sub
 
-import Data.Vect
+import public Data.Vect
 
 %default total
 
