@@ -85,7 +85,8 @@ twoPartsWithIDPerson = mergeOn "ID" part1 part2
 ||| This solution may look cumbersome on longer records.
 ||| Moreover, it requires us to provide the values in the exact same order
 ||| as the one given in the signature.
-||| We can do better:
+||| We can do better with NamedRecordContent,
+||| a structure that allows the definition of rows label on the fly.
 personWithRecordVect : Record [ "ID" := Nat
                               , "Firstname" := String
                               , "Lastname" := String
@@ -95,3 +96,13 @@ personWithRecordVect = namedRec [ "ID" ::= 0
                                 , "Lastname" ::= "Doe"
                                 , "Age" ::= 42
                                 ]
+
+||| Its power is probably clearer on the merge example:
+twoPartsPersonNamed : Record [ "ID" := Nat
+                             , "Firstname" := String
+                             , "Lastname" := String
+                             , "Age" := Nat
+                             ]
+twoPartsPersonNamed = merge
+  (namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"])
+  (namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42])
