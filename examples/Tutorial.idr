@@ -33,7 +33,7 @@ person3 = project person1
 
 ||| You can alternatively decide to drop a field by its name:
 person4 :  Record ["Firstname" := String, "Lastname" := String]
-person4 = dropField "Age" person2
+person4 = dropByName "Age" person2
 
 ||| Field can be updated quite easily too
 olderPerson2 : Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]

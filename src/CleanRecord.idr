@@ -1,3 +1,15 @@
+||| `CleanRecord` is an implementation of extensible records in Idris.
+|||
+||| It's goal is to provide easy to write extensible record functions that
+||| ensure the following:
+|||
+||| - **Type safety:** operation on row and access to row data is type safe.
+||| - **Compile time validation:** row existence and unicity of row
+|||   declarations are checked at compile time.
+||| - **Lean syntax:** Take advantage of the list syntax as much as possible,
+|||   minimize the type declarations as well.
+||| - **Custom keys:** Row labels can be any type that implements the `DecEq`
+|||   interface.
 module CleanRecord
 
 import public CleanRecord.Disjoint
@@ -13,10 +25,14 @@ import public Data.Vect
 
 %default total
 
+||| A `Record` is a set of rows
+||| @ header The list of rows into the record, with their types
 public export
 record Record (header : Vect n (Field label)) where
   constructor MkRecord
+  ||| The values stored in the record
   values   : RecordContent header
+  ||| The proof that there's no duplicate labels for the rows
   nubProof : IsNub header
 
 public export
@@ -29,16 +45,21 @@ values : Vect n (label, value) -> Vect n value
 values [] = []
 values (x::xs) = snd x :: values xs
 
+||| Build a `Record` from a list of values, the function checks unicity of
+||| the fields and build the `Record` if such proof can be generated
 export
 rec : (xs : RecordContent header) -> {auto nubProof : IsNub header} ->
       Record header
 rec xs {nubProof} = MkRecord xs nubProof
 
+||| Build a `Record` from a list of named values (rows). This version is
+||| an alternative to `rec` that allows to gdet rid of the `Record` signature.
 export
 namedRec : (xs : NamedRecordContent header) -> {auto nubProof : IsNub header} ->
       Record header
 namedRec xs {nubProof} = MkRecord (toRecordContent xs) nubProof
 
+||| Prepend a value to a record, the label name is given by the result type.
 export
 (::) : DecEq label =>
          {lbl : label} ->
@@ -50,6 +71,8 @@ export
 
 infix 9 :=
 
+||| An alias for `MkPair`, that provides a clearer representation of the
+||| row types.
 public export
 (:=) : a -> b -> (a,b)
 (:=) = MkPair
@@ -72,16 +95,19 @@ t_record_4 = Just "Test2" :: t_record_3
 t_record_4' : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
 t_record_4' = rec [Nothing, "Test", 19]
 
+||| Typesafe extraction of a value from a record
 export
 lookup : (field : a) -> (rec : Record xs) -> {auto p : Row field ty xs} -> ty
 lookup field (MkRecord xs _) {p} = atRow xs p
 
+||| alias for `lookup`
 export
 get : (field : a) -> (rec : Record xs) -> {auto p : Row field ty xs} -> ty
 get = lookup
 
 infixl 7 !!
 
+||| infix alias for `lookup`
 export
 (!!) : (rec : Record xs) -> (field : a) -> {auto p : Row field ty xs} -> ty
 (!!) rec field = get field rec
@@ -92,50 +118,67 @@ t_get_1 = get "Foo" t_record_3
 t_get_2 : Nat
 t_get_2 = get "Bar" t_record_3
 
+||| project a part of a `Record`, preserving the order of the fields
 export
 ordSub : Record header -> (ordSubPrf : OrdSub sub header) ->
          Record sub
 ordSub (MkRecord xs prf) ordSubPrf =
   MkRecord (ordSub xs ordSubPrf) (isNubFromOrdSub ordSubPrf prf)
 
+||| Remove a row from a Record.
+||| @ xs the record
+||| @ p  the proof that the row is in it
 export
 dropRow : {header : Vect (S n) (Field a)} ->
           (xs : Record header) -> (p : Row k v header) ->
           Record (dropRow header p)
 dropRow xs p {header} = ordSub xs (ordSubFromDrop header p)
 
+||| Remove a row from a Record.
+||| @ k  the row name
+||| @ xs the record
+||| @ p  the proof that the row is in it
 export
-dropField : {header : Vect (S n) (Field a)} ->
-            (k : a) -> (xs : Record header) ->
-            {auto p : Row k v header} ->
-            Record (dropRow header p)
-dropField name rec {p} {header} = ordSub rec (ordSubFromDrop header p)
+dropByName : {header : Vect (S n) (Field a)} ->
+             (k : a) -> (xs : Record header) ->
+             {auto p : Row k v header} ->
+             Record (dropRow header p)
+dropByName name rec {p} {header} = ordSub rec (ordSubFromDrop header p)
 
 t_drop_1 : Record ["Bar" := Nat]
 t_drop_1 = dropRow t_record_3 Here
 
 t_drop_2 : Record ["Bar" := Nat]
-t_drop_2 = dropField "Foo" t_record_3
+t_drop_2 = dropByName "Foo" t_record_3
 
 t_drop_3 : Record ["Foo" := String]
 t_drop_3 = dropRow t_record_3 (There Here)
 
 t_drop_4 : Record ["Foo" := String]
-t_drop_4 = dropField "Bar" t_record_3
+t_drop_4 = dropByName "Bar" t_record_3
 
+||| Update a row, the update can change the row type.
+||| @ xs  the record
+||| @ loc the proof that the row is in it
+||| @ f   the update function
 export
 updateRow : {header : Vect n (Field a)} ->
             (xs : Record header) ->
-            (loc : Row k ty header) -> (ty -> tNew) ->
+            (loc : Row k ty header) -> (f : ty -> tNew) ->
             Record (updateRow header loc tNew)
 updateRow (MkRecord xs prf) loc f {header} =
   MkRecord (updateRow xs loc f) (updatePreservesNub prf)
 
+||| Update a row, the update can change the row type.
+||| @ k  the row name
+||| @ xs  the record
+||| @ loc the proof that the row is in it
+||| @ f   the update function
 export
 updateField : {header : Vect n (Field a)} ->
              (k : a) ->
-             (ty -> tNew) ->
-             (rec : Record header) ->
+             (f : ty -> tNew) ->
+             (xs : Record header) ->
              {auto loc : Row k ty header} ->
              Record (updateRow header loc tNew)
 updateField k f xs {loc} = updateRow xs loc f
@@ -146,6 +189,8 @@ t_update_1 = updateRow t_record_3 Here length
 t_update_2 : Record ["Foo" := String, "Bar" := String]
 t_update_2 = updateField "Bar" (const "BAAAAAR") t_record_3
 
+||| Like project, but with an explicit proof that the final
+||| set of rows is a subset of the initial set.
 export
 project' : Record header ->
            (subPrf : Sub sub header) ->
@@ -153,6 +198,7 @@ project' : Record header ->
 project' (MkRecord xs prf) subPrf =
   MkRecord (project xs subPrf) (isNubFromSub subPrf prf)
 
+||| Project a record (keep only a subset of its field and reorder them.
 export
 project : Record pre -> {auto prf : Sub post pre} ->
           Record post
@@ -170,6 +216,8 @@ reorder' : Record header -> (permPrf : Permute sub header) ->
 reorder' (MkRecord xs prf) permPrf =
   MkRecord (reorder xs permPrf) (isNubFromPermute permPrf prf)
 
+||| Change the order of the rows. It's used intensively to make
+||| records "order independent".
 export
 reorder : Record pre -> {auto prf : Permute post pre} ->
           Record post
@@ -178,12 +226,15 @@ reorder rec {prf} = reorder' rec prf
 t_reorder_1 : Record ["Bar" := Nat, "Foo" := String]
 t_reorder_1 = reorder t_record_3
 
+||| Check equality between records that have the same set of
+||| rows, in the same orders
 public export
 implementation Eqs ts => Eq (Record ts) where
   (==) (MkRecord xs _) (MkRecord ys _) = xs == ys
 
 infix 6 =?=
 
+||| Order independent comparison.
 export
 (=?=) : Eqs ts =>
        (xs : Record ts) -> (ys : Record ts') ->
@@ -191,6 +242,7 @@ export
        Bool
 (=?=) xs ys = xs == reorder ys
 
+||| Append two records, it fails if some fields are duplicated
 export
 merge : DecEq label =>
         {left : Vect n (Field label)} ->
@@ -200,10 +252,20 @@ merge : DecEq label =>
 merge (MkRecord xs leftNub) (MkRecord ys rightNub) {left} {right} {prf} =
   MkRecord (xs ++ ys) (disjointNub left leftNub right rightNub prf)
 
+||| An infix alias for merge
+export
+(++) : DecEq label =>
+        {left : Vect n (Field label)} ->
+        Record left -> Record right ->
+        {auto prf : Disjoint left right} ->
+        Record (left ++ right)
+(++) = merge
+
 t_merge : Record ["Foo" := Nat] -> Record ["Bar" := String] ->
           Record ["Foo" := Nat, "Bar" := String]
-t_merge x y = merge x y
+t_merge x y = x ++ y
 
+||| Merge data only if the given row has the same value in both records
 export
 mergeOn : (DecEq label, Eq ty) =>
           (k : label) ->
@@ -216,9 +278,9 @@ mergeOn : (DecEq label, Eq ty) =>
 mergeOn k left right = let
   l = get k left
   r = get k right
-  in guard (l == r) *> pure (merge left (dropField k right))
+  in guard (l == r) *> pure (merge left (dropByName k right))
 
-
+||| Decide whether a key is defined in a record or not
 export
 decKey : DecEq a =>
          (k : a) -> (rec : Record header) -> Dec (ty ** Row k ty header)
