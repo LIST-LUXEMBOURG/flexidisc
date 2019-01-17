@@ -59,7 +59,7 @@ twoPartsPerson : Record [ "ID" := Nat
                         , "Lastname" := String
                         , "Age" := Nat
                         ]
-twoPartsPerson = merge part1 part2
+twoPartsPerson = part1 ++ part2
   where
     part1 : Record ["ID" := Nat, "Firstname" := String]
     part1 = rec [1, "John"]
@@ -103,6 +103,6 @@ twoPartsPersonNamed : Record [ "ID" := Nat
                              , "Lastname" := String
                              , "Age" := Nat
                              ]
-twoPartsPersonNamed = merge
-  (namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"])
-  (namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42])
+twoPartsPersonNamed =
+  namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"] ++
+  namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42]

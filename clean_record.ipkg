@@ -1,0 +1,24 @@
+package clean_record
+
+brief = "Type-safe extensible records for Idris"
+readme = Readme.md
+version = 0.1
+
+author = Nicolas Biri <nicolas.biri@list.lu>
+maintainer = Nicolas Biri
+
+sourceloc = https://git.list.lu/nbiri/cleanRecord
+bugtracker = https://git.list.lu/nbiri/cleanRecord/issues
+
+sourcedir = src
+
+modules = CleanRecord
+        , CleanRecord.Disjoint
+        , CleanRecord.Elem
+        , CleanRecord.IsNo
+        , CleanRecord.Nub
+        , CleanRecord.OrdSub
+        , CleanRecord.Permutation
+        , CleanRecord.RecordContent
+        , CleanRecord.Row
+        , CleanRecord.Sub

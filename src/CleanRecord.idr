@@ -68,6 +68,18 @@ export
         Record ((lbl, ty) :: header)
 (::) x (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
 
+infixr 7 :+:
+
+||| Prepend a named value to a record.
+export
+(:+:) : DecEq label =>
+         {lbl : label} ->
+         (Row lbl ty) ->
+         Record header ->
+         {auto fresh : NotKey lbl header} ->
+        Record ((lbl, ty) :: header)
+(:+:) (MkRow x) (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
+
 
 infix 9 :=
 
