@@ -37,7 +37,7 @@ person4 = dropByName "Age" person2
 
 ||| Field can be updated quite easily too
 olderPerson2 : Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
-olderPerson2 = updateField "Age" (+1) person2
+olderPerson2 = updateByName "Age" (+1) person2
 
 ||| What if we want a generic `birthday` function for record with an age?
 ||| The result type is a bit complex here.
@@ -45,7 +45,7 @@ olderPerson2 = updateField "Age" (+1) person2
 ||| its content by a Nat.
 birthday : Record xs -> {auto hasAge: Row "Age" Nat xs} ->
            Record (updateRow xs hasAge Nat)
-birthday rec = updateField "Age" (+1) rec
+birthday rec = updateByName "Age" (+1) rec
 
 ||| And we can check that it works on different types:
 olderPeople : ( Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]

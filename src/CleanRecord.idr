@@ -187,19 +187,19 @@ updateRow (MkRecord xs prf) loc f {header} =
 ||| @ loc the proof that the row is in it
 ||| @ f   the update function
 export
-updateField : {header : Vect n (Field a)} ->
-             (k : a) ->
-             (f : ty -> tNew) ->
-             (xs : Record header) ->
-             {auto loc : Row k ty header} ->
-             Record (updateRow header loc tNew)
-updateField k f xs {loc} = updateRow xs loc f
+updateByName : {header : Vect n (Field a)} ->
+               (k : a) ->
+               (f : ty -> tNew) ->
+               (xs : Record header) ->
+               {auto loc : Row k ty header} ->
+               Record (updateRow header loc tNew)
+updateByName k f xs {loc} = updateRow xs loc f
 
 t_update_1 : Record ["Foo" := Nat, "Bar" := Nat]
 t_update_1 = updateRow t_record_3 Here length
 
 t_update_2 : Record ["Foo" := String, "Bar" := String]
-t_update_2 = updateField "Bar" (const "BAAAAAR") t_record_3
+t_update_2 = updateByName "Bar" (const "BAAAAAR") t_record_3
 
 ||| Replace a row, with a new value (it can change the type)
 ||| @ xs  the record
@@ -218,13 +218,13 @@ replaceRow xs loc new = updateRow xs loc (const new)
 ||| @ loc the proof that the row is in it
 ||| @ new   the new value for the row
 export
-replaceField : {header : Vect n (Field a)} ->
-             (k : a) ->
-             (new : tNew) ->
-             (xs : Record header) ->
-             {auto loc : Row k ty header} ->
-             Record (updateRow header loc tNew)
-replaceField k new xs {loc} = replaceRow xs loc new
+replaceByName : {header : Vect n (Field a)} ->
+                (k : a) ->
+                (new : tNew) ->
+                (xs : Record header) ->
+                {auto loc : Row k ty header} ->
+                Record (updateRow header loc tNew)
+replaceByName k new xs {loc} = replaceRow xs loc new
 
 ||| Like project, but with an explicit proof that the final
 ||| set of rows is a subset of the initial set.
