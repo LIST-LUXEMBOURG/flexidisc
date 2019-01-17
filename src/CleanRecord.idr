@@ -201,6 +201,31 @@ t_update_1 = updateRow t_record_3 Here length
 t_update_2 : Record ["Foo" := String, "Bar" := String]
 t_update_2 = updateField "Bar" (const "BAAAAAR") t_record_3
 
+||| Replace a row, with a new value (it can change the type)
+||| @ xs  the record
+||| @ loc the proof that the row is in it
+||| @ new   the new value for the row
+export
+replaceRow : {header : Vect n (Field a)} ->
+            (xs : Record header) ->
+            (loc : Row k ty header) -> (new : tNew) ->
+            Record (updateRow header loc tNew)
+replaceRow xs loc new = updateRow xs loc (const new)
+
+||| Update a row, the update can change the row type.
+||| @ k  the row name
+||| @ xs  the record
+||| @ loc the proof that the row is in it
+||| @ new   the new value for the row
+export
+replaceField : {header : Vect n (Field a)} ->
+             (k : a) ->
+             (new : tNew) ->
+             (xs : Record header) ->
+             {auto loc : Row k ty header} ->
+             Record (updateRow header loc tNew)
+replaceField k new xs {loc} = replaceRow xs loc new
+
 ||| Like project, but with an explicit proof that the final
 ||| set of rows is a subset of the initial set.
 export

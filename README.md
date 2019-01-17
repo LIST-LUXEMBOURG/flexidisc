@@ -87,6 +87,9 @@ MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("L
 We can also append disjoints records with `++`:
 
 ```
-*CleanRecord> namedRec ["Firstname" ::= "John", "Age" ::= the Nat 42]
-MkRecord ["John", 42] (SoFalse :: SoFalse :: []) : Record [("Firstname", String), ("Age", Nat)]
+*CleanRecord> namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"] ++ namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42]
+MkRecord [1, "John", "Doe", 42] (SoFalse :: SoFalse :: SoFalse :: SoFalse :: []) : Record [("ID", Nat),
+                                                                                           ("Firstname", String),
+                                                                                           ("Lastname", String),
+                                                                                           ("Age", Nat)]
 ```
