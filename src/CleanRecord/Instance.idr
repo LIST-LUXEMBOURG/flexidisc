@@ -43,7 +43,7 @@ build : RecordVect pre ->
         {auto nubProof : IsNub pre} ->
         {auto prf: Permute post pre} ->
         Record' (post ** isNubFromPermute prf nubProof)
-build xs = rearrange (buildAsIs xs)
+build xs = reorder (buildAsIs xs)
 
 t_build : Record ["Name" := String, "Age" := Nat]
 t_build = buildAsIs ["Name" ::= "John Doe", "Age" ::= 42]

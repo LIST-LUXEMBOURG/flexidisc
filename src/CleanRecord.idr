@@ -112,8 +112,18 @@ atRow (x :: _) Here = x
 atRow (_ :: rec) (There later) = atRow rec later
 
 export
+lookup : (field : a) -> (rec : Record' (xs ** prf)) -> {auto p : Row field ty xs} -> ty
+lookup field rec {p} = atRow rec p
+
+export
 get : (field : a) -> (rec : Record' (xs ** prf)) -> {auto p : Row field ty xs} -> ty
-get field rec {p} = atRow rec p
+get = lookup
+
+infixl 7 !!
+
+export
+(!!) : (rec : Record' (xs ** prf)) -> (field : a) -> {auto p : Row field ty xs} -> ty
+(!!) rec field = get field rec
 
 t_get_1 : String
 t_get_1 = get "Foo" t_record_3
@@ -178,38 +188,39 @@ t_update_2 : Record ["Foo" := String, "Bar" := String]
 t_update_2 = updateField "Bar" (const "BAAAAAR") t_record_3
 
 export
-subRecord : Record' (header ** nubProof) ->
+project' : Record' (header ** nubProof) ->
             (subPrf : Sub sub header) ->
             Record' (sub ** isNubFromSub subPrf nubProof)
-subRecord [] Empty = []
-subRecord (x :: rec) (Skip sub) = subRecord rec sub
-subRecord rec (Keep e sub) {nubProof = p :: pf} = atRow rec e :: subRecord (dropRow rec e) sub
+project' [] Empty = []
+project' (x :: rec) (Skip sub) = project' rec sub
+project' rec (Keep e sub) {nubProof = p :: pf} = atRow rec e :: project' (dropRow rec e) sub
 
 export
-sub : Record' (pre ** nubProof) -> {auto prf : Sub post pre} ->
+project : Record' (pre ** nubProof) -> {auto prf : Sub post pre} ->
       Record' (post ** isNubFromSub prf nubProof)
-sub rec {prf} = subRecord rec prf
+project rec {prf} = project' rec prf
 
 t_sub_1 : Record ["Bar" := Nat, "Foo" := String]
-t_sub_1 = sub t_record_4
+t_sub_1 = project t_record_4
 
 t_sub_2 : Record ["Bar" := Nat, "Foo" := String]
-t_sub_2 = sub t_record_3
+t_sub_2 = project t_record_3
 
 export
-permuteRecord : Record' (header ** nubProof) ->
-            (permPrf : Permute sub header) ->
-            Record' (sub ** isNubFromPermute permPrf nubProof)
-permuteRecord [] Empty = []
-permuteRecord rec (Keep e sub) {nubProof = p :: pf} = atRow rec e :: permuteRecord (dropRow rec e) sub
+reorder' : Record' (header ** nubProof) ->
+           (permPrf : Permute sub header) ->
+           Record' (sub ** isNubFromPermute permPrf nubProof)
+reorder' [] Empty = []
+reorder' rec (Keep e sub) {nubProof = p :: pf} =
+  atRow rec e :: reorder' (dropRow rec e) sub
 
 export
-rearrange : Record' (pre ** nubProof) -> {auto prf : Permute post pre} ->
+reorder : Record' (pre ** nubProof) -> {auto prf : Permute post pre} ->
             Record' (post ** isNubFromPermute prf nubProof)
-rearrange rec {prf} = permuteRecord rec prf
+reorder rec {prf} = reorder' rec prf
 
 t_rearrange_1 : Record ["Bar" := Nat, "Foo" := String]
-t_rearrange_1 = rearrange t_record_3
+t_reorder_1 = reorder t_record_3
 
 
 export

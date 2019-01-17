@@ -26,11 +26,11 @@ person1 = 42 :: "Doe" :: person0
 
 ||| We can also reorder them. Such operation ensure that no-field is loss.
 person2 :  Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
-person2 = rearrange person1
+person2 = reorder person1
 
-||| We can also reorder and weaken a record
+||| We can also project a record on a smaller and/or reordered one
 person3 : Record ["Firstname" := String, "Lastname" := String]
-person3 = sub person1
+person3 = project person1
 
 ||| You can alternatively decide to drop a field by its name:
 person4 :  Record ["Firstname" := String, "Lastname" := String]
