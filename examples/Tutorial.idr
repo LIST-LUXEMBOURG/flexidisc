@@ -1,10 +1,9 @@
 module CleanRecord.Tutorial
 
 import CleanRecord
-import CleanRecord.Instance
 
 person0 : Record ["Firstname" := String]
-person0 = ["John"]
+person0 = rec ["John"]
 
 ||| From here, we can access row by name.
 |||
@@ -44,8 +43,8 @@ olderPerson2 = updateField "Age" (+1) person2
 ||| The result type is a bit complex here.
 ||| Actually we just explain that we update the `"Age"` field, replacing it
 ||| its content by a Nat.
-birthday : Record' (xs ** prf) -> {auto hasAge: Row "Age" Nat xs} ->
-           Record' (updateHeaderRow xs prf hasAge Nat)
+birthday : Record xs -> {auto hasAge: Row "Age" Nat xs} ->
+           Record (updateRow xs hasAge Nat)
 birthday rec = updateField "Age" (+1) rec
 
 ||| And we can check that it works on different types:
@@ -63,9 +62,9 @@ twoPartsPerson : Record [ "ID" := Nat
 twoPartsPerson = merge part1 part2
   where
     part1 : Record ["ID" := Nat, "Firstname" := String]
-    part1 = [1, "John"]
+    part1 = rec [1, "John"]
     part2 : Record ["Lastname" := String, "Age" := Nat]
-    part2 = ["Doe", 42]
+    part2 = rec ["Doe", 42]
 
 ||| If there is a duplicate field, you can also use it to decide whether
 ||| you merge your records or not
@@ -77,38 +76,22 @@ twoPartsWithIDPerson : Maybe (Record [ "ID" := Nat
 twoPartsWithIDPerson = mergeOn "ID" part1 part2
   where
     part1 : Record ["ID" := Nat, "Firstname" := String]
-    part1 = [1, "John"]
+    part1 = rec [1, "John"]
     part2 : Record ["ID" := Nat, "Lastname" := String, "Age" := Nat]
-    part2 = [1, "Doe", 42]
+    part2 = rec [1, "Doe", 42]
 
 
 ||| So far, we had provided row names are in the type signature.
 ||| This solution may look cumbersome on longer records.
 ||| Moreover, it requires us to provide the values in the exact same order
 ||| as the one given in the signature.
-||| We can do better with `RecordVect`, a intermediate structure that can
-||| be used to create records.
-||| RecordVect is almost like a Record, but unicity of its fields is not
-||| guaranteed
-||| `build` enables two things: (1) it ensure fields uniqueness and
-||| (2) it reoders the fields to fit the expected Record type
+||| We can do better:
 personWithRecordVect : Record [ "ID" := Nat
                               , "Firstname" := String
                               , "Lastname" := String
                               , "Age" := Nat]
-personWithRecordVect = build [ "Firstname" ::= "John"
-                             , "ID" ::= 0
-                             , "Age" ::= 42
-                             , "Lastname" ::= "Doe"
-                             ]
-
-||| You don't want to reoder the fields or don't care about the order?
-||| Use `buildAsIs`, which keep the order used in the declaration,
-||| as we do with the two parts in this example:
-twoPartsPerson2 : Record [ "ID" := Nat
-                        , "Firstname" := String
-                        , "Lastname" := String
-                        , "Age" := Nat
-                        ]
-twoPartsPerson2 = merge (buildAsIs ["ID" ::= the Nat 1, "Firstname" ::= "John"])
-                        (buildAsIs ["Lastname" ::= "Doe", "Age" ::= the Nat 42])
+personWithRecordVect = namedRec [ "ID" ::= 0
+                                , "Firstname" ::= "John"
+                                , "Lastname" ::= "Doe"
+                                , "Age" ::= 42
+                                ]
