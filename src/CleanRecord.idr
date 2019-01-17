@@ -19,11 +19,15 @@ record Record (header : Vect n (Field label)) where
   values   : RecordContent header
   nubProof : IsNub header
 
-
 public export
 labels : Vect n (label, value) -> Vect n label
 labels [] = []
 labels (x::xs) = fst x :: labels xs
+
+public export
+values : Vect n (label, value) -> Vect n value
+values [] = []
+values (x::xs) = snd x :: values xs
 
 export
 rec : (xs : RecordContent header) -> {auto nubProof : IsNub header} ->
@@ -174,6 +178,18 @@ reorder rec {prf} = reorder' rec prf
 t_reorder_1 : Record ["Bar" := Nat, "Foo" := String]
 t_reorder_1 = reorder t_record_3
 
+public export
+implementation Eqs ts => Eq (Record ts) where
+  (==) (MkRecord xs _) (MkRecord ys _) = xs == ys
+
+infix 6 =?=
+
+export
+(=?=) : Eqs ts =>
+       (xs : Record ts) -> (ys : Record ts') ->
+       {auto perm : Permute ts ts'} ->
+       Bool
+(=?=) xs ys = xs == reorder ys
 
 export
 merge : DecEq label =>
