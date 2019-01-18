@@ -20,6 +20,7 @@ import public CleanRecord.OrdSub
 import public CleanRecord.Permutation
 import public CleanRecord.RecordContent
 import public CleanRecord.Sub
+import public CleanRecord.SubKey
 
 import public Data.Vect
 
@@ -240,6 +241,12 @@ export
 project : Record pre -> {auto prf : Sub post pre} ->
           Record post
 project rec {prf} = project' rec prf
+
+export
+keep : (keys : Vect n a) -> (xs : Record pre) ->
+       {auto prf : SubKey keys post pre} ->
+       Record post
+keep _ xs {prf} = project' xs (toSub prf)
 
 t_sub_1 : Record ["Bar" := Nat, "Foo" := String]
 t_sub_1 = project t_record_4
