@@ -19,8 +19,9 @@ import public CleanRecord.Nub
 import public CleanRecord.OrdSub
 import public CleanRecord.Permutation
 import public CleanRecord.RecordContent
+import public CleanRecord.SkipSub
 import public CleanRecord.Sub
-import public CleanRecord.SubKey
+import public CleanRecord.KeepSub
 
 import public Data.Vect
 
@@ -242,11 +243,25 @@ project : Record pre -> {auto prf : Sub post pre} ->
           Record post
 project rec {prf} = project' rec prf
 
+||| Build a projection with the given keys
+||| @keys The rows to keep
+||| @xs The record to project
+||| @prf Proof that the rows are parts of the record
 export
 keep : (keys : Vect n a) -> (xs : Record pre) ->
-       {auto prf : SubKey keys post pre} ->
+       {auto prf : KeepSub keys post pre} ->
        Record post
 keep _ xs {prf} = project' xs (toSub prf)
+
+||| Build a projection with the given keys
+||| @keys The rows to keep
+||| @xs The record to project
+||| @prf Proof that the rows are parts of the record
+export
+dropN : (keys : Vect n a) -> (xs : Record pre) ->
+        {auto prf : SkipSub keys post pre} ->
+        Record post
+dropN _ xs {prf} = project' xs (toSub prf)
 
 t_sub_1 : Record ["Bar" := Nat, "Foo" := String]
 t_sub_1 = project t_record_4

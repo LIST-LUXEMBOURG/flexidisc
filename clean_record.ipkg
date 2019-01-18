@@ -16,9 +16,11 @@ modules = CleanRecord
         , CleanRecord.Disjoint
         , CleanRecord.Elem
         , CleanRecord.IsNo
+        , CleanRecord.KeepSub
         , CleanRecord.Nub
         , CleanRecord.OrdSub
         , CleanRecord.Permutation
         , CleanRecord.RecordContent
         , CleanRecord.Row
+        , CleanRecord.SkipSub
         , CleanRecord.Sub
