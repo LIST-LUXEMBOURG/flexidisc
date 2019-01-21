@@ -7,6 +7,7 @@ import public CleanRecord.Nub
 import public CleanRecord.OrdSub
 import public CleanRecord.Permutation
 import public CleanRecord.Sub
+import public CleanRecord.NegSub
 
 import public Data.Vect
 
@@ -91,6 +92,14 @@ project [] Empty = []
 project (x :: xs) (Skip sub) = project xs sub
 project xs (Keep e sub) =
   atRow xs e :: project (dropRow xs e) sub
+
+export
+negProject : RecordContent header ->
+                 (negPrf : NegSub sub header) ->
+                 RecordContent sub
+negProject [] Empty = []
+negProject xs (Skip e sub) = negProject (dropRow xs e) sub
+negProject (x::xs) (Keep sub) = x :: negProject xs sub
 
 export
 reorder : RecordContent header ->

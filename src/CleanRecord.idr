@@ -19,9 +19,10 @@ import public CleanRecord.Nub
 import public CleanRecord.OrdSub
 import public CleanRecord.Permutation
 import public CleanRecord.RecordContent
+import public CleanRecord.KeepSub
 import public CleanRecord.SkipSub
 import public CleanRecord.Sub
-import public CleanRecord.KeepSub
+import public CleanRecord.NegSub
 
 import public Data.Vect
 
@@ -243,6 +244,14 @@ project : Record pre -> {auto prf : Sub post pre} ->
           Record post
 project rec {prf} = project' rec prf
 
+||| Like project, but with an explicit proof that the final
+||| set of rows is a subset of the initial set.
+negProject' : Record header ->
+           (negPrf : NegSub sub header) ->
+           Record sub
+negProject' (MkRecord xs prf) subPrf =
+  MkRecord (negProject xs subPrf) (isNubFromNegSub subPrf prf)
+
 ||| Build a projection with the given keys
 ||| @keys The rows to keep
 ||| @xs The record to project
@@ -253,15 +262,15 @@ keep : (keys : Vect n a) -> (xs : Record pre) ->
        Record post
 keep _ xs {prf} = project' xs (toSub prf)
 
-||| Build a projection with the given keys
-||| @keys The rows to keep
+||| Build a projection that excludes the given keys
+||| @keys The rows to skip
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
 export
 dropN : (keys : Vect n a) -> (xs : Record pre) ->
         {auto prf : SkipSub keys post pre} ->
         Record post
-dropN _ xs {prf} = project' xs (toSub prf)
+dropN _ xs {prf} = negProject' xs (toNegSub prf)
 
 t_sub_1 : Record ["Bar" := Nat, "Foo" := String]
 t_sub_1 = project t_record_4

@@ -36,6 +36,11 @@ person3 = project person1
 person4 : Record ["Firstname" := String, "Lastname" := String]
 person4 = keep ["Firstname", "Lastname"] person1
 
+||| If you want to give explicitly the order of the new elements you want
+||| you can use `keep`
+person4' : Record ["Age" := Nat]
+person4' = dropN ["Firstname", "Lastname"] person1
+
 ||| You can alternatively decide to drop a field by its name:
 person5 :  Record ["Firstname" := String, "Lastname" := String]
 person5 = dropByName "Age" person2

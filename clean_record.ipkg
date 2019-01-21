@@ -14,9 +14,9 @@ sourcedir = src
 
 modules = CleanRecord
         , CleanRecord.Disjoint
-        , CleanRecord.Elem
         , CleanRecord.IsNo
         , CleanRecord.KeepSub
+        , CleanRecord.NegSub
         , CleanRecord.Nub
         , CleanRecord.OrdSub
         , CleanRecord.Permutation

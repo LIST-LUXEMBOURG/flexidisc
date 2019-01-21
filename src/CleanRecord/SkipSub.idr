@@ -2,9 +2,9 @@ module CleanRecord.SkipSub
 
 import CleanRecord.Row
 import CleanRecord.IsNo
+import CleanRecord.NegSub
 import CleanRecord.Nub
 import CleanRecord.OrdSub
-import CleanRecord.Sub
 
 import Data.Vect
 
@@ -17,14 +17,14 @@ data SkipSub : (keys : Vect k key) ->
               (initial : Vect m (key, value)) ->
                Type where
   Empty : SkipSub [] [] []
-  Skip  : SkipSub keys sub initial -> SkipSub (k::keys) sub ((k, v) :: initial)
-  Keep  : (e : Row k v initial) -> SkipSub keys sub (dropRow initial e) ->
-          SkipSub keys ((k,v)::sub) initial
+  Skip  : (e : Row k v initial) -> SkipSub keys sub (dropRow initial e) ->
+          SkipSub (k::keys) sub initial
+  Keep  : SkipSub keys sub initial -> SkipSub keys ((k, v) :: sub) ((k, v) :: initial)
 
 public export
 subEmpty' : (xs : Vect n (key, value)) -> SkipSub (map Basics.fst xs) [] xs
 subEmpty' [] = Empty
-subEmpty' ((k, v) :: xs) = Skip (subEmpty' xs)
+subEmpty' ((k, v) :: xs) = Skip Here (subEmpty' xs)
 
 public export
 subEmpty : SkipSub (map Basics.fst xs) [] xs
@@ -33,14 +33,14 @@ subEmpty {xs} = subEmpty' xs
 public export
 subRefl' : (xs : Vect n (key, value)) -> SkipSub [] xs xs
 subRefl' [] = Empty
-subRefl' ((k, v) :: xs) = Keep Here (subRefl' xs)
+subRefl' ((k, v) :: xs) = Keep (subRefl' xs)
 
 public export
 subRefl :  SkipSub [] xs xs
 subRefl {xs} = subRefl' xs
 
 public export
-toSub : SkipSub keep sub initial -> Sub sub initial
-toSub Empty = Empty
-toSub (Skip x) = Skip (toSub x)
-toSub (Keep e x) = Keep e (toSub x)
+toNegSub : SkipSub keep sub initial -> NegSub sub initial
+toNegSub Empty = Empty
+toNegSub (Skip loc sub) = Skip loc (toNegSub sub)
+toNegSub (Keep sub) = Keep (toNegSub sub)
