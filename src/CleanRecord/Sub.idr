@@ -58,4 +58,4 @@ isNubFromSub Empty [] = []
 isNubFromSub (Skip z) (_ :: pf) = isNubFromSub z pf
 isNubFromSub (Keep e z) (p :: pf) =
   notInSub z (removeFromNubIsNotThere (p::pf) e) ::
-  isNubFromSub z (isNubFromOrdSub (ordSubFromDrop _ e) (p::pf))
+  isNubFromSub z (isNubFromOrdSub (ordSubFromDrop _ (labelFromRow e)) (p::pf))

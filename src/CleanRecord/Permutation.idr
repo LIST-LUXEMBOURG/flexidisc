@@ -38,4 +38,4 @@ isNubFromPermute : Permute xs ys -> IsNub ys -> IsNub xs
 isNubFromPermute Empty [] = []
 isNubFromPermute (Keep e z) (p :: pf) =
   notInPermute z (removeFromNubIsNotThere (p::pf) e) ::
-  isNubFromPermute z (isNubFromOrdSub (ordSubFromDrop _ e) (p::pf))
+  isNubFromPermute z (isNubFromOrdSub (ordSubFromDrop _ (labelFromRow e)) (p::pf))

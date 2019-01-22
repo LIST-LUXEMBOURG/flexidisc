@@ -144,10 +144,10 @@ ordSub (MkRecord xs prf) ordSubPrf =
 ||| @ xs the record
 ||| @ p  the proof that the row is in it
 export
-dropRow : {header : Vect (S n) (Field a)} ->
-          (xs : Record header) -> (p : Row k v header) ->
-          Record (dropRow header p)
-dropRow xs p {header} = ordSub xs (ordSubFromDrop header p)
+dropByLabel : {header : Vect (S n) (Field a)} ->
+          (xs : Record header) -> (p : Label k header) ->
+          Record (dropLabel header p)
+dropByLabel xs p {header} = ordSub xs (ordSubFromDrop header p)
 
 ||| Remove a row from a Record.
 ||| @ k  the row name
@@ -156,18 +156,18 @@ dropRow xs p {header} = ordSub xs (ordSubFromDrop header p)
 export
 dropByName : {header : Vect (S n) (Field a)} ->
              (k : a) -> (xs : Record header) ->
-             {auto p : Row k v header} ->
-             Record (dropRow header p)
+             {auto p : Label k header} ->
+             Record (dropLabel header p)
 dropByName name rec {p} {header} = ordSub rec (ordSubFromDrop header p)
 
 t_drop_1 : Record ["Bar" := Nat]
-t_drop_1 = dropRow t_record_3 Here
+t_drop_1 = dropByLabel t_record_3 Here
 
 t_drop_2 : Record ["Bar" := Nat]
 t_drop_2 = dropByName "Foo" t_record_3
 
 t_drop_3 : Record ["Foo" := String]
-t_drop_3 = dropRow t_record_3 (There Here)
+t_drop_3 = dropByLabel t_record_3 (There Here)
 
 t_drop_4 : Record ["Foo" := String]
 t_drop_4 = dropByName "Bar" t_record_3
@@ -211,9 +211,10 @@ t_update_2 = updateByName "Bar" (const "BAAAAAR") t_record_3
 export
 replaceRow : {header : Vect n (Field a)} ->
             (xs : Record header) ->
-            (loc : Row k ty header) -> (new : tNew) ->
-            Record (updateRow header loc tNew)
-replaceRow xs loc new = updateRow xs loc (const new)
+            (loc : Label k header) -> (new : tNew) ->
+            Record (updateLabel header loc tNew)
+replaceRow (MkRecord xs prf) loc new =
+  MkRecord (replaceRow xs loc new) (updateLabelPreservesNub prf)
 
 ||| Update a row, the update can change the row type.
 ||| @ k  the row name
@@ -225,8 +226,8 @@ replaceByName : {header : Vect n (Field a)} ->
                 (k : a) ->
                 (new : tNew) ->
                 (xs : Record header) ->
-                {auto loc : Row k ty header} ->
-                Record (updateRow header loc tNew)
+                {auto loc : Label k header} ->
+                Record (updateLabel header loc tNew)
 replaceByName k new xs {loc} = replaceRow xs loc new
 
 ||| Like project, but with an explicit proof that the final

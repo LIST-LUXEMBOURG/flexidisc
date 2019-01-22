@@ -15,7 +15,7 @@ data NegSub : (sub : Vect n (key, value)) ->
            (initial : Vect m (key, value)) ->
            Type where
   Empty : NegSub [] []
-  Skip  : (e : Row k v initial) -> NegSub keep (dropRow initial e) -> NegSub keep initial
+  Skip  : (e : Label k initial) -> NegSub keep (dropRow initial e) -> NegSub keep initial
   Keep  : NegSub sub initial -> NegSub ((k,v)::sub) ((k,v) :: initial)
 
 public export
@@ -50,6 +50,7 @@ rowFromNegSub (Skip loc sub) row = shiftRow loc (rowFromNegSub sub row)
 rowFromNegSub (Keep x) Here = Here
 rowFromNegSub (Keep sub) (There later) = There (rowFromNegSub sub later)
 
+
 public export
 notInNegSub : DecEq key =>
            {k: key} -> NegSub ys xs -> Not (v ** Row k v xs) -> NotKey k ys
@@ -57,8 +58,9 @@ notInNegSub sub contra {k} {ys} with (decKey k ys)
   | (Yes (t ** loc)) = absurd (contra (t ** rowFromNegSub sub loc))
   | (No _) = SoFalse
 
+
 public export
 isNubFromNegSub : NegSub xs ys -> IsNub ys -> IsNub xs
 isNubFromNegSub Empty nub = nub
-isNubFromNegSub (Skip e x) pf = isNubFromNegSub x (isNubFromOrdSub (ordSubFromDrop _ e) pf)
+isNubFromNegSub (Skip e x) pf = isNubFromNegSub x (isNubFromOrdSub (ordSubFromDrop _ (labelFromRow e)) pf)
 isNubFromNegSub (Keep x) (p :: pf) = notInNegSub x (getContra p) :: isNubFromNegSub x pf

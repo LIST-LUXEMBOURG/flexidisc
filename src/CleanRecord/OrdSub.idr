@@ -48,7 +48,7 @@ notInOrdSub sub contra {k} {ys} with (decKey k ys)
   | (No f) = SoFalse
 
 public export
-ordSubFromDrop : (xs : Vect (S n) (key, value)) -> (loc : Row k v xs) -> OrdSub (dropRow xs loc) xs
+ordSubFromDrop : (xs : Vect (S n) (key, value)) -> (loc : Label k xs) -> OrdSub (dropLabel xs loc) xs
 ordSubFromDrop ((k, v) :: ys) Here = Skip ordSubRefl
 ordSubFromDrop {n = S n} (_ :: ys) (There later) = Keep (ordSubFromDrop ys later)
 
