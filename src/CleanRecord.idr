@@ -244,6 +244,12 @@ project : Record pre -> {auto prf : Sub post pre} ->
           Record post
 project rec {prf} = project' rec prf
 
+t_sub_1 : Record ["Bar" := Nat, "Foo" := String]
+t_sub_1 = project t_record_4
+
+t_sub_2 : Record ["Bar" := Nat, "Foo" := String]
+t_sub_2 = project t_record_3
+
 ||| Like project, but with an explicit proof that the final
 ||| set of rows is a subset of the initial set.
 negProject' : Record header ->
@@ -271,12 +277,6 @@ dropN : (keys : Vect n a) -> (xs : Record pre) ->
         {auto prf : SkipSub keys post pre} ->
         Record post
 dropN _ xs {prf} = negProject' xs (toNegSub prf)
-
-t_sub_1 : Record ["Bar" := Nat, "Foo" := String]
-t_sub_1 = project t_record_4
-
-t_sub_2 : Record ["Bar" := Nat, "Foo" := String]
-t_sub_2 = project t_record_3
 
 export
 reorder' : Record header -> (permPrf : Permute sub header) ->

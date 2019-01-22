@@ -56,4 +56,6 @@ public export
 isNubFromSub : Sub xs ys -> IsNub ys -> IsNub xs
 isNubFromSub Empty [] = []
 isNubFromSub (Skip z) (_ :: pf) = isNubFromSub z pf
-isNubFromSub (Keep e z) (p :: pf) = notInSub z (removeFromNubIsNotThere (p::pf) e) :: isNubFromSub z (isNubFromOrdSub (ordSubFromDrop _ e) (p::pf))
+isNubFromSub (Keep e z) (p :: pf) =
+  notInSub z (removeFromNubIsNotThere (p::pf) e) ::
+  isNubFromSub z (isNubFromOrdSub (ordSubFromDrop _ e) (p::pf))
