@@ -3,7 +3,7 @@ module CleanRecord.Row
 import Data.Vect
 
 import CleanRecord.IsNo
-import public CleanRecord.Label
+import CleanRecord.Label
 
 %default total
 %access public export
@@ -61,14 +61,3 @@ decKey k ((k', v') :: xs) with (decEq k k')
     | (No notThere) = No (\(ty ** loc) => case loc of
                          Here => absurd (notHere Refl)
                          There later => absurd (notThere (ty ** later)))
-
-NotKey : DecEq key => (k : key) -> (xs : Vect n (key, value)) -> Type
-NotKey k xs = IsNo (decKey k xs)
-
-
-notRowFromEvidence : DecEq key =>
-                      {k : key} ->
-                      (prf : Not (v ** Row k v xs)) -> NotKey k xs
-notRowFromEvidence prf {k} {xs} with (decKey k xs)
-  | (Yes y) = absurd (prf y)
-  | (No contra) = SoFalse

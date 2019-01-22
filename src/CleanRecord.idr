@@ -351,6 +351,6 @@ mergeOn k left right = let
 
 ||| Decide whether a key is defined in a record or not
 export
-decKey : DecEq a =>
+decLabel : DecEq a =>
          (k : a) -> (rec : Record header) -> Dec (ty ** Row k ty header)
-decKey k rec {header} = decKey k header
+decLabel k rec {header} = decKey k header

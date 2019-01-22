@@ -1,9 +1,10 @@
 module CleanRecord.Sub
 
-import CleanRecord.Row
 import CleanRecord.IsNo
+import CleanRecord.Label
 import CleanRecord.Nub
 import CleanRecord.OrdSub
+import CleanRecord.Row
 
 import Data.Vect
 

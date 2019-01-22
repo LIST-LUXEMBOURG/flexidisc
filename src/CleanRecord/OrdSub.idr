@@ -1,6 +1,6 @@
 module CleanRecord.OrdSub
 
-import CleanRecord.Row
+import CleanRecord.Label
 import CleanRecord.IsNo
 import CleanRecord.Nub
 import Data.Vect

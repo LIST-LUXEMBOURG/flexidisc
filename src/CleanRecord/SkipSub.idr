@@ -1,6 +1,6 @@
 module CleanRecord.SkipSub
 
-import CleanRecord.Row
+import CleanRecord.Label
 import CleanRecord.IsNo
 import CleanRecord.NegSub
 import CleanRecord.Nub

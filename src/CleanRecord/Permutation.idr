@@ -1,5 +1,6 @@
 module CleanRecord.Permutation
 
+import CleanRecord.Label
 import CleanRecord.Row
 import CleanRecord.IsNo
 import CleanRecord.Nub
