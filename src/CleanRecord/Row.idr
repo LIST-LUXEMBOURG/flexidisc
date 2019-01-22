@@ -65,6 +65,7 @@ decKey k ((k', v') :: xs) with (decEq k k')
 NotKey : DecEq key => (k : key) -> (xs : Vect n (key, value)) -> Type
 NotKey k xs = IsNo (decKey k xs)
 
+
 notRowFromEvidence : DecEq key =>
                       {k : key} ->
                       (prf : Not (v ** Row k v xs)) -> NotKey k xs

@@ -38,17 +38,17 @@ subRefl {xs} = subRefl' xs
 
 
 public export
-rowFromSub : Sub xs ys -> Row x ty xs -> Row x ty ys
+rowFromSub : Sub xs ys -> Label x xs -> Label x ys
 rowFromSub Empty y = y
 rowFromSub (Skip z) loc = There (rowFromSub z loc)
-rowFromSub (Keep e _) Here = e
-rowFromSub (Keep e sub) (There later) = rowFromDrop (rowFromSub sub later)
+rowFromSub (Keep e _) Here = labelFromRow e
+rowFromSub (Keep e sub) (There later) = labelFromDrop (rowFromSub sub later)
 
 public export
 notInSub : DecEq key =>
-           {k: key} -> Sub ys xs -> Not (v ** Row k v xs) -> NotKey k ys
-notInSub sub contra {k} {ys} with (decKey k ys)
-  | (Yes (t ** loc)) = absurd (contra (t ** rowFromSub sub loc))
+           {k: key} -> Sub ys xs -> Not (Label k xs) -> NotLabel k ys
+notInSub sub contra {k} {ys} with (decLabel k ys)
+  | (Yes loc) = absurd (contra (rowFromSub sub loc))
   | (No _) = SoFalse
 
 
@@ -56,6 +56,7 @@ public export
 isNubFromSub : Sub xs ys -> IsNub ys -> IsNub xs
 isNubFromSub Empty [] = []
 isNubFromSub (Skip z) (_ :: pf) = isNubFromSub z pf
-isNubFromSub (Keep e z) (p :: pf) =
-  notInSub z (removeFromNubIsNotThere (p::pf) e) ::
-  isNubFromSub z (isNubFromOrdSub (ordSubFromDrop _ (labelFromRow e)) (p::pf))
+isNubFromSub (Keep e z) (p :: pf) = let
+  eAsLabel = labelFromRow e
+  in notInSub z (removeFromNubIsNotThere (p::pf) eAsLabel)
+     :: isNubFromSub z (isNubFromOrdSub (ordSubFromDrop _ eAsLabel) (p::pf))

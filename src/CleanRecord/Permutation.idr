@@ -22,20 +22,20 @@ permuteRefl' : (xs : Vect n (key, value)) -> Permute xs xs
 permuteRefl' [] = Empty
 permuteRefl' ((k, v)::xs) = Keep Here (permuteRefl' xs)
 
-rowFromPermute :  Permute perm initial -> Row k v perm -> Row k v initial
+rowFromPermute :  Permute perm initial -> Label k perm -> Label k initial
 rowFromPermute Empty loc = loc
-rowFromPermute (Keep e _) Here = e
-rowFromPermute (Keep _ xs) (There later) = rowFromDrop (rowFromPermute xs later)
+rowFromPermute (Keep e _) Here = labelFromRow e
+rowFromPermute (Keep _ xs) (There later) = labelFromDrop (rowFromPermute xs later)
 
 notInPermute : DecEq key =>
-               {k: key} -> Permute ys xs -> Not (v ** Row k v xs) -> NotKey k ys
-notInPermute perm contra {k} {ys} with (decKey k ys)
-  | (Yes (t ** loc)) = absurd (contra (t ** rowFromPermute perm loc))
+               {k: key} -> Permute ys xs -> Not (Label k xs) -> NotLabel k ys
+notInPermute perm contra {k} {ys} with (decLabel k ys)
+  | (Yes loc) = absurd (contra (rowFromPermute perm loc))
   | (No _) = SoFalse
 
 
 isNubFromPermute : Permute xs ys -> IsNub ys -> IsNub xs
 isNubFromPermute Empty [] = []
 isNubFromPermute (Keep e z) (p :: pf) =
-  notInPermute z (removeFromNubIsNotThere (p::pf) e) ::
+  notInPermute z (removeFromNubIsNotThere (p::pf) (labelFromRow e)) ::
   isNubFromPermute z (isNubFromOrdSub (ordSubFromDrop _ (labelFromRow e)) (p::pf))

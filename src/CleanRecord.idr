@@ -66,7 +66,7 @@ namedRec xs {nubProof} = MkRecord (toRecordContent xs) nubProof
 export
 (::) : DecEq label =>
          {lbl : label} ->
-         {auto fresh : NotKey lbl header} ->
+         {auto fresh : NotLabel lbl header} ->
          ty -> Record header ->
         Record ((lbl, ty) :: header)
 (::) x (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
@@ -79,7 +79,7 @@ export
          {lbl : label} ->
          (Row lbl ty) ->
          Record header ->
-         {auto fresh : NotKey lbl header} ->
+         {auto fresh : NotLabel lbl header} ->
         Record ((lbl, ty) :: header)
 (:+:) (MkRow x) (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
 
@@ -214,7 +214,7 @@ replaceRow : {header : Vect n (Field a)} ->
             (loc : Label k header) -> (new : tNew) ->
             Record (updateLabel header loc tNew)
 replaceRow (MkRecord xs prf) loc new =
-  MkRecord (replaceRow xs loc new) (updateLabelPreservesNub prf)
+  MkRecord (replaceRow xs loc new) (updatePreservesNub prf)
 
 ||| Update a row, the update can change the row type.
 ||| @ k  the row name

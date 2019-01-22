@@ -80,8 +80,8 @@ replaceRow (x :: xs) (There later) new = x :: replaceRow xs later new
 
 export
 dropRow : {header : Vect (S n) (Field a)} ->
-          RecordContent header -> (loc : Row k v header) ->
-          RecordContent (dropRow header loc)
+          RecordContent header -> (loc : Label k header) ->
+          RecordContent (dropLabel header loc)
 dropRow (_ :: xs) Here = xs
 dropRow {n = S n} (x :: xs) (There later) = x :: dropRow xs later
 
@@ -92,7 +92,7 @@ project : RecordContent header ->
 project [] Empty = []
 project (x :: xs) (Skip sub) = project xs sub
 project xs (Keep e sub) =
-  atRow xs e :: project (dropRow xs e) sub
+  atRow xs e :: project (dropRow xs (labelFromRow e)) sub
 
 export
 negProject : RecordContent header ->
@@ -108,7 +108,7 @@ reorder : RecordContent header ->
                  RecordContent sub
 reorder [] Empty = []
 reorder xs (Keep e sub) =
-  atRow xs e :: reorder (dropRow xs e) sub
+  atRow xs e :: reorder (dropRow xs (labelFromRow e)) sub
 
 infix 8 ::=
 

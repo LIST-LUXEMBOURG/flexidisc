@@ -16,6 +16,7 @@ modules = CleanRecord
         , CleanRecord.Disjoint
         , CleanRecord.IsNo
         , CleanRecord.KeepSub
+        , CleanRecord.Label
         , CleanRecord.NegSub
         , CleanRecord.Nub
         , CleanRecord.OrdSub

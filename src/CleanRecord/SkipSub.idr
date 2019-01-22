@@ -17,7 +17,7 @@ data SkipSub : (keys : Vect k key) ->
               (initial : Vect m (key, value)) ->
                Type where
   Empty : SkipSub [] [] []
-  Skip  : (e : Row k v initial) -> SkipSub keys sub (dropRow initial e) ->
+  Skip  : (e : Label k initial) -> SkipSub keys sub (dropLabel initial e) ->
           SkipSub (k::keys) sub initial
   Keep  : SkipSub keys sub initial -> SkipSub keys ((k, v) :: sub) ((k, v) :: initial)
 

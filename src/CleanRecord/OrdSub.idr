@@ -8,7 +8,7 @@ import Data.Vect
 %default total
 
 ||| Proof that a vector is a subset of another one,
-||| preserving the order of the rowents
+||| preserving the order of the labelents
 public export
 data OrdSub : (xs : Vect n a) -> (ys : Vect m a) -> Type where
   Empty : OrdSub [] []
@@ -34,17 +34,17 @@ ordSubRefl : OrdSub xs xs
 ordSubRefl {xs} = ordSubRefl' xs
 
 public export
-rowFromOrdSub : OrdSub xs ys -> Row x ty xs -> Row x ty ys
-rowFromOrdSub (Keep _)   Here          = Here
-rowFromOrdSub (Keep ord) (There later) = There (rowFromOrdSub ord later)
-rowFromOrdSub (Skip ord) loc           = There (rowFromOrdSub ord loc)
+labelFromOrdSub : OrdSub xs ys -> Label x xs -> Label x ys
+labelFromOrdSub (Keep _)   Here          = Here
+labelFromOrdSub (Keep ord) (There later) = There (labelFromOrdSub ord later)
+labelFromOrdSub (Skip ord) loc           = There (labelFromOrdSub ord loc)
 
 public export
 notInOrdSub : DecEq key =>
-              {k : key} -> OrdSub ys xs -> Not (v ** Row k v xs) ->
-              NotKey k ys
-notInOrdSub sub contra {k} {ys} with (decKey k ys)
-  | (Yes (t ** loc)) = absurd (contra (t ** rowFromOrdSub sub loc))
+              {k : key} -> OrdSub ys xs -> Not (Label k xs) ->
+              NotLabel k ys
+notInOrdSub sub contra {k} {ys} with (decLabel k ys)
+  | (Yes loc) = absurd (contra (labelFromOrdSub sub loc))
   | (No f) = SoFalse
 
 public export
