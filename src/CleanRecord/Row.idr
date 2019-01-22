@@ -3,6 +3,7 @@ module CleanRecord.Row
 import Data.Vect
 
 import CleanRecord.IsNo
+import public CleanRecord.Label
 
 %default total
 %access public export
@@ -22,36 +23,23 @@ elemFromRow : Row k v xs -> Elem (k, v) xs
 elemFromRow Here = Here
 elemFromRow (There later) = There (elemFromRow later)
 
+labelFromRow : Row k v xs -> Label k xs
+labelFromRow Here = Here
+labelFromRow (There later) = There (labelFromRow later)
+
 Uninhabited (Row k v []) where
   uninhabited Here impossible
   uninhabited (There _) impossible
 
 ||| Given a proof that an element is in a vector, remove it
 dropRow : (xs : Vect (S n) (key, value)) -> (loc : Row k v xs) ->
-           Vect n (key, value)
-dropRow (_ :: xs) Here = xs
-dropRow {n = S n} (x :: xs) (There later) = x :: dropRow xs later
-
-||| Remove an element by its key, given a proof that the key is in the vector
-dropKey : (k : key) -> (xs : Vect (S n) (key, value)) ->
-          {auto loc : Row k v xs} ->
           Vect n (key, value)
-dropKey k xs {loc} = dropRow xs loc
+dropRow xs = dropLabel xs . labelFromRow
 
 ||| Update a value in the list given it's location and an update function
 updateRow : (xs : Vect n (key, value)) -> (loc : Row k old xs) ->
              (new : value) -> Vect n (key, value)
-updateRow ((x, old) :: xs) Here new = (x, new) :: xs
-updateRow (x :: xs) (There later) new = x :: updateRow xs later new
-
-||| Update a value by its key, given a proof that the key is in the vector and
-||| an update function
-updateKey : (k : key) -> (xs : Vect n (key, value)) ->
-            (f : value) ->
-            {auto loc : Row k v xs} ->
-            Vect n (key, value)
-updateKey k xs new {loc} = updateRow xs loc new
-
+updateRow xs loc new = updateLabel xs (labelFromRow loc) new
 
 ||| Given a proof that an element is in a list with one element dropped
 ||| find its location in the original list.

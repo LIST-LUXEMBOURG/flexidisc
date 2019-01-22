@@ -73,9 +73,10 @@ updateRow (x :: xs) (There later) f = x :: updateRow xs later f
 export
 replaceRow : {header : Vect n (Field a)} ->
             (xs : RecordContent header) ->
-            (loc : Row k ty header) -> tNew ->
-            RecordContent (updateRow header loc tNew)
-replaceRow xs loc new = updateRow xs loc (const new)
+            (loc : Label k header) -> tNew ->
+            RecordContent (updateLabel header loc tNew)
+replaceRow (x :: xs) Here new = new :: xs
+replaceRow (x :: xs) (There later) new = x :: replaceRow xs later new
 
 export
 dropRow : {header : Vect (S n) (Field a)} ->
