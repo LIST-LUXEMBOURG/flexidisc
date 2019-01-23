@@ -298,22 +298,6 @@ reorder rec {prf} = reorder' rec prf
 t_reorder_1 : Record ["Bar" := Nat, "Foo" := String]
 t_reorder_1 = reorder t_record_3
 
-||| Check equality between records that have the same set of
-||| rows, in the same orders
-public export
-implementation Eqs ts => Eq (Record ts) where
-  (==) (MkRecord xs _) (MkRecord ys _) = xs == ys
-
-infix 6 =?=
-
-||| Order independent comparison.
-export
-(=?=) : Eqs ts =>
-       (xs : Record ts) -> (ys : Record ts') ->
-       {auto perm : Permute ts ts'} ->
-       Bool
-(=?=) xs ys = xs == reorder ys
-
 ||| Append two records, it fails if some fields are duplicated
 export
 merge : DecEq label =>
@@ -364,3 +348,24 @@ export
 decLabel : DecEq a =>
          (k : a) -> (rec : Record header) -> Dec (ty ** Row k ty header)
 decLabel k rec {header} = decKey k header
+
+
+||| Check equality between records that have the same set of
+||| rows, in the same orders
+public export
+implementation Eqs ts => Eq (Record ts) where
+  (==) (MkRecord xs _) (MkRecord ys _) = xs == ys
+
+infix 6 =?=
+
+||| Order independent comparison.
+export
+(=?=) : Eqs ts =>
+       (xs : Record ts) -> (ys : Record ts') ->
+       {auto perm : Permute ts ts'} ->
+       Bool
+(=?=) xs ys = xs == reorder ys
+
+
+implementation Shows key header => Show (Record header) where
+  show (MkRecord xs _) = show xs

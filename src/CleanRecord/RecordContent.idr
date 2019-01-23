@@ -29,22 +29,34 @@ data RecordContent : Vect n (Field label) -> Type where
   Nil : RecordContent []
   (::) : ty -> RecordContent header -> RecordContent ((lbl, ty) :: header)
 
+
 public export
 interface Eqs (ts : Vect n (Field a)) where
   eqs : RecordContent ts -> RecordContent ts ->
         Bool
 
-public export
 implementation Eqs [] where
   eqs [] [] = True
 
-public export
 implementation (Eq t, Eqs ts) => Eqs ((a, t)::ts) where
   eqs (x :: xs) (y :: ys) = x == y && eqs xs ys
 
-public export
 implementation Eqs ts => Eq (RecordContent ts) where
   (==) xs ys = eqs xs ys
+
+
+public export
+interface Shows a (ts : Vect n (Field a)) where
+  shows : {ts : Vect n (Field a)} -> RecordContent ts -> Vect n String
+
+implementation Shows key [] where
+  shows _ = []
+
+implementation (Show key, Show t, Shows key ts) => Shows key ((k,t)::ts) where
+  shows (x::xs) {k} = unwords [show k, ":", show x] :: shows xs
+
+implementation (Shows key ts) => Show (RecordContent ts) where
+  show xs = "[" ++ concat (Vect.intersperse ", " (shows xs)) ++ "]"
 
 
 (++) : RecordContent left -> RecordContent right -> RecordContent (left ++ right)
