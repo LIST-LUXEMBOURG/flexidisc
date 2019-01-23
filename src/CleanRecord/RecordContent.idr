@@ -8,6 +8,7 @@ import public CleanRecord.Relation.NegSub
 import public CleanRecord.Relation.OrdSub
 import public CleanRecord.Relation.Permutation
 import public CleanRecord.Relation.Sub
+import public CleanRecord.Relation.Update
 import public CleanRecord.Row
 
 import public Data.Vect
@@ -87,29 +88,33 @@ dropRow (_ :: xs) Here = xs
 dropRow {n = S n} (x :: xs) (There later) = x :: dropRow xs later
 
 export
-project : RecordContent header ->
-                 (subPrf : Sub sub header) ->
-                 RecordContent sub
+project : RecordContent header -> (subPrf : Sub sub header) ->
+          RecordContent sub
 project [] Empty = []
 project (x :: xs) (Skip sub) = project xs sub
 project xs (Keep e sub) =
   atRow xs e :: project (dropRow xs (labelFromRow e)) sub
 
 export
-negProject : RecordContent header ->
-                 (negPrf : NegSub sub header) ->
-                 RecordContent sub
+negProject : RecordContent header -> (negPrf : NegSub sub header) ->
+             RecordContent sub
 negProject [] Empty = []
 negProject xs (Skip e sub) = negProject (dropRow xs e) sub
 negProject (x::xs) (Keep sub) = x :: negProject xs sub
 
 export
-reorder : RecordContent header ->
-                 (permPrf : Permute sub header) ->
-                 RecordContent sub
+reorder : RecordContent header -> (permPrf : Permute sub header) ->
+          RecordContent sub
 reorder [] Empty = []
 reorder xs (Keep e sub) =
   atRow xs e :: reorder (dropRow xs (labelFromRow e)) sub
+
+export
+patch : RecordContent header -> RecordContent update ->
+        (Patch update header patched) ->
+        RecordContent patched
+patch xs [] [] = xs
+patch xs (y::ys) (loc :: next) = patch (replaceRow xs loc y) ys next
 
 infix 8 ::=
 

@@ -24,6 +24,7 @@ import public CleanRecord.Relation.Permutation
 import public CleanRecord.Relation.SkipSub
 import public CleanRecord.Relation.Sub
 import public CleanRecord.Relation.SubWithKeys
+import public CleanRecord.Update
 
 import public Data.Vect
 
@@ -349,6 +350,13 @@ mergeOn k left right = let
   l = get k left
   r = get k right
   in guard (l == r) *> pure (merge left (dropByName k right))
+
+||| Patch a record with hte values of another record
+export
+patch : Record pre -> Record update -> {auto prf : Patch update pre post} ->
+        Record post
+patch (MkRecord xs nubProof) (MkRecord ys _) {prf} =
+  MkRecord (patch xs ys prf) (patchPreservesNub nubProof prf)
 
 ||| Decide whether a key is defined in a record or not
 export

@@ -45,6 +45,10 @@ person4' = dropN ["Firstname", "Lastname"] person1
 person5 :  Record ["Firstname" := String, "Lastname" := String]
 person5 = dropByName "Age" person2
 
+||| You can also patch a record with another record
+person6 :  Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
+person6 = patch person2 (namedRec ["Lastname" ::= "Biri", "Firstname" ::= "Nicolas"])
+
 ||| Field can be updated quite easily too
 olderPerson2 : Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
 olderPerson2 = updateByName "Age" (+1) person2

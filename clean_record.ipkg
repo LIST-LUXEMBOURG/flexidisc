@@ -25,3 +25,4 @@ modules = CleanRecord
         , CleanRecord.Relation.SkipSub
         , CleanRecord.Relation.Sub
         , CleanRecord.Relation.SubWithKeys
+        , CleanRecord.Relation.Update
