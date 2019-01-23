@@ -1,4 +1,4 @@
-module CleanRecord.Disjoint
+module CleanRecord.Relation.Disjoint
 
 import CleanRecord.Label
 import CleanRecord.IsNo

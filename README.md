@@ -10,10 +10,8 @@ An extensible record is a record that can be extended or shrink on demand.
 Idris sohuld be available on your computer.
 Then, the easiest way to start with CleanRecord is to clone this repository:
 
-```
-$ git clone https://git.list.lu/nbiri/cleanRecord.git
-
-```
+Clone this repository, go into its dirctory, and install the `clean_record`
+package.
 
 Install it:
 
@@ -29,7 +27,9 @@ $ idris -p clean_record
 Idris> :module CleanRecord
 ```
 
-If you want, you can also load the Tutorial file to use it as a start:
+If you want, you can also load the `Tutorial` file to use it as a start
+(you can also take a look now at the tutorial file to see example of
+record manipulations):
 
 ```
 $ idris -p clean_record examples/Tutorial.idr
@@ -46,8 +46,8 @@ For example, if you want to create a `Person` with a `Firstname` and an
 `Age`, you can write:
 
 ```
-*CleanRecord> the (Record ["Firstname" := String, "Age" :=  Nat]) $ rec ["John", 42]
-MkRecord ["John", 42] (SoFalse :: SoFalse :: []) : Record [("Firstname", String), ("Age", Nat)]
+johnDoe : Record ["Firstname" := String, "Age" :=  Nat])
+johnDoe = rec ["John", 42]
 ```
 
 Depending on the scenarios, it may be easier to declare the row names
@@ -55,9 +55,12 @@ along with the data.
 It's the purpose of `namedRec`. To build the same record, this time, the syntax is:
 
 ```
-*CleanRecord> namedRec ["Firstname" ::= "John", "Age" ::=  the Nat 42]
-MkRecord ["John", 42] (SoFalse :: SoFalse :: []) : Record [("Firstname", String), ("Age", Nat)]
+namedJohnDoe : Record ["Firstname" := String, "Age" :=  Nat])
+namedJohnDoe = namedRec ["Firstname" ::= "John", "Age" ::=  the Nat 42]
 ```
+
+You don't see any difference there but in this last case,
+the type would have been infered, while it wouldn't in the first case.
 
 ### Record extension
 
@@ -65,33 +68,23 @@ Suppose that we want to add a lastname to the previous example,
 we can suse the usual `::` operator:
 
 ```
-*CleanRecord> namedRec ["Firstname" ::= "John", "Age" ::=  the Nat 42]
-MkRecord ["John", 42] (SoFalse :: SoFalse :: []) : Record [("Firstname", String), ("Age", Nat)]
-*CleanRecord> the (Record ["Lastname" := String, "Firstname" := String, "Age" := Nat]) $ "Doe" :: it
-MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Lastname", String),
-                                                                             ("Firstname", String),
-                                                                             ("Age", Nat)]
+agedJohn : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
+agedJohn =  42 :: namedJohnDoe
 ```
 
 And again, there's an equivalent for named field:
 
 ```
-*CleanRecord> namedRec ["Firstname" ::= "John", "Age" ::= the Nat 42]
-MkRecord ["John", 42] (SoFalse :: SoFalse :: []) : Record [("Firstname", String), ("Age", Nat)]
-*CleanRecord> "Lastname" ::= "Doe" :+: it
-MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Lastname", String),
-                                                                             ("Firstname", String),
-                                                                             ("Age", Nat)]
+namedAgedJohn : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
+namedAgedJohn = ("Age" ::= the Nat 42) :+: namedJohn
 ```
 
 We can also append disjoints records with `++`:
 
 ```
-*CleanRecord> namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"] ++ namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42]
-MkRecord [1, "John", "Doe", 42] (SoFalse :: SoFalse :: SoFalse :: SoFalse :: []) : Record [("ID", Nat),
-                                                                                           ("Firstname", String),
-                                                                                           ("Lastname", String),
-                                                                                           ("Age", Nat)]
+idJohn : Record [("ID", Nat), ("Firstname", String), ("Lastname", String), ("Age", Nat)]
+idJohn = namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"]
+      ++ namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42]
 ```
 
 ## Record projection and reordering
@@ -104,14 +97,8 @@ this order.
 A workaround is to provide a way to easily reorder a record:
 
 ```
-*CleanRecord> namedRec ["Lastname" ::= "Doe", "Firstname" ::= "John", "Age" ::= the Nat 42]
-MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Lastname", String),
-                                                                             ("Firstname", String),
-                                                                             ("Age", Nat)]
-*CleanRecord> the (Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]) $ reorder it
-MkRecord ["John", "Doe", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Firstname", String),
-                                                                             ("Lastname", String),
-                                                                             ("Age", Nat)]
+ageLast : Record [("Lastname", String), ("Firstname", String), ("Age", Nat)]
+ageLast = reorder agedJohn
 ```
 
 `reorder` ensures that all the rows are still in the record after the
@@ -120,23 +107,49 @@ You can, however, decide to use a more permisive functions, `project`,
 if you want to skip som of the rows of the original record:
 
 ```
-*CleanRecord> namedRec ["Lastname" ::= "Doe", "Firstname" ::= "John", "Age" ::= the Nat 42]
-MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Lastname", String),
-                                                                             ("Firstname", String),
-                                                                             ("Age", Nat)]
-*CleanRecord> the (Record ["Firstname" := String]) $ project it
-MkRecord ["John"] (SoFalse :: []) : Record [("Firstname", String)]
+john : Record ["Firstname" ::= String]
+john = project ageLast
 ```
 
-You can also decides to drop a specific row:
+or the named alternative:
 
 ```
-*CleanRecord> namedRec ["Lastname" ::= "Doe", "Firstname" ::= "John", "Age" ::= the Nat 42]
-MkRecord ["Doe", "John", 42] (SoFalse :: SoFalse :: SoFalse :: []) : Record [("Lastname", String),
-                                                                             ("Firstname", String),
-                                                                             ("Age", Nat)]
-*CleanRecord> dropByName "Age" it
-MkRecord ["Doe", "John"] (SoFalse :: SoFalse :: []) : Record [("Lastname", String),
-                                                              ("Firstname", String)]
+keepJohn : Record ["Firstname" ::= String]
+keepJohn = keep "Firstname" ageLast
+```
+
+You can also decide to drop a specific row:
 
 ```
+backToJohnDoe : Record ["Firstname" ::= String, "LastName" ::= String]
+backToJohnDoe = dropByName "Age" agedJohn
+```
+
+or specific row**s**:
+
+```
+john : Record ["Firstname" ::= String]
+john = dropN ["Lastname", "Age"] agedJohn
+```
+
+# Type-Safety
+
+The CleanRecord manipulation functions provided in the library are type safe.
+
+Type safety is mostly handled by idris [automatic proof generation].
+
+Here are a few examples of type checking failure
+(more precisely, failure by not succeeding to generate a proof):
+
+```
+ -- Can't prove that "Age" is a row of johnDoe
+get "Age" johnDoe
+
+-- Can't create a duplicate label
+("Firstname" ::= "Nicolas") :+: johnDoe
+
+-- Can't create labels during a projecttion
+the (Record ["Firstname" := String, "Age" := Nat]) (project johnDoe)
+```
+
+[automatic proof generation]: http://docs.idris-lang.org/en/latest/tutorial/miscellany.html#auto-implicit-arguments

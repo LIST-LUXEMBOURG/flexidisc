@@ -1,14 +1,14 @@
 module CleanRecord.RecordContent
 
-import public CleanRecord.Disjoint
 import public CleanRecord.IsNo
 import public CleanRecord.Label
-import public CleanRecord.NegSub
 import public CleanRecord.Nub
-import public CleanRecord.OrdSub
-import public CleanRecord.Permutation
+import public CleanRecord.Relation.Disjoint
+import public CleanRecord.Relation.NegSub
+import public CleanRecord.Relation.OrdSub
+import public CleanRecord.Relation.Permutation
+import public CleanRecord.Relation.Sub
 import public CleanRecord.Row
-import public CleanRecord.Sub
 
 import public Data.Vect
 

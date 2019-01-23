@@ -1,17 +1,17 @@
-module CleanRecord.Permutation
+module CleanRecord.Relation.Permutation
 
 import CleanRecord.Label
 import CleanRecord.Row
 import CleanRecord.IsNo
 import CleanRecord.Nub
-import CleanRecord.OrdSub
+import CleanRecord.Relation.OrdSub
 
 import Data.Vect
 
 %default total
 %access public export
 
-
+||| Proof that a `Vect` is a permutation of another vect
 data Permute : (permute : Vect n (key, value)) ->
                (initial : Vect n (key, value)) ->
                Type where

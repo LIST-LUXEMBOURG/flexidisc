@@ -1,15 +1,23 @@
-module CleanRecord.NegSub
+||| A proof that a `Vect` is an ordered subset of another `Vect`.
+|||
+||| It's quite similar to `OrdSub` but elements are removed from the original
+||| set in an arbitrary chosen order.
+|||
+||| This one is used internally to discard a specific subset of keys of a
+||| `Record`.
+module CleanRecord.Relation.NegSub
 
 import CleanRecord.Label
 import CleanRecord.IsNo
 import CleanRecord.Nub
-import CleanRecord.OrdSub
+import CleanRecord.Relation.OrdSub
 
 import Data.Vect
 
 %default total
 
-
+||| Proof that a vector is a subset of another one,
+||| preserving the order of the labels
 public export
 data NegSub : (sub : Vect n (key, value)) ->
            (initial : Vect m (key, value)) ->
@@ -18,31 +26,37 @@ data NegSub : (sub : Vect n (key, value)) ->
   Skip  : (e : Label k initial) -> NegSub keep (dropLabel initial e) -> NegSub keep initial
   Keep  : NegSub sub initial -> NegSub ((k,v)::sub) ((k,v) :: initial)
 
+||| An empty `Vect` is an ordered subset of any `Vect`
 public export
 subEmpty' : (xs : Vect n (key, value)) -> NegSub [] xs
 subEmpty' [] = Empty
 subEmpty' ((k,v) :: xs) = Skip Here (subEmpty' xs)
 
+||| An empty `Vect` is an ordered subset of any `Vect`
 public export
 subEmpty : NegSub [] xs
 subEmpty {xs} = subEmpty' xs
 
+||| A `Vect` is an ordered subset of itself
 public export
 subRefl' : (xs : Vect n (key, value)) -> NegSub xs xs
 subRefl' [] = Empty
 subRefl' ((k, v) :: xs) = Keep (subRefl' xs)
 
+||| A `Vect` is an ordered subset of itself
 public export
 subRefl : NegSub xs xs
 subRefl {xs} = subRefl' xs
 
-
+||| Given a proof that a label is in a `Vect` with one value dropped,
+||| find its location in the original `Vect`
 public export
 shiftLabel :  (loc : Label k ys) -> Label x (dropLabel ys loc) -> Label x ys
 shiftLabel Here label = There label
 shiftLabel (There later) Here = Here
 shiftLabel (There later) (There label) = There (shiftLabel later label)
 
+||| `NegSub` preserves `label` proof
 public export
 labelFromNegSub : NegSub xs ys -> Label x xs -> Label x ys
 labelFromNegSub Empty label = label
@@ -58,7 +72,7 @@ notInNegSub sub contra {k} {ys} with (decLabel k ys)
   | (Yes loc) = absurd (contra (labelFromNegSub sub loc))
   | (No _) = SoFalse
 
-
+||| `NegSub` preserves nub-property
 public export
 isNubFromNegSub : NegSub xs ys -> IsNub ys -> IsNub xs
 isNubFromNegSub Empty nub = nub

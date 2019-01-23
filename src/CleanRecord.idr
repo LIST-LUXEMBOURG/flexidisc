@@ -12,17 +12,18 @@
 |||   interface.
 module CleanRecord
 
-import public CleanRecord.Disjoint
 import public CleanRecord.Row
 import public CleanRecord.IsNo
 import public CleanRecord.Nub
-import public CleanRecord.OrdSub
-import public CleanRecord.Permutation
 import public CleanRecord.RecordContent
-import public CleanRecord.KeepSub
-import public CleanRecord.SkipSub
-import public CleanRecord.Sub
-import public CleanRecord.NegSub
+
+import public CleanRecord.Relation.Disjoint
+import public CleanRecord.Relation.NegSub
+import public CleanRecord.Relation.OrdSub
+import public CleanRecord.Relation.Permutation
+import public CleanRecord.Relation.SkipSub
+import public CleanRecord.Relation.Sub
+import public CleanRecord.Relation.SubWithKeys
 
 import public Data.Vect
 
@@ -265,7 +266,7 @@ negProject' (MkRecord xs prf) subPrf =
 ||| @prf Proof that the rows are parts of the record
 export
 keep : (keys : Vect n a) -> (xs : Record pre) ->
-       {auto prf : KeepSub keys post pre} ->
+       {auto prf : SubWithKeys keys post pre} ->
        Record post
 keep _ xs {prf} = project' xs (toSub prf)
 

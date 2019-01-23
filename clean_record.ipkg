@@ -13,15 +13,15 @@ bugtracker = https://git.list.lu/nbiri/cleanRecord/issues
 sourcedir = src
 
 modules = CleanRecord
-        , CleanRecord.Disjoint
         , CleanRecord.IsNo
-        , CleanRecord.KeepSub
         , CleanRecord.Label
-        , CleanRecord.NegSub
         , CleanRecord.Nub
-        , CleanRecord.OrdSub
-        , CleanRecord.Permutation
         , CleanRecord.RecordContent
         , CleanRecord.Row
-        , CleanRecord.SkipSub
-        , CleanRecord.Sub
+        , CleanRecord.Relation.Disjoint
+        , CleanRecord.Relation.NegSub
+        , CleanRecord.Relation.OrdSub
+        , CleanRecord.Relation.Permutation
+        , CleanRecord.Relation.SkipSub
+        , CleanRecord.Relation.Sub
+        , CleanRecord.Relation.SubWithKeys
