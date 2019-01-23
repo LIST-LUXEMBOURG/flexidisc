@@ -13,6 +13,7 @@ bugtracker = https://git.list.lu/nbiri/cleanRecord/issues
 sourcedir = src
 
 modules = CleanRecord
+        , CleanRecord.InjectiveDecEq
         , CleanRecord.IsNo
         , CleanRecord.Label
         , CleanRecord.Nub
