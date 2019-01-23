@@ -12,6 +12,8 @@ bugtracker = https://git.list.lu/nbiri/cleanRecord/issues
 
 sourcedir = src
 
+opts = "--warnreach --total"
+
 modules = CleanRecord
         , CleanRecord.InjectiveDecEq
         , CleanRecord.IsNo
