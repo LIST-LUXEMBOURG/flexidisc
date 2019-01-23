@@ -2,7 +2,7 @@ package clean_record
 
 brief = "Type-safe extensible records for Idris"
 readme = Readme.md
-version = 0.1
+version = 0.2
 
 author = Nicolas Biri <nicolas.biri@list.lu>
 maintainer = Nicolas Biri

@@ -12,10 +12,11 @@
 |||   interface.
 module CleanRecord
 
-import public CleanRecord.Row
 import public CleanRecord.IsNo
 import public CleanRecord.Nub
 import public CleanRecord.RecordContent
+import public CleanRecord.Label
+import public CleanRecord.Row
 
 import public CleanRecord.Relation.Disjoint
 import public CleanRecord.Relation.NegSub
@@ -24,7 +25,7 @@ import public CleanRecord.Relation.Permutation
 import public CleanRecord.Relation.SkipSub
 import public CleanRecord.Relation.Sub
 import public CleanRecord.Relation.SubWithKeys
-import public CleanRecord.Update
+import public CleanRecord.Relation.Update
 
 import public Data.Vect
 

@@ -6,12 +6,11 @@ import CleanRecord.Nub
 import Data.Vect
 
 %default total
+%access public export
 
-public export
 notThereToo : Not (Label k (x::xs)) -> Not (Label k xs)
 notThereToo contra loc = contra (There loc)
 
-public export
 notInAny : (xContra : Not (Label k xs)) ->
            (yContra : Not (Label k ys)) ->
            (Label k (xs ++ ys)) -> Void
@@ -22,7 +21,6 @@ notInAny xContra yContra Here {xs = ((kx, vx) :: xs)} =
 notInAny xContra yContra (There later) {xs = ((kx, vx) :: xs')} =
   notInAny (notThereToo xContra) yContra later
 
-public export
 data Disjoint : (left  : Vect n (key, value)) ->
                 (right : Vect m (key, value)) ->
                 Type where
@@ -31,7 +29,6 @@ data Disjoint : (left  : Vect n (key, value)) ->
              NotLabel k right -> Disjoint left right ->
              Disjoint ((k,v) :: left) right
 
-public export
 disjointNub : DecEq key =>
               (left  : Vect n (key, value)) -> IsNub left  ->
               (right : Vect m (key, value)) -> IsNub right ->
@@ -42,7 +39,6 @@ disjointNub ((k, v) :: left) (prf :: nubLeft) right nubRight (disKV :: disjoint)
   =  notLabelFromEvidence (notInAny (getContra prf) (getContra disKV))
   :: disjointNub left nubLeft right nubRight disjoint
 
-public export
 disjointDropLeft : (left : Vect (S n) (key, value)) ->
                    (right : Vect m (key, value)) ->
                    (loc : Label k left) ->
@@ -52,7 +48,6 @@ disjointDropLeft ((k, v) :: xs) right Here (_::dis) = dis
 disjointDropLeft {n = S n} ((k, v) :: xs) right (There later) (d::dis) =
   d :: disjointDropLeft xs right later dis
 
-public export
 relaxNotKeyContra : DecEq label =>
                     {k : label} ->
                     {loc : Label k xs} ->
@@ -60,14 +55,12 @@ relaxNotKeyContra : DecEq label =>
                     Not (Label x (dropLabel xs loc))
 relaxNotKeyContra contra prf = contra (labelFromDrop prf)
 
-public export
 relaxNotKey : DecEq label =>
               (xs  : Vect (S n) (label, value)) ->
               (loc : Label k xs) ->
               NotLabel x xs -> NotLabel x (dropLabel xs loc)
 relaxNotKey _ _ prf = notLabelFromEvidence (relaxNotKeyContra (getContra prf))
 
-public export
 disjointDropRight : (left : Vect n (key, value)) ->
                     (right : Vect (S m) (key, value)) ->
                     (loc : Label k right) ->
