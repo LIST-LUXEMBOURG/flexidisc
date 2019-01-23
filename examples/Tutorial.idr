@@ -18,8 +18,12 @@ person0 = rec ["John"]
 person0Name : String
 person0Name = get "Firstname" person0
 
+||| or with the infix notation:
+person0Name' : String
+person0Name' = person0 !! "Firstname"
+
+
 ||| We can of course extend records:
-||| we can use either the definition below or `person1 = ["Biri", "Nicolas"]
 person1 : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
 person1 = 42 :: "Doe" :: person0
 

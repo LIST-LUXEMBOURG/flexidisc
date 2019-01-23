@@ -2,8 +2,22 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+## Overview
+
 `CleanRecord` is an typesafe implementation of extensible records in Idris.
 An extensible record is a record that can be extended or shrink on demand.
+
+### Features
+
+- Inferred (from type) or explicit labels
+- Record extension
+- Projection
+- Typesafe accesses/updates
+- Concatenation of disjoint records
+- Pach a record with another one
+- Order dependent equality of records
+- Order independent equality of records
+- Row polymorphic operations
 
 ## Getting started
 
