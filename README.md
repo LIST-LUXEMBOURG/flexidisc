@@ -28,7 +28,7 @@ Idris> :module CleanRecord
 ```
 
 If you want, you can also load the `Tutorial` file to use it as a start
-(you can also take a look now at the tutorial file to see example of
+(you can also take a look now at the [tutorial file] to see example of
 record manipulations):
 
 ```
@@ -152,4 +152,5 @@ get "Age" johnDoe
 the (Record ["Firstname" := String, "Age" := Nat]) (project johnDoe)
 ```
 
+[tutorial file]: blob/master/examples/Tutorial.idr
 [automatic proof generation]: http://docs.idris-lang.org/en/latest/tutorial/miscellany.html#auto-implicit-arguments
