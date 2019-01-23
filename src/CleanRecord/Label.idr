@@ -28,26 +28,11 @@ dropLabel : (xs : Vect (S n) (key, value)) -> (loc : Label k xs) ->
 dropLabel (_ :: xs) Here = xs
 dropLabel {n = S n} (x :: xs) (There later) = x :: dropLabel xs later
 
-||| Remove an element by its key, given a proof that the key is in the vector
-dropByKey : (k : key) -> (xs : Vect (S n) (key, value)) ->
-          {auto loc : Label k xs} ->
-          Vect n (key, value)
-dropByKey k xs {loc} = dropLabel xs loc
-
 ||| Update a value in the list given it's location and an update function
 updateLabel : (xs : Vect n (key, value)) -> (loc : Label k xs) ->
              (new : value) -> Vect n (key, value)
 updateLabel ((x, old) :: xs) Here new = (x, new) :: xs
 updateLabel (x :: xs) (There later) new = x :: updateLabel xs later new
-
-||| Update a value by its key, given a proof that the key is in the vector and
-||| an update function
-updateKey : (k : key) -> (xs : Vect n (key, value)) ->
-            (new : value) ->
-            {auto loc : Label k xs} ->
-            Vect n (key, value)
-updateKey k xs new {loc} = updateLabel xs loc new
-
 
 ||| Given a proof that an element is in a list with one element dropped
 ||| find its location in the original list.
