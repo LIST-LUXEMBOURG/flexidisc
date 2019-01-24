@@ -29,6 +29,19 @@ data RecordContent : Vect n (Field label) -> Type where
   Nil : RecordContent []
   (::) : ty -> RecordContent header -> RecordContent ((lbl, ty) :: header)
 
+private
+test_rc_value_1 : RecordContent [(0, Nat), (1, String)]
+test_rc_value_1 = [42, "Test"]
+
+private
+test_rc_value_2 : RecordContent [(2, Nat), (3, String)]
+test_rc_value_2 = [20170119, "Hi"]
+
+
+private
+test_rc_value_duplicate : RecordContent [(0, Nat), (0, String)]
+test_rc_value_duplicate = [42, "Test"]
+
 
 public export
 interface Eqs (ts : Vect n (Field a)) where
@@ -44,7 +57,6 @@ implementation (Eq t, Eqs ts) => Eqs ((a, t)::ts) where
 implementation Eqs ts => Eq (RecordContent ts) where
   (==) xs ys = eqs xs ys
 
-
 public export
 interface Shows a (ts : Vect n (Field a)) where
   shows : {ts : Vect n (Field a)} -> RecordContent ts -> Vect n String
@@ -57,7 +69,6 @@ implementation (Show key, Show t, Shows key ts) => Shows key ((k,t)::ts) where
 
 implementation (Shows key ts) => Show (RecordContent ts) where
   show xs = "[" ++ concat (Vect.intersperse ", " (shows xs)) ++ "]"
-
 
 (++) : RecordContent left -> RecordContent right -> RecordContent (left ++ right)
 (++) [] ys = ys

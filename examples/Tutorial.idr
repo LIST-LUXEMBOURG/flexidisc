@@ -124,3 +124,19 @@ twoPartsPersonNamed : Record [ "ID" := Nat
 twoPartsPersonNamed =
   namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"] ++
   namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42]
+
+||| Equality between `Record` is defined and is order-dependent
+|||
+||| For example, this wont even compile since both record have different order.
+|||
+||| ```
+||| notEqExample = person1 == person3
+||| ```
+eqExample : Bool
+eqExample = person3 == person4
+
+||| If you want an order-independent equality check, you can either use
+||| `reorder` on one of the parameters, to reorder the content of the record,
+||| or use `=?=`, which does it for you automatically
+eqOrderIndependent : Bool
+eqOrderIndependent = person1 =?= person2

@@ -34,22 +34,9 @@ import public Data.Vect
 ||| A `Record` is a set of rows
 ||| @ header The list of rows into the record, with their types
 public export
-record Record (header : Vect n (Field label)) where
-  constructor MkRecord
-  ||| The values stored in the record
-  values   : RecordContent header
-  ||| The proof that there's no duplicate labels for the rows
-  nubProof : IsNub header
-
-public export
-labels : Vect n (label, value) -> Vect n label
-labels [] = []
-labels (x::xs) = fst x :: labels xs
-
-public export
-values : Vect n (label, value) -> Vect n value
-values [] = []
-values (x::xs) = snd x :: values xs
+data Record : (header : Vect n (Field label)) -> Type where
+  MkRecord : (values : RecordContent header) -> (nubProof : IsNub header) ->
+             Record header
 
 ||| Build a `Record` from a list of values, the function checks unicity of
 ||| the fields and build the `Record` if such proof can be generated
@@ -114,6 +101,8 @@ t_record_4' : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
 t_record_4' = rec [Nothing, "Test", 19]
 
 ||| Typesafe extraction of a value from a record
+|||
+||| Complexity is _O(n)_
 export
 lookup : (field : a) -> (rec : Record xs) -> {auto p : Row field ty xs} -> ty
 lookup field (MkRecord xs _) {p} = atRow xs p
@@ -137,6 +126,10 @@ t_get_2 : Nat
 t_get_2 = get "Bar" t_record_3
 
 ||| project a part of a `Record`, preserving the order of the fields
+|||
+||| Complexity is _O(n)_ where _n_ is the initial record size
+|||
+||| the final record size.
 export
 ordSub : Record header -> (ordSubPrf : OrdSub sub header) ->
          Record sub
@@ -144,6 +137,9 @@ ordSub (MkRecord xs prf) ordSubPrf =
   MkRecord (ordSub xs ordSubPrf) (isNubFromOrdSub ordSubPrf prf)
 
 ||| Remove a row from a Record.
+|||
+||| Complexity is _O(n)_
+|||
 ||| @ xs the record
 ||| @ p  the proof that the row is in it
 export
@@ -153,6 +149,9 @@ dropByLabel : {header : Vect (S n) (Field a)} ->
 dropByLabel xs p {header} = ordSub xs (ordSubFromDrop header p)
 
 ||| Remove a row from a Record.
+|||
+||| Complexity is _O(n)_
+|||
 ||| @ k  the row name
 ||| @ xs the record
 ||| @ p  the proof that the row is in it
@@ -176,6 +175,9 @@ t_drop_4 : Record ["Foo" := String]
 t_drop_4 = dropByName "Bar" t_record_3
 
 ||| Update a row, the update can change the row type.
+|||
+||| Complexity is _O(n)_
+|||
 ||| @ xs  the record
 ||| @ loc the proof that the row is in it
 ||| @ f   the update function
@@ -188,6 +190,9 @@ updateRow (MkRecord xs prf) loc f {header} =
   MkRecord (updateRow xs loc f) (updatePreservesNub prf)
 
 ||| Update a row, the update can change the row type.
+|||
+||| Complexity is _O(n)_
+|||
 ||| @ k  the row name
 ||| @ xs  the record
 ||| @ loc the proof that the row is in it
@@ -208,6 +213,9 @@ t_update_2 : Record ["Foo" := String, "Bar" := String]
 t_update_2 = updateByName "Bar" (const "BAAAAAR") t_record_3
 
 ||| Replace a row, with a new value (it can change the type)
+|||
+||| Complexity is _O(n)_
+|||
 ||| @ xs  the record
 ||| @ loc the proof that the row is in it
 ||| @ new   the new value for the row
@@ -220,6 +228,9 @@ replaceRow (MkRecord xs prf) loc new =
   MkRecord (replaceRow xs loc new) (updatePreservesNub prf)
 
 ||| Update a row, the update can change the row type.
+|||
+||| Complexity is _O(n)_
+|||
 ||| @ k  the row name
 ||| @ xs  the record
 ||| @ loc the proof that the row is in it
@@ -235,6 +246,10 @@ replaceByName k new xs {loc} = replaceRow xs loc new
 
 ||| Like project, but with an explicit proof that the final
 ||| set of rows is a subset of the initial set.
+|||
+||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
+||| the target size
+|||
 export
 project' : Record header ->
            (subPrf : Sub sub header) ->
@@ -243,6 +258,10 @@ project' (MkRecord xs prf) subPrf =
   MkRecord (project xs subPrf) (isNubFromSub subPrf prf)
 
 ||| Project a record (keep only a subset of its field and reorder them.
+|||
+||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
+||| the target size
+|||
 export
 project : Record pre -> {auto prf : Sub post pre} ->
           Record post
@@ -256,6 +275,10 @@ t_sub_2 = project t_record_3
 
 ||| Like project, but with an explicit proof that the final
 ||| set of rows is a subset of the initial set.
+|||
+||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
+||| the target size
+|||
 negProject' : Record header ->
            (negPrf : NegSub sub header) ->
            Record sub
@@ -263,6 +286,10 @@ negProject' (MkRecord xs prf) subPrf =
   MkRecord (negProject xs subPrf) (isNubFromNegSub subPrf prf)
 
 ||| Build a projection with the given keys
+|||
+||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
+||| the target size
+|||
 ||| @keys The rows to keep
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
@@ -273,6 +300,10 @@ keep : (keys : Vect n a) -> (xs : Record pre) ->
 keep _ xs {prf} = project' xs (toSub prf)
 
 ||| Build a projection that excludes the given keys
+|||
+||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
+||| the target size
+|||
 ||| @keys The rows to skip
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
@@ -290,6 +321,9 @@ reorder' (MkRecord xs prf) permPrf =
 
 ||| Change the order of the rows. It's used intensively to make
 ||| records "order independent".
+|||
+||| Complexity is _O(n^2)_ where _n_ is the record size
+|||
 export
 reorder : Record pre -> {auto prf : Permute post pre} ->
           Record post
@@ -299,6 +333,9 @@ t_reorder_1 : Record ["Bar" := Nat, "Foo" := String]
 t_reorder_1 = reorder t_record_3
 
 ||| Append two records, it fails if some fields are duplicated
+|||
+||| Complexity is _O(n)_ where _n_ is the length of the first record.
+|||
 export
 merge : DecEq label =>
         {left : Vect n (Field label)} ->
@@ -352,7 +389,7 @@ decLabel k rec {header} = decKey k header
 
 ||| Check equality between records that have the same set of
 ||| rows, in the same orders
-public export
+export
 implementation Eqs ts => Eq (Record ts) where
   (==) (MkRecord xs _) (MkRecord ys _) = xs == ys
 
@@ -366,6 +403,6 @@ export
        Bool
 (=?=) xs ys = xs == reorder ys
 
-
+export
 implementation Shows key header => Show (Record header) where
   show (MkRecord xs _) = show xs
