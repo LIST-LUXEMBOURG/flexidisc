@@ -166,5 +166,18 @@ get "Age" johnDoe
 the (Record ["Firstname" := String, "Age" := Nat]) (project johnDoe)
 ```
 
+# Limitations
+
+## Type inference
+
+The result type of some functions such as `keep` or `patch` cant be inferred
+from the function parameters.
+The reason is that the result type is not given by a function but by a proof
+construction, and not computed.
+
+Of course, the same goes with functions like `project` or `reorder`, for which
+there are many possibilities ofr the result type.
+
+
 [tutorial file]: blob/master/examples/Tutorial.idr
 [automatic proof generation]: http://docs.idris-lang.org/en/latest/tutorial/miscellany.html#auto-implicit-arguments
