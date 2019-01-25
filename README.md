@@ -164,6 +164,9 @@ get "Age" johnDoe
 
 -- Can't create labels during a projecttion
 the (Record ["Firstname" := String, "Age" := Nat]) (project johnDoe)
+
+-- Can't merge two records with a common field
+john ++ johnDoe
 ```
 
 # Limitations
