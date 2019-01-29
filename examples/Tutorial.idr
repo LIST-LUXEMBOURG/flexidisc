@@ -82,10 +82,9 @@ fullname xs = (xs !! "Firstname") ++ " " ++ (xs !! "Lastname")
 addFullname : Record xs ->
               {auto requiredFields : Sub [ "Firstname" := String
                                          , "Lastname"  := String ] xs} ->
-              {auto newFields : Disjoint ["Fullname" :=  String] xs}   ->
+              {auto newFields : Disjoint [ "Fullname"  := String ] xs}   ->
               Record (["Fullname" :=  String] ++ xs)
 addFullname xs = rec [fullname xs] ++ xs
-
 
 
 ||| We can also decide to merge records if there is no overlap

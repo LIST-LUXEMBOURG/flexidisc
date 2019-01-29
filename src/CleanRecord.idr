@@ -104,17 +104,25 @@ t_record_4' = rec [Nothing, "Test", 19]
 |||
 ||| Complexity is _O(n)_
 export
-lookup : (field : a) -> (rec : Record xs) -> {auto p : Row field ty xs} -> ty
-lookup field (MkRecord xs _) {p} = atRow xs p
-
-||| alias for `lookup`
-export
 get : (field : a) -> (rec : Record xs) -> {auto p : Row field ty xs} -> ty
-get = lookup
+get field (MkRecord xs _) {p} = atRow xs p
+
+||| Typesafe extraction of a value from a record,
+||| `Nothing` if the Row doesn't exist.
+|||
+||| Complexity is _O(n)_
+export
+lookup : DecEq a =>
+       (field : a) -> (rec : Record xs) ->
+       {auto p : Either (NotLabel field xs) (Row field ty xs)} -> Maybe ty
+lookup field rec {p} = case p of
+                          (Left l) => Nothing
+                          (Right r) => Just (get field rec)
+
 
 infixl 7 !!
 
-||| infix alias for `lookup`
+||| infix alias for `get`
 export
 (!!) : (rec : Record xs) -> (field : a) -> {auto p : Row field ty xs} -> ty
 (!!) rec field = get field rec
