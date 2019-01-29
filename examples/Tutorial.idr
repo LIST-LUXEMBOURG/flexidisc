@@ -71,6 +71,13 @@ olderPeople : ( Record ["Age" := Nat, "Lastname" := String, "Firstname" := Strin
               )
 olderPeople = (birthday person1, birthday person2)
 
+||| You can also ensure that several fields aere presents
+fullname : Record xs ->
+           {auto requiredFields : Sub [ "Firstname" := String
+                                      , "Lastname"  := String ] xs} ->
+           String
+fullname x = (x !! "Firstname") ++ " " ++ (x !! "Lastname")
+
 ||| We can also decide to merge records if there is no overlap
 twoPartsPerson : Record [ "ID" := Nat
                         , "Firstname" := String

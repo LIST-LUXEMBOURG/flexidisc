@@ -49,6 +49,15 @@ labelFromSub (Skip z) loc = There (labelFromSub z loc)
 labelFromSub (Keep e _) Here = labelFromRow e
 labelFromSub (Keep e sub) (There later) = labelFromDrop (labelFromSub sub later)
 
+||| Given the proof that a Label is in an subset of a vect
+||| provide a proof that this label is in the initial vect
+%hint
+rowFromSub : Sub xs ys -> Row key ty xs -> Row key ty ys
+rowFromSub Empty y = y
+rowFromSub (Skip z) loc = There (rowFromSub z loc)
+rowFromSub (Keep e _) Here = e
+rowFromSub (Keep e sub) (There later) = rowFromDrop (rowFromSub sub later)
+
 ||| If a label is not in the initial vector, it can't be in a
 ||| subset of this vect
 notInSub : DecEq key =>
