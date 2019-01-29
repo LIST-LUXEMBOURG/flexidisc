@@ -76,7 +76,17 @@ fullname : Record xs ->
            {auto requiredFields : Sub [ "Firstname" := String
                                       , "Lastname"  := String ] xs} ->
            String
-fullname x = (x !! "Firstname") ++ " " ++ (x !! "Lastname")
+fullname xs = (xs !! "Firstname") ++ " " ++ (xs !! "Lastname")
+
+||| Or ensure that some row doesn't exist to create them
+addFullname : Record xs ->
+              {auto requiredFields : Sub [ "Firstname" := String
+                                         , "Lastname"  := String ] xs} ->
+              {auto newFields : Disjoint ["Fullname" :=  String] xs}   ->
+              Record (["Fullname" :=  String] ++ xs)
+addFullname xs = rec [fullname xs] ++ xs
+
+
 
 ||| We can also decide to merge records if there is no overlap
 twoPartsPerson : Record [ "ID" := Nat
