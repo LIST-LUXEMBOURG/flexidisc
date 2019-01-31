@@ -10,29 +10,28 @@ import public Data.Vect
 
 
 public export
-data Selection : (source : Vect n (Field label)) ->
-                 (header : Vect n (Field label)) -> Type where
-  MkSelection : (values : SelectionContent source target) ->
+data SelectionM : (m : Type -> Type) ->
+                  (source : Vect n (Field label)) ->
+                  (header : Vect n (Field label)) -> Type where
+  MkSelection : (values : SelectionContentM m source target) ->
                 (nubProof : IsNub source) ->
-                Selection source target
+                SelectionM m source target
 
-sel : (xs : SelectionContent source target) ->
+sel : (xs : SelectionContentM m source target) ->
       {auto nubProof : IsNub source} ->
-      Selection source target
+      SelectionM m source target
 sel xs {nubProof} = MkSelection xs nubProof
 
-namedSel : (xs : NamedSelectionContent source target) ->
+namedSel : (xs : NamedSelectionContentM m source target) ->
            {auto nubProof : IsNub source} ->
-           Selection source target
+           SelectionM m source target
 namedSel xs {nubProof} = MkSelection (toSelectionContent xs) nubProof
 
 
-select : Selection source target -> Record header ->
-         {auto prf : Sub source header} ->
-         Record target
-select (MkSelection values nubProof) (MkRecord xs _) {prf} =
-  MkRecord (select values xs prf) (nubSourceTarget values nubProof)
-
-public export
-resultOf : Selection source target -> Type
-resultOf x {target} = Record target
+filterMapM : Monad m =>
+             SelectionM m source target -> Record header ->
+             {auto prf : Sub source header} ->
+             m (Record target)
+filterMapM (MkSelection values nubProof) (MkRecord xs _) {prf} = let
+  content = filterMapM values xs prf
+  in map (\values' => MkRecord values' (nubSourceTarget values nubProof)) content
