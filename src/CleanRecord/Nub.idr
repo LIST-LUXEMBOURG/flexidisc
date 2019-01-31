@@ -3,18 +3,18 @@ module CleanRecord.Nub
 import CleanRecord.Label
 import CleanRecord.IsNo
 
-import Data.Vect
+import Data.List
 
 ||| Proof that all labelents in a vector are distincts
 public export
-data IsNub : Vect n (a, b) -> Type where
+data IsNub : List (a, b) -> Type where
   Nil : IsNub []
   (::) : DecEq key =>
          {k : key} -> NotLabel k xs -> IsNub xs -> IsNub ((k, v)::xs)
 
 ||| Decide whether a list is made of different labelents or not
 public export
-decNub : DecEq key => (xs : Vect n (key, value)) -> Dec (IsNub xs)
+decNub : DecEq key => (xs : List (key, value)) -> Dec (IsNub xs)
 decNub [] = Yes []
 decNub ((k,v) :: xs) with (decNub xs)
   | (Yes prf) with (decLabel k xs)

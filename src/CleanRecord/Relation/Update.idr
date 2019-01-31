@@ -3,12 +3,10 @@ module CleanRecord.Relation.Update
 import CleanRecord.Label
 import CleanRecord.Nub
 
-import Data.Vect
-
 %default total
 %access public export
 
-data Patch : Vect m (key, value) -> Vect n (key, value) -> Vect n (key, value) -> Type where
+data Patch : List (key, value) -> List (key, value) -> List (key, value) -> Type where
   Nil : Patch [] xs xs
   (::) : (loc : Label k pre) ->
          (next : Patch update (updateLabel pre loc new) post) ->

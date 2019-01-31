@@ -7,36 +7,36 @@ import CleanRecord.Nub
 import CleanRecord.Relation.NegSub
 import CleanRecord.Relation.OrdSub
 
-import Data.Vect
+import Data.List
 
 %default total
 %access public export
 
 ||| Charectarise a subset by giving the keys that are removed
-data SkipSub : (keys : Vect k key) ->
-              (sub : Vect n (key, value)) ->
-              (initial : Vect m (key, value)) ->
+data SkipSub : (keys : List key) ->
+              (sub : List (key, value)) ->
+              (initial : List (key, value)) ->
                Type where
   Empty : SkipSub [] [] []
   Skip  : (e : Label k initial) -> SkipSub keys sub (dropLabel initial e) ->
           SkipSub (k::keys) sub initial
   Keep  : SkipSub keys sub initial -> SkipSub keys ((k, v) :: sub) ((k, v) :: initial)
 
-||| An empty `Vect` is an ordered subset of any `Vect`
-subEmpty' : (xs : Vect n (key, value)) -> SkipSub (map Basics.fst xs) [] xs
+||| An empty `List` is an ordered subset of any `List`
+subEmpty' : (xs : List (key, value)) -> SkipSub (map Basics.fst xs) [] xs
 subEmpty' [] = Empty
 subEmpty' ((k, v) :: xs) = Skip Here (subEmpty' xs)
 
-||| An empty `Vect` is an ordered subset of any `Vect`
+||| An empty `List` is an ordered subset of any `List`
 subEmpty : SkipSub (map Basics.fst xs) [] xs
 subEmpty {xs} = subEmpty' xs
 
-||| A `Vect` is an ordered subset of itself
-subRefl' : (xs : Vect n (key, value)) -> SkipSub [] xs xs
+||| A `List` is an ordered subset of itself
+subRefl' : (xs : List (key, value)) -> SkipSub [] xs xs
 subRefl' [] = Empty
 subRefl' ((k, v) :: xs) = Keep (subRefl' xs)
 
-||| A `Vect` is an ordered subset of itself
+||| A `List` is an ordered subset of itself
 subRefl :  SkipSub [] xs xs
 subRefl {xs} = subRefl' xs
 

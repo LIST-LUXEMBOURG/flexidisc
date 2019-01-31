@@ -6,36 +6,36 @@ import CleanRecord.Nub
 import CleanRecord.Relation.OrdSub
 import CleanRecord.Relation.Sub
 
-import Data.Vect
+import Data.List
 
 %default total
 %access public export
 
 ||| A `Sub` with an explicit parameter for the list of keys that are present in the Sub
-data SubWithKeys : (keys : Vect n key) ->
-              (sub : Vect n (key, value)) ->
-              (initial : Vect m (key, value)) ->
+data SubWithKeys : (keys : List key) ->
+              (sub : List (key, value)) ->
+              (initial : List (key, value)) ->
                Type where
   Empty : SubWithKeys [] [] []
   Skip  : SubWithKeys keys sub initial -> SubWithKeys keys sub ((k, v) :: initial)
   Keep  : (e : Row k v initial) -> SubWithKeys keys sub (dropRow initial e) ->
           SubWithKeys (k :: keys) ((k,v)::sub) initial
 
-||| An empty `Vect` is a subset of any `Vect`
-subEmpty' : (xs : Vect n (key, value)) -> SubWithKeys [] [] xs
+||| An empty `List` is a subset of any `List`
+subEmpty' : (xs : List (key, value)) -> SubWithKeys [] [] xs
 subEmpty' [] = Empty
 subEmpty' ((k, v) :: xs) = Skip (subEmpty' xs)
 
-||| An empty `Vect` is a subset of any `Vect`
+||| An empty `List` is a subset of any `List`
 subEmpty : SubWithKeys [] [] xs
 subEmpty {xs} = subEmpty' xs
 
-||| A `Vect` is a subset of itself
-subRefl' : (xs : Vect n (key, value)) -> SubWithKeys (map Basics.fst xs) xs xs
+||| A `List` is a subset of itself
+subRefl' : (xs : List (key, value)) -> SubWithKeys (map Basics.fst xs) xs xs
 subRefl' [] = Empty
 subRefl' ((k, v) :: xs) = Keep Here (subRefl' xs)
 
-||| A `Vect` is a subset of itself
+||| A `List` is a subset of itself
 subRefl :  SubWithKeys (map Basics.fst xs) xs xs
 subRefl {xs} = subRefl' xs
 

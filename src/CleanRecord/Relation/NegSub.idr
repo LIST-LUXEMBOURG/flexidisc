@@ -1,4 +1,4 @@
-||| A proof that a `Vect` is an ordered subset of another `Vect`.
+||| A proof that a `List` is an ordered subset of another `List`.
 |||
 ||| It's quite similar to `OrdSub` but elements are removed from the original
 ||| set in an arbitrary chosen order.
@@ -12,40 +12,38 @@ import CleanRecord.IsNo
 import CleanRecord.Nub
 import CleanRecord.Relation.OrdSub
 
-import Data.Vect
-
 %default total
 %access public export
 
 ||| Proof that a vector is a subset of another one,
 ||| preserving the order of the labels
-data NegSub : (sub : Vect n (key, value)) ->
-           (initial : Vect m (key, value)) ->
+data NegSub : (sub : List (key, value)) ->
+           (initial : List (key, value)) ->
            Type where
   Empty : NegSub [] []
   Skip  : (e : Label k initial) -> NegSub keep (dropLabel initial e) -> NegSub keep initial
   Keep  : NegSub sub initial -> NegSub ((k,v)::sub) ((k,v) :: initial)
 
-||| An empty `Vect` is an ordered subset of any `Vect`
-subEmpty' : (xs : Vect n (key, value)) -> NegSub [] xs
+||| An empty `List` is an ordered subset of any `List`
+subEmpty' : (xs : List (key, value)) -> NegSub [] xs
 subEmpty' [] = Empty
 subEmpty' ((k,v) :: xs) = Skip Here (subEmpty' xs)
 
-||| An empty `Vect` is an ordered subset of any `Vect`
+||| An empty `List` is an ordered subset of any `List`
 subEmpty : NegSub [] xs
 subEmpty {xs} = subEmpty' xs
 
-||| A `Vect` is an ordered subset of itself
-subRefl' : (xs : Vect n (key, value)) -> NegSub xs xs
+||| A `List` is an ordered subset of itself
+subRefl' : (xs : List (key, value)) -> NegSub xs xs
 subRefl' [] = Empty
 subRefl' ((k, v) :: xs) = Keep (subRefl' xs)
 
-||| A `Vect` is an ordered subset of itself
+||| A `List` is an ordered subset of itself
 subRefl : NegSub xs xs
 subRefl {xs} = subRefl' xs
 
-||| Given a proof that a label is in a `Vect` with one value dropped,
-||| find its location in the original `Vect`
+||| Given a proof that a label is in a `List` with one value dropped,
+||| find its location in the original `List`
 shiftLabel :  (loc : Label k ys) -> Label x (dropLabel ys loc) -> Label x ys
 shiftLabel Here label = There label
 shiftLabel (There later) Here = Here

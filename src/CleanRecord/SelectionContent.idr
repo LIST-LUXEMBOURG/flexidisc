@@ -8,18 +8,16 @@ import CleanRecord.Nub
 import CleanRecord.RecordContent
 import CleanRecord.Relation.Sub
 
-import public Data.Vect
-
 %default total
 %access public export
 
 public export
-data SelectionContentM : (Type -> Type) -> Vect n (Field label) -> Vect n (Field label) -> Type where
+data SelectionContentM : (Type -> Type) -> List (Field label) -> List (Field label) -> Type where
   Nil  : SelectionContentM m [] []
   (::) : (s -> m t) -> SelectionContentM m source target ->
          SelectionContentM m ((k, s) :: source) ((k, t) :: target)
 
-SelectionContent : Vect n (Field label) -> Vect n (Field label) -> Type
+SelectionContent : List (Field label) -> List (Field label) -> Type
 SelectionContent = SelectionContentM Identity
 
 public export
@@ -78,7 +76,7 @@ labelBeforeSelect (f :: fs) Here = Here
 labelBeforeSelect (f :: fs) (There later) = There (labelBeforeSelect fs later)
 
 
-nubWithMappedLabel : DecEq label => {ss : Vect n (Field label)} ->
+nubWithMappedLabel : DecEq label => {ss : List (Field label)} ->
                      (fs : SelectionContentM m ss ts) -> Not (Label k ss) ->
                      NotLabel k ts
 nubWithMappedLabel fs p = notLabelFromEvidence (p . labelBeforeSelect fs)
@@ -100,8 +98,8 @@ namespace NamedContent
 
   public export
   data NamedSelectionContentM : (Type -> Type) ->
-                                Vect n (Field label) ->
-                                Vect n (Field label) ->  Type where
+                                List (Field label) ->
+                                List (Field label) ->  Type where
     Nil : NamedSelectionContentM m [] []
     (::) : ExplicitSelection m lbl s t -> NamedSelectionContentM m source target ->
            NamedSelectionContentM m ((lbl, s) :: source) ((lbl, t) :: target)

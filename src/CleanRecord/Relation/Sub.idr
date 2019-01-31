@@ -1,4 +1,4 @@
-||| Define proof that a Vect contains a subset of the element of another Vect
+||| Define proof that a List contains a subset of the element of another List
 module CleanRecord.Relation.Sub
 
 import CleanRecord.IsNo
@@ -7,37 +7,37 @@ import CleanRecord.Nub
 import CleanRecord.Relation.OrdSub
 import CleanRecord.Row
 
-import Data.Vect
+import Data.List
 
 %default total
 %access public export
 
 
-||| Proof thet a `Vect` is a subset of another `Vect`
+||| Proof thet a `List` is a subset of another `List`
 ||| @ sub the suset
-||| @ initial the original `Vect`
-data Sub : (sub : Vect n (key, value)) ->
-           (initial : Vect m (key, value)) ->
+||| @ initial the original `List`
+data Sub : (sub : List (key, value)) ->
+           (initial : List (key, value)) ->
            Type where
   Empty : Sub [] []
   Skip  : Sub sub initial -> Sub sub ((k,v) :: initial)
   Keep  : (e : Row k v initial) -> Sub keep (dropRow initial e) -> Sub ((k,v)::keep) initial
 
-||| An empty `Vect` is an ordered subset of any `Vect`
-subEmpty' : (xs : Vect n (key, value)) -> Sub [] xs
+||| An empty `List` is an ordered subset of any `List`
+subEmpty' : (xs : List (key, value)) -> Sub [] xs
 subEmpty' [] = Empty
 subEmpty' ((k, v) :: xs) = Skip (subEmpty' xs)
 
-||| An empty `Vect` is an ordered subset of any `Vect`
+||| An empty `List` is an ordered subset of any `List`
 subEmpty : Sub [] xs
 subEmpty {xs} = subEmpty' xs
 
-||| A `Vect` is an ordered subset of itself
-subRefl' : (xs : Vect n (key, value)) -> Sub xs xs
+||| A `List` is an ordered subset of itself
+subRefl' : (xs : List (key, value)) -> Sub xs xs
 subRefl' [] = Empty
 subRefl' ((k, v) :: xs) = Keep Here (subRefl' xs)
 
-||| A `Vect` is an ordered subset of itself
+||| A `List` is an ordered subset of itself
 subRefl : Sub xs xs
 subRefl {xs} = subRefl' xs
 

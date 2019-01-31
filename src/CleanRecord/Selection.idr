@@ -3,7 +3,7 @@ module CleanRecord.Selection
 import public CleanRecord
 import public CleanRecord.SelectionContent
 
-import public Data.Vect
+import public Data.List
 
 %default total
 %access export
@@ -11,8 +11,8 @@ import public Data.Vect
 
 public export
 data SelectionM : (m : Type -> Type) ->
-                  (source : Vect n (Field label)) ->
-                  (header : Vect n (Field label)) -> Type where
+                  (source : List (Field label)) ->
+                  (header : List (Field label)) -> Type where
   MkSelection : (values : SelectionContentM m source target) ->
                 (nubProof : IsNub source) ->
                 SelectionM m source target

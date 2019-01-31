@@ -1,15 +1,15 @@
 module CleanRecord.Row
 
-import Data.Vect
-
 import CleanRecord.IsNo
 import CleanRecord.Label
+
+import Data.List
 
 %default total
 %access public export
 
 ||| Proof that a key value pair is part of a vector
-data Row : (k : key) -> (v : value) -> Vect n (key, value) -> Type where
+data Row : (k : key) -> (v : value) -> List (key, value) -> Type where
   Here : Row k v ((k, v) :: xs)
   There : (later : Row k v xs) -> Row k v (x::xs)
 
@@ -32,18 +32,18 @@ Uninhabited (Row k v []) where
   uninhabited (There _) impossible
 
 ||| Given a proof that an element is in a vector, remove it
-dropRow : (xs : Vect (S n) (key, value)) -> (loc : Row k v xs) ->
-          Vect n (key, value)
+dropRow : (xs : List (key, value)) -> (loc : Row k v xs) ->
+          List (key, value)
 dropRow xs = dropLabel xs . labelFromRow
 
 ||| Update a value in the list given it's location and an update function
-updateRow : (xs : Vect n (key, value)) -> (loc : Row k old xs) ->
-             (new : value) -> Vect n (key, value)
+updateRow : (xs : List (key, value)) -> (loc : Row k old xs) ->
+             (new : value) -> List (key, value)
 updateRow xs loc new = updateLabel xs (labelFromRow loc) new
 
 ||| Given a proof that an element is in a list with one element dropped
 ||| find its location in the original list.
-rowFromDrop : {xs : Vect (S n) (key, value)} -> {loc : Row k' v' xs} ->
+rowFromDrop : {xs : List (key, value)} -> {loc : Row k' v' xs} ->
                Row k v (dropRow xs loc) -> Row k v xs
 rowFromDrop prf         {loc = Here}          = There prf
 rowFromDrop Here        {loc = (There later)} = Here
@@ -51,7 +51,7 @@ rowFromDrop (There loc) {loc = (There later)} = There (rowFromDrop loc)
 
 ||| Decide whether a key is in a vector or not
 decKey : DecEq key =>
-         (k : key) -> (xs : Vect n (key, value)) ->
+         (k : key) -> (xs : List (key, value)) ->
          Dec (v ** Row k v xs)
 decKey _   [] = No (\pf => absurd (snd pf))
 decKey k ((k', v') :: xs) with (decEq k k')

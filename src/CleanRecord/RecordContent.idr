@@ -15,8 +15,6 @@ import CleanRecord.Relation.Permutation
 import CleanRecord.Relation.Sub
 import CleanRecord.Relation.Update
 
-import public Data.Vect
-
 %default total
 %access export
 
@@ -25,7 +23,7 @@ Field : (label : Type) -> Type
 Field label = Pair label Type
 
 public export
-data RecordContent : Vect n (Field label) -> Type where
+data RecordContent : List (Field label) -> Type where
   Nil : RecordContent []
   (::) : ty -> RecordContent header -> RecordContent ((lbl, ty) :: header)
 
@@ -44,7 +42,7 @@ test_rc_value_duplicate = [42, "Test"]
 
 
 public export
-interface Eqs (ts : Vect n (Field a)) where
+interface Eqs (ts : List (Field a)) where
   eqs : RecordContent ts -> RecordContent ts ->
         Bool
 
@@ -58,8 +56,8 @@ implementation Eqs ts => Eq (RecordContent ts) where
   (==) xs ys = eqs xs ys
 
 public export
-interface Shows a (ts : Vect n (Field a)) where
-  shows : {ts : Vect n (Field a)} -> RecordContent ts -> Vect n String
+interface Shows a (ts : List (Field a)) where
+  shows : {ts : List (Field a)} -> RecordContent ts -> List String
 
 implementation Shows key [] where
   shows _ = []
@@ -68,7 +66,7 @@ implementation (Show key, Show t, Shows key ts) => Shows key ((k,t)::ts) where
   shows (x::xs) {k} = unwords [show k, ":", show x] :: shows xs
 
 implementation (Shows key ts) => Show (RecordContent ts) where
-  show xs = "[" ++ concat (Vect.intersperse ", " (shows xs)) ++ "]"
+  show xs = "[" ++ concat (intersperse ", " (shows xs)) ++ "]"
 
 (++) : RecordContent left -> RecordContent right -> RecordContent (left ++ right)
 (++) [] ys = ys
@@ -85,25 +83,25 @@ ordSub [] Empty = []
 ordSub (x :: xs) (Skip sub) = ordSub xs sub
 ordSub (x :: xs) (Keep sub) = x :: ordSub xs sub
 
-updateRow : {header : Vect n (Field a)} ->
+updateRow : {header : List (Field a)} ->
             (xs : RecordContent header) ->
             (loc : Row k ty header) -> (ty -> tNew) ->
             RecordContent (updateRow header loc tNew)
 updateRow (x :: xs) Here f = f x :: xs
 updateRow (x :: xs) (There later) f = x :: updateRow xs later f
 
-replaceRow : {header : Vect n (Field a)} ->
+replaceRow : {header : List (Field a)} ->
             (xs : RecordContent header) ->
             (loc : Label k header) -> tNew ->
             RecordContent (updateLabel header loc tNew)
 replaceRow (x :: xs) Here new = new :: xs
 replaceRow (x :: xs) (There later) new = x :: replaceRow xs later new
 
-dropRow : {header : Vect (S n) (Field a)} ->
+dropRow : {header : List (Field a)} ->
           RecordContent header -> (loc : Label k header) ->
           RecordContent (dropLabel header loc)
 dropRow (_ :: xs) Here = xs
-dropRow {n = S n} (x :: xs) (There later) = x :: dropRow xs later
+dropRow (x :: xs) (There later) = x :: dropRow xs later
 
 project : RecordContent header -> (subPrf : Sub sub header) ->
           RecordContent sub
@@ -143,7 +141,7 @@ namespace NamedContent
   (::=) k = MkRow
 
   public export
-  data NamedRecordContent : Vect n (Field label) -> Type where
+  data NamedRecordContent : List (Field label) -> Type where
     Nil : NamedRecordContent []
     (::) : Row lbl ty -> NamedRecordContent header -> NamedRecordContent ((lbl, ty) :: header)
 

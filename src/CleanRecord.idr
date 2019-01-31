@@ -27,14 +27,12 @@ import public CleanRecord.Relation.Sub
 import public CleanRecord.Relation.SubWithKeys
 import public CleanRecord.Relation.Update
 
-import public Data.Vect
-
 %default total
 
 ||| A `Record` is a set of rows
 ||| @ header The list of rows into the record, with their types
 public export
-data Record : (header : Vect n (Field label)) -> Type where
+data Record : (header : List (Field label)) -> Type where
   MkRecord : (values : RecordContent header) -> (nubProof : IsNub header) ->
              Record header
 
@@ -151,7 +149,7 @@ ordSub (MkRecord xs prf) ordSubPrf =
 ||| @ xs the record
 ||| @ p  the proof that the row is in it
 export
-dropByLabel : {header : Vect (S n) (Field a)} ->
+dropByLabel : {header : List (Field a)} ->
           (xs : Record header) -> (p : Label k header) ->
           Record (dropLabel header p)
 dropByLabel xs p {header} = ordSub xs (ordSubFromDrop header p)
@@ -164,7 +162,7 @@ dropByLabel xs p {header} = ordSub xs (ordSubFromDrop header p)
 ||| @ xs the record
 ||| @ p  the proof that the row is in it
 export
-dropByName : {header : Vect (S n) (Field a)} ->
+dropByName : {header : List (Field a)} ->
              (k : a) -> (xs : Record header) ->
              {auto p : Label k header} ->
              Record (dropLabel header p)
@@ -190,7 +188,7 @@ t_drop_4 = dropByName "Bar" t_record_3
 ||| @ loc the proof that the row is in it
 ||| @ f   the update function
 export
-updateRow : {header : Vect n (Field a)} ->
+updateRow : {header : List (Field a)} ->
             (xs : Record header) ->
             (loc : Row k ty header) -> (f : ty -> tNew) ->
             Record (updateRow header loc tNew)
@@ -206,7 +204,7 @@ updateRow (MkRecord xs prf) loc f {header} =
 ||| @ loc the proof that the row is in it
 ||| @ f   the update function
 export
-updateByName : {header : Vect n (Field a)} ->
+updateByName : {header : List (Field a)} ->
                (k : a) ->
                (f : ty -> tNew) ->
                (xs : Record header) ->
@@ -228,7 +226,7 @@ t_update_2 = updateByName "Bar" (const "BAAAAAR") t_record_3
 ||| @ loc the proof that the row is in it
 ||| @ new   the new value for the row
 export
-replaceRow : {header : Vect n (Field a)} ->
+replaceRow : {header : List (Field a)} ->
             (xs : Record header) ->
             (loc : Label k header) -> (new : tNew) ->
             Record (updateLabel header loc tNew)
@@ -244,7 +242,7 @@ replaceRow (MkRecord xs prf) loc new =
 ||| @ loc the proof that the row is in it
 ||| @ new   the new value for the row
 export
-replaceByName : {header : Vect n (Field a)} ->
+replaceByName : {header : List (Field a)} ->
                 (k : a) ->
                 (new : tNew) ->
                 (xs : Record header) ->
@@ -255,7 +253,7 @@ replaceByName k new xs {loc} = replaceRow xs loc new
 ||| Traverse a record with a function
 export
 traverseByName : Functor f =>
-                 {header : Vect n (Field a)} ->
+                 {header : List (Field a)} ->
                  (k : a) ->
                  (func : ty -> f tNew) ->
                  (xs : Record header) ->
@@ -315,7 +313,7 @@ negProject' (MkRecord xs prf) subPrf =
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
 export
-keep : (keys : Vect n a) -> (xs : Record pre) ->
+keep : (keys : List a) -> (xs : Record pre) ->
        {auto prf : SubWithKeys keys post pre} ->
        Record post
 keep _ xs {prf} = project' xs (toSub prf)
@@ -329,7 +327,7 @@ keep _ xs {prf} = project' xs (toSub prf)
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
 export
-dropN : (keys : Vect n a) -> (xs : Record pre) ->
+dropN : (keys : List a) -> (xs : Record pre) ->
         {auto prf : SkipSub keys post pre} ->
         Record post
 dropN _ xs {prf} = negProject' xs (toNegSub prf)
@@ -359,7 +357,7 @@ t_reorder_1 = reorder t_record_3
 |||
 export
 merge : DecEq label =>
-        {left : Vect n (Field label)} ->
+        {left : List (Field label)} ->
         Record left -> Record right ->
         {auto prf : Disjoint left right} ->
         Record (left ++ right)
@@ -369,7 +367,7 @@ merge (MkRecord xs leftNub) (MkRecord ys rightNub) {left} {right} {prf} =
 ||| An infix alias for merge
 export
 (++) : DecEq label =>
-        {left : Vect n (Field label)} ->
+        {left : List (Field label)} ->
         Record left -> Record right ->
         {auto prf : Disjoint left right} ->
         Record (left ++ right)

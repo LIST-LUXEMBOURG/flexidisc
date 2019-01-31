@@ -120,11 +120,11 @@ twoPartsWithIDPerson = mergeOn "ID" part1 part2
 ||| as the one given in the signature.
 ||| We can do better with NamedRecordContent,
 ||| a structure that allows the definition of rows label on the fly.
-personWithRecordVect : Record [ "ID" := Nat
+personWithNamedRecord : Record [ "ID" := Nat
                               , "Firstname" := String
                               , "Lastname" := String
                               , "Age" := Nat]
-personWithRecordVect = namedRec [ "ID" ::= 0
+personWithNamedRecord = namedRec [ "ID" ::= 0
                                 , "Firstname" ::= "John"
                                 , "Lastname" ::= "Doe"
                                 , "Age" ::= 42

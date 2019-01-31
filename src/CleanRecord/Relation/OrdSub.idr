@@ -1,4 +1,4 @@
-||| This module introduce the proof that a Vect is an ordered subset of
+||| This module introduce the proof that a List is an ordered subset of
 ||| another one.
 |||
 ||| It's not really useful directly, but is used internally at many places.
@@ -7,33 +7,34 @@ module CleanRecord.Relation.OrdSub
 import CleanRecord.Label
 import CleanRecord.IsNo
 import CleanRecord.Nub
-import Data.Vect
+
+import Data.List
 
 %default total
 %access public export
 
 ||| Proof that a vector is a subset of another one,
 ||| preserving the order of the elements
-data OrdSub : (xs : Vect n a) -> (ys : Vect m a) -> Type where
+data OrdSub : (xs : List a) -> (ys : List a) -> Type where
   Empty : OrdSub [] []
   Skip  : OrdSub xs ys -> OrdSub xs (y::ys)
   Keep  : OrdSub xs ys -> OrdSub (x::xs) (x::ys)
 
-||| An empty `Vect` is an ordered subset of any `Any`
-ordSubEmpty' : (xs : Vect n a) -> OrdSub [] xs
+||| An empty `List` is an ordered subset of any `Any`
+ordSubEmpty' : (xs : List a) -> OrdSub [] xs
 ordSubEmpty' [] = Empty
 ordSubEmpty' (_ :: xs) = Skip (ordSubEmpty' xs)
 
-||| An empty `Vect` is an ordered subset of any `Vect`
+||| An empty `List` is an ordered subset of any `List`
 ordSubEmpty : OrdSub [] xs
 ordSubEmpty {xs} = ordSubEmpty' xs
 
-||| A `Vect` is an ordered subset of itself
-ordSubRefl' : (xs : Vect n a) -> OrdSub xs xs
+||| A `List` is an ordered subset of itself
+ordSubRefl' : (xs : List a) -> OrdSub xs xs
 ordSubRefl' [] = Empty
 ordSubRefl' (x :: xs) = Keep (ordSubRefl' xs)
 
-||| A `Vect` is an ordered subset of itself
+||| A `List` is an ordered subset of itself
 ordSubRefl : OrdSub xs xs
 ordSubRefl {xs} = ordSubRefl' xs
 
@@ -54,10 +55,10 @@ notInOrdSub sub contra {k} {ys} with (decLabel k ys)
   | (No f) = SoFalse
 
 ||| If we drop an element, we obtain an ordered subset of the initial vector
-ordSubFromDrop : (xs : Vect (S n) (key, value)) -> (loc : Label k xs) ->
+ordSubFromDrop : (xs : List (key, value)) -> (loc : Label k xs) ->
                  OrdSub (dropLabel xs loc) xs
 ordSubFromDrop ((k, v) :: ys) Here = Skip ordSubRefl
-ordSubFromDrop {n = S n} (_ :: ys) (There later) = Keep (ordSubFromDrop ys later)
+ordSubFromDrop (_ :: ys) (There later) = Keep (ordSubFromDrop ys later)
 
 ||| If the original vector doesn't contain any duplicate,
 ||| an orderred subset doesn't contain duplicate as well
