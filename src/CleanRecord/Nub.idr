@@ -53,6 +53,3 @@ removeFromNubIsNotThere : DecEq key =>
 removeFromNubIsNotThere (p :: _) Here next = absurd (getContra p next)
 removeFromNubIsNotThere (p :: prf) (There later) Here = absurd (getContra p later)
 removeFromNubIsNotThere (p :: prf) (There later) (There loc) = removeFromNubIsNotThere prf later loc
-
-
-

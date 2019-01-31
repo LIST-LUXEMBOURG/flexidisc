@@ -138,8 +138,9 @@ namespace NamedContent
   data Row : (k : key) -> Type -> Type where
     MkRow : v -> Row k v
 
+  public export
   (::=) : (k : key) -> value -> Row k value
-  (::=) k v = MkRow v
+  (::=) k = MkRow
 
   public export
   data NamedRecordContent : Vect n (Field label) -> Type where

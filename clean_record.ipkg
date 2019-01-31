@@ -29,3 +29,5 @@ modules = CleanRecord
         , CleanRecord.Relation.Sub
         , CleanRecord.Relation.SubWithKeys
         , CleanRecord.Relation.Update
+        , CleanRecord.Selection
+        , CleanRecord.SelectionContent
