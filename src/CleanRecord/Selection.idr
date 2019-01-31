@@ -34,4 +34,5 @@ filterMapM : Monad m =>
              m (Record target)
 filterMapM (MkSelection values nubProof) (MkRecord xs _) {prf} = let
   content = filterMapM values xs prf
-  in map (\values' => MkRecord values' (nubSourceTarget values nubProof)) content
+  targetProof = nubSourceTarget values nubProof
+  in map (\values' => MkRecord values' targetProof) content

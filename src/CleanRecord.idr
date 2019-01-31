@@ -252,6 +252,19 @@ replaceByName : {header : Vect n (Field a)} ->
                 Record (updateLabel header loc tNew)
 replaceByName k new xs {loc} = replaceRow xs loc new
 
+||| Traverse a record with a function
+export
+traverseByName : Functor f =>
+                 {header : Vect n (Field a)} ->
+                 (k : a) ->
+                 (func : ty -> f tNew) ->
+                 (xs : Record header) ->
+                 {auto loc : Row k ty header} ->
+                 f (Record (updateRow header loc tNew))
+traverseByName k func xs = let
+  fx = func (xs !! k)
+  in map (\x => replaceByName k x xs) fx
+
 ||| Like project, but with an explicit proof that the final
 ||| set of rows is a subset of the initial set.
 |||
