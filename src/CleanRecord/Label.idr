@@ -68,6 +68,7 @@ decLabel k ((k', v') :: xs) with (decEq k k')
 NotLabel : DecEq key => (k : key) -> (xs : List (key, value)) -> Type
 NotLabel k xs = IsNo (decLabel k xs)
 
+%hint
 notLabelFromEvidence : DecEq key =>
                       {k : key} ->
                       (prf : Not (Label k xs)) -> NotLabel k xs
