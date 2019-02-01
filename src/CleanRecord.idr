@@ -195,6 +195,8 @@ updateRow : {header : List (Field a)} ->
 updateRow (MkRecord xs prf) loc f {header} =
   MkRecord (updateRow xs loc f) (updatePreservesNub prf)
 
+
+
 ||| Update a row, the update can change the row type.
 |||
 ||| Complexity is _O(n)_
@@ -413,6 +415,8 @@ implementation Eqs ts => Eq (Record ts) where
   (==) (MkRecord xs _) (MkRecord ys _) = xs == ys
 
 infix 6 =?=
+infix 6 =<?
+infix 6 ?>=
 
 ||| Order independent comparison.
 export
@@ -421,6 +425,22 @@ export
        {auto perm : Permute ts ts'} ->
        Bool
 (=?=) xs ys = xs == reorder ys
+
+||| Check that a Record is a subset of another record
+export
+(=<?) : Eqs ts =>
+       (xs : Record ts) -> (ys : Record ts') ->
+       {auto perm : Sub ts ts'} ->
+       Bool
+(=<?) xs ys = xs == project ys
+
+||| Check that a Record is a subset of another record
+export
+(?>=) : Eqs ts' =>
+       (xs : Record ts) -> (ys : Record ts') ->
+       {auto perm : Sub ts' ts} ->
+       Bool
+(?>=) xs ys = project xs == ys
 
 export
 implementation Shows key header => Show (Record header) where
