@@ -18,6 +18,7 @@ import public CleanRecord.RecordContent
 import public CleanRecord.Label
 import public CleanRecord.Row
 
+import public CleanRecord.Relation.Compliance
 import public CleanRecord.Relation.Disjoint
 import public CleanRecord.Relation.NegSub
 import public CleanRecord.Relation.OrdSub
@@ -52,16 +53,37 @@ namedRec xs {nubProof} = MkRecord (toRecordContent xs) nubProof
 
 ||| Prepend a value to a record, the label name is given by the result type.
 export
+cons : DecEq label =>
+         {lbl : label} ->
+         ty ->
+         Record header ->
+         {auto fresh : NotLabel lbl header} ->
+         Record ((lbl, ty) :: header)
+cons x (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
+
+||| (Almost) infix alias for `cons`
+export
 (::) : DecEq label =>
          {lbl : label} ->
-         {auto fresh : NotLabel lbl header} ->
          ty -> Record header ->
+         {auto fresh : NotLabel lbl header} ->
         Record ((lbl, ty) :: header)
 (::) x (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
 
 infixr 7 :+:
 
 ||| Prepend a named value to a record.
+export
+consRow : DecEq label =>
+         {lbl : label} ->
+         (Row lbl ty) ->
+         Record header ->
+         {auto fresh : NotLabel lbl header} ->
+        Record ((lbl, ty) :: header)
+consRow (MkRow x) (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
+
+
+||| (Almost) infix alias for `consRow`
 export
 (:+:) : DecEq label =>
          {lbl : label} ->
@@ -111,16 +133,16 @@ get field (MkRecord xs _) {p} = atRow xs p
 ||| Complexity is _O(n)_
 export
 lookup : DecEq a =>
-       (field : a) -> (rec : Record xs) ->
-       {auto p : Either (NotLabel field xs) (Row field ty xs)} -> Maybe ty
+         (field : a) -> (rec : Record xs) ->
+         {auto p : Compliance xs [field := ty]} -> Maybe ty
 lookup field rec {p} = case p of
-                          (Left l) => Nothing
-                          (Right r) => Just (get field rec)
+                            (Skip x y) => Nothing
+                            (Keep loc x) => Just (get field rec)
 
 
 infixl 7 !!
 
-||| infix alias for `get`
+||| (Alomost) infix alias for `get`
 export
 (!!) : (rec : Record xs) -> (field : a) -> {auto p : Row field ty xs} -> ty
 (!!) rec field = get field rec
