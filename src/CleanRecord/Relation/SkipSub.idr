@@ -5,7 +5,6 @@ import CleanRecord.IsNo
 import CleanRecord.Nub
 
 import CleanRecord.Relation.NegSub
-import CleanRecord.Relation.OrdSub
 
 import Data.List
 

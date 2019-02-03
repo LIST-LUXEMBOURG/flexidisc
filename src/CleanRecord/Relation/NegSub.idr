@@ -10,7 +10,6 @@ module CleanRecord.Relation.NegSub
 import CleanRecord.Label
 import CleanRecord.IsNo
 import CleanRecord.Nub
-import CleanRecord.Relation.OrdSub
 
 %default total
 %access public export
@@ -52,7 +51,8 @@ shiftLabel (There later) (There label) = There (shiftLabel later label)
 ||| `NegSub` preserves `label` proof
 labelFromNegSub : NegSub xs ys -> Label x xs -> Label x ys
 labelFromNegSub Empty label = label
-labelFromNegSub (Skip loc sub) label = shiftLabel loc (labelFromNegSub sub label)
+labelFromNegSub (Skip loc sub) label =
+  shiftLabel loc (labelFromNegSub sub label)
 labelFromNegSub (Keep x) Here = Here
 labelFromNegSub (Keep sub) (There later) = There (labelFromNegSub sub later)
 
@@ -66,5 +66,5 @@ notInNegSub sub contra {k} {ys} with (decLabel k ys)
 ||| `NegSub` preserves nub-property
 isNubFromNegSub : NegSub xs ys -> IsNub ys -> IsNub xs
 isNubFromNegSub Empty nub = nub
-isNubFromNegSub (Skip e x) pf = isNubFromNegSub x (isNubFromOrdSub (ordSubFromDrop _ e) pf)
+isNubFromNegSub (Skip e x) pf = isNubFromNegSub x (dropPreservesNub pf)
 isNubFromNegSub (Keep x) (p :: pf) = notInNegSub x (getContra p) :: isNubFromNegSub x pf

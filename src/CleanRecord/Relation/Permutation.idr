@@ -4,7 +4,6 @@ import CleanRecord.Label
 import CleanRecord.Row
 import CleanRecord.IsNo
 import CleanRecord.Nub
-import CleanRecord.Relation.OrdSub
 
 import Data.Vect
 
@@ -39,4 +38,4 @@ isNubFromPermute : Permute xs ys -> IsNub ys -> IsNub xs
 isNubFromPermute Empty [] = []
 isNubFromPermute (Keep e z) (p :: pf) =
   notInPermute z (removeFromNubIsNotThere (p::pf) (labelFromRow e)) ::
-  isNubFromPermute z (isNubFromOrdSub (ordSubFromDrop _ (labelFromRow e)) (p::pf))
+  isNubFromPermute z (dropPreservesNub (p::pf))
