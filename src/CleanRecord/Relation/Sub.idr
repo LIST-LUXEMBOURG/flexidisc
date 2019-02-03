@@ -4,10 +4,7 @@ module CleanRecord.Relation.Sub
 import CleanRecord.IsNo
 import CleanRecord.Label
 import CleanRecord.Nub
-import CleanRecord.Relation.OrdSub
 import CleanRecord.Row
-
-import Data.List
 
 %default total
 %access public export
@@ -43,6 +40,7 @@ subRefl {xs} = subRefl' xs
 
 ||| Given the proof that a Label is in an subset of a vect
 ||| provide a proof that this label is in the initial vect
+%hint
 labelFromSub : Sub xs ys -> Label x xs -> Label x ys
 labelFromSub Empty y = y
 labelFromSub (Skip z) loc = There (labelFromSub z loc)
@@ -75,4 +73,4 @@ isNubFromSub (Skip z) (_ :: pf) = isNubFromSub z pf
 isNubFromSub (Keep e z) (p :: pf) = let
   eAsLabel = labelFromRow e
   in notInSub z (removeFromNubIsNotThere (p::pf) eAsLabel)
-     :: isNubFromSub z (isNubFromOrdSub (ordSubFromDrop _ eAsLabel) (p::pf))
+     :: isNubFromSub z (dropPreservesNub (p::pf))

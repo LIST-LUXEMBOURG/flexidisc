@@ -25,7 +25,7 @@ person0Name' = person0 !! "Firstname"
 
 ||| We can of course extend records:
 person1 : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
-person1 = 42 :: "Doe" :: person0
+person1 = rec [42, "Doe"] ++ person0
 
 ||| We can also reorder them. Such operation ensure that no-field is loss.
 person2 :  Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]

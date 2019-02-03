@@ -47,6 +47,13 @@ updatePreservesNub (p :: pf) {loc = Here} = p :: pf
 updatePreservesNub (p :: pf) {loc = (There later)} = updatePreservesNotField p :: updatePreservesNub pf
 
 public export
+dropPreservesNub : IsNub xs -> IsNub (dropLabel xs loc)
+dropPreservesNub [] {loc} = absurd loc
+dropPreservesNub (p :: pf) {loc = Here} = pf
+dropPreservesNub (p :: pf) {loc = (There later)} =
+  notLabelFromEvidence (getContra p .  labelFromDrop) :: dropPreservesNub pf
+
+public export
 removeFromNubIsNotThere : DecEq key =>
                           {k : key} ->
                           IsNub xs -> (ePre : Label k xs) -> Not (Label k (dropLabel xs ePre))
