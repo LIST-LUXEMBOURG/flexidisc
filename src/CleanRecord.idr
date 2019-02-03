@@ -120,6 +120,10 @@ t_record_4 = Just "Test2" :: t_record_3
 t_record_4' : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
 t_record_4' = rec [Nothing, "Test", 19]
 
+||| Get value from a Row
+atRow : (xs : Record header) -> (Row field ty header) -> ty
+atRow (MkRecord xs nubProof) row = atRow xs row
+
 ||| Typesafe extraction of a value from a record
 |||
 ||| Complexity is _O(n)_
