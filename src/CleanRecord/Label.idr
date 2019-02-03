@@ -29,6 +29,12 @@ dropLabel (_ :: xs) Here          = xs
 dropLabel (x :: xs) (There later) = x :: dropLabel xs later
 
 ||| Update a value in the list given it's location and an update function
+changeLabel : (xs : List (key, value)) -> (loc : Label old xs) ->
+              (new : key) -> List (key, value)
+changeLabel ((old, v) :: xs) Here          new = (new, v) :: xs
+changeLabel (x :: xs)        (There later) new = x :: changeLabel xs later new
+
+||| Update a value in the list given it's location and an update function
 updateLabel : (xs : List (key, value)) -> (loc : Label k xs) ->
               (new : value) -> List (key, value)
 updateLabel ((x, old) :: xs) Here          new = (x, new) :: xs

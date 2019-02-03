@@ -121,6 +121,7 @@ t_record_4' : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
 t_record_4' = rec [Nothing, "Test", 19]
 
 ||| Get value from a Row
+export
 atRow : (xs : Record header) -> (Row field ty header) -> ty
 atRow (MkRecord xs nubProof) row = atRow xs row
 

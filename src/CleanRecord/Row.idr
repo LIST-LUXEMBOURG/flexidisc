@@ -10,25 +10,25 @@ import Data.List
 
 ||| Proof that a key value pair is part of a vector
 data Row : (k : key) -> (v : value) -> List (key, value) -> Type where
-  Here : Row k v ((k, v) :: xs)
+  Here  :                         Row k v ((k, v) :: xs)
   There : (later : Row k v xs) -> Row k v (x::xs)
 
 %name Row row, loc, prf, e, elem
 
 rowFromElem : Elem (k, v) xs -> Row k v xs
-rowFromElem Here = Here
+rowFromElem Here          = Here
 rowFromElem (There later) = There (rowFromElem later)
 
 elemFromRow : Row k v xs -> Elem (k, v) xs
-elemFromRow Here = Here
+elemFromRow Here          = Here
 elemFromRow (There later) = There (elemFromRow later)
 
 labelFromRow : Row k v xs -> Label k xs
-labelFromRow Here = Here
+labelFromRow Here          = Here
 labelFromRow (There later) = There (labelFromRow later)
 
 Uninhabited (Row k v []) where
-  uninhabited Here impossible
+  uninhabited Here      impossible
   uninhabited (There _) impossible
 
 ||| Given a proof that an element is in a vector, remove it
@@ -58,6 +58,6 @@ decKey k ((k', v') :: xs) with (decEq k k')
   | (Yes prf) = rewrite prf in Yes (v' ** Here)
   | (No notHere) with (decKey k xs)
     | (Yes (t ** loc)) = Yes (t ** There loc)
-    | (No notThere) = No (\(ty ** loc) => case loc of
-                         Here => absurd (notHere Refl)
-                         There later => absurd (notThere (ty ** later)))
+    | (No notThere)    = No (\(ty ** loc) => case loc of
+              Here        => absurd (notHere Refl)
+              There later => absurd (notThere (ty ** later)))

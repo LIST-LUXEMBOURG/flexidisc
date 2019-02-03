@@ -72,6 +72,17 @@ implementation (Shows key ts) => Show (RecordContent ts) where
 (++) [] ys = ys
 (++) (x :: xs) ys = x :: xs ++ ys
 
+rename : DecEq label =>
+         (oldLabel : label) ->
+         (newLabel : label) ->
+         RecordContent header ->
+         {auto prf : Label oldLabel header} ->
+         RecordContent (changeLabel header prf newLabel)
+rename oldLabel newLabel (x :: xs) {prf = Here} = x :: xs
+rename oldLabel newLabel (x :: xs) {prf = (There later)} =
+  x :: rename oldLabel newLabel xs
+
+
 atRow : (rec : RecordContent xs) -> (loc : Row label ty xs) -> ty
 atRow (x :: _)  Here = x
 atRow (_ :: xs) (There later) = atRow xs later
