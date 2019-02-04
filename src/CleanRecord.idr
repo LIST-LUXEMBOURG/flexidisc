@@ -22,9 +22,9 @@ import public CleanRecord.Nub
 import public CleanRecord.Record
 import public CleanRecord.Record.RecordContent
 
-import public CleanRecord.List.RecordList
+import public CleanRecord.RecordList
 
-import public CleanRecord.Relation.Compliance
+import public CleanRecord.Relation.CompatibleWith
 import public CleanRecord.Relation.Disjoint
 import public CleanRecord.Relation.NegSub
 import public CleanRecord.Relation.OrdSub

@@ -29,6 +29,7 @@ namespace PureSelection
     (::) : (s -> t) -> PureSelectionContent source target ->
            PureSelectionContent ((k, s) :: source) ((k, t) :: target)
 
+  public export
   SelectionContent : List (Field label) -> List (Field label) -> Type
   SelectionContent = SelectionContentM Identity
 
@@ -105,12 +106,6 @@ nubSourceTarget : SelectionContentM m source target -> IsNub source -> IsNub tar
 nubSourceTarget [] y = y
 nubSourceTarget (_ :: fs) (p::prf) =
   nubWithMappedLabel fs (getContra p) :: nubSourceTarget fs prf
-
-%hint
-subSourceTarget : SelectionContentM m source target -> Sub source xs -> Sub target xs
-subSourceTarget [] Empty = Empty
-subSourceTarget xs (Skip y) = Skip (subSourceTarget x y)
-subSourceTarget xs (Keep e y) = subSourceTarget x (Keep e y)
 
 namespace NamedContent
 

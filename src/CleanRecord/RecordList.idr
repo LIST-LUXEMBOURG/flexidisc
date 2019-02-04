@@ -1,4 +1,4 @@
-module CleanRecord.List.RecordList
+module CleanRecord.RecordList
 
 import CleanRecord.Record
 import CleanRecord.Selection
