@@ -20,7 +20,9 @@ modules = CleanRecord
         , CleanRecord.Label
         , CleanRecord.Nub
         , CleanRecord.RecordContent
+        , CleanRecord.RecordList
         , CleanRecord.Row
+        , CleanRecord.Relation.CompatibleWith
         , CleanRecord.Relation.Disjoint
         , CleanRecord.Relation.NegSub
         , CleanRecord.Relation.OrdSub

@@ -1,6 +1,7 @@
 module CleanRecord.RecordList
 
 import CleanRecord
+import CleanRecord.Selection
 
 %default total
 %access export
@@ -59,27 +60,40 @@ filterByKeys xs (y :: ys) with (filterByKeys xs ys)
 private
 getSub : DecEq label =>
          {header : List (Field label)} ->
-         Record header -> Compliance header q -> IsNub q -> Maybe (Record q)
-getSub _ Empty _ = Just (rec [])
-getSub _ (Skip _ _) _ = Nothing
-getSub xs (Keep loc prf) (p::nubPrf) = let
+         Record header -> CompatibleWith q header -> {auto nubPrf : IsNub q} ->
+         Maybe (Record q)
+getSub _ Empty = Just (rec [])
+getSub _ (Skip _ _) = Nothing
+getSub xs (Keep loc prf) {nubPrf = p::nubPrf} = let
   value = atRow xs loc
-  in map (\ys => cons value ys) (getSub xs prf nubPrf)
+  in map (\ys => cons value ys) (getSub xs prf)
+
 
 private
 checkMatch : (DecEq label, Eqs q) => {header : List (Field label)} ->
                       (query : Record q) ->
                       (ys : Record header) ->
-                      (prf : (\xs => Compliance xs q) header) ->
+                      (prf : CompatibleWith q header) ->
                       Maybe (res : List (Field label) ** Record res)
 checkMatch query@(MkRecord xs nubProof) ys prf =
-  getSub ys prf nubProof >>= (\xs => if query == xs then Just (_ ** ys)
+  getSub ys prf >>= (\xs => if query == xs then Just (_ ** ys)
                                                     else Nothing)
+
+selectMapM : (Monad m, DecEq label) =>
+           {headers : List (List (Field label))} ->
+           (query : SelectionM m source target) -> (xss : RecordList headers) ->
+           {auto prf : All (CompatibleWith source) headers} ->
+           List (m (Record target))
+selectMapM query [] = []
+selectMapM query@(MkSelection _ nubProof) (ys :: yss) {prf = p :: prf} = let
+  sub = getSub ys p
+  recCall = selectMapM query yss
+  in maybe id (::) (map (mapRecordM query) sub) recCall
 
 matchOne : (DecEq label, Eqs q) =>
            {headers : List (List (Field label))} ->
            (query : Record q) -> (xss : RecordList headers) ->
-           {auto prf : All (\xs => Compliance xs q) headers} ->
+           {auto prf : All (CompatibleWith q) headers} ->
            Maybe (xs : List (Field label) ** Record xs)
 matchOne query [] = Nothing
 matchOne query (ys :: yss) {prf = p :: prf} =

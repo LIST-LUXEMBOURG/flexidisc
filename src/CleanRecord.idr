@@ -139,7 +139,7 @@ get field (MkRecord xs _) {p} = atRow xs p
 export
 lookup : DecEq a =>
          (field : a) -> (rec : Record xs) ->
-         {auto p : Compliance xs [field := ty]} -> Maybe ty
+         {auto p : CompatibleWith [field := ty] xs} -> Maybe ty
 lookup field rec {p} = case p of
                             (Skip x y) => Nothing
                             (Keep loc x) => Just (get field rec)

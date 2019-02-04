@@ -4,6 +4,7 @@ module CleanRecord.SelectionContent
 import Control.Monad.Identity
 import CleanRecord.IsNo
 import CleanRecord.Label
+import CleanRecord.Row
 import CleanRecord.Nub
 import CleanRecord.RecordContent
 import CleanRecord.Relation.Sub
@@ -17,8 +18,22 @@ data SelectionContentM : (Type -> Type) -> List (Field label) -> List (Field lab
   (::) : (s -> m t) -> SelectionContentM m source target ->
          SelectionContentM m ((k, s) :: source) ((k, t) :: target)
 
-SelectionContent : List (Field label) -> List (Field label) -> Type
-SelectionContent = SelectionContentM Identity
+namespace PureSelection
+
+  public export
+  data PureSelectionContent : List (Field label) -> List (Field label) -> Type where
+    Nil  : PureSelectionContent [] []
+    (::) : (s -> t) -> PureSelectionContent source target ->
+           PureSelectionContent ((k, s) :: source) ((k, t) :: target)
+
+  SelectionContent : List (Field label) -> List (Field label) -> Type
+  SelectionContent = SelectionContentM Identity
+
+  toSelectionContent : PureSelectionContent source target ->
+                 SelectionContent source target
+  toSelectionContent [] = []
+  toSelectionContent (f :: xs) = pure . f :: toSelectionContent xs
+
 
 public export
 mapRecordM : Monad m =>
@@ -50,6 +65,7 @@ filterMap : (selector : SelectionContent source target) ->
          (prf : Sub source header) ->
          RecordContent target
 filterMap selector xs = runIdentity . filterMapM selector xs
+
 
 private
 test_selection : SelectionContent [("firstname", String), ("age", Nat)]
