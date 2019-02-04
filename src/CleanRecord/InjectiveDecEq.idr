@@ -1,3 +1,7 @@
+||| This module provides a helper to implement a DecEq instance.
+||| You only have to provide a InjectiveDecEq interfaces, and it will build
+||| the DecEq instance on its own.
+||| Most of the time, you will end up writing 2n statements instead of n^2.
 module CleanRecord.InjectiveDecEq
 
 %default total

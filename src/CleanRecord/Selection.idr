@@ -1,7 +1,7 @@
 module CleanRecord.Selection
 
-import public CleanRecord
-import public CleanRecord.SelectionContent
+import public CleanRecord.Record
+import public CleanRecord.Selection.SelectionContent
 
 import        Control.Monad.Identity
 
@@ -39,7 +39,6 @@ namespace PureSelection
         Selection source target
   sel xs = sel (toSelectionContent xs)
 
-public export
 mapRecordM : Monad m =>
              SelectionM m source target -> Record source ->
              m (Record target)

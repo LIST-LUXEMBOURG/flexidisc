@@ -1,10 +1,10 @@
 ||| Define proof that a List contains a subset of the element of another List
 module CleanRecord.Relation.Sub
 
+import CleanRecord.Elem.Label
+import CleanRecord.Elem.Row
 import CleanRecord.IsNo
-import CleanRecord.Label
 import CleanRecord.Nub
-import CleanRecord.Row
 
 %default total
 %access public export

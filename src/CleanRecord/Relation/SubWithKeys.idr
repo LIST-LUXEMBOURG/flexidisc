@@ -1,9 +1,9 @@
 module CleanRecord.Relation.SubWithKeys
 
-import CleanRecord.Row
+import CleanRecord.Elem.Row
 import CleanRecord.IsNo
 import CleanRecord.Nub
-import CleanRecord.Relation.OrdSub
+
 import CleanRecord.Relation.Sub
 
 import Data.List

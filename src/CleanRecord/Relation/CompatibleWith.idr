@@ -1,11 +1,9 @@
 module CleanRecord.Relation.CompatibleWith
 
+import CleanRecord.Elem.Label
+import CleanRecord.Elem.Row
 import CleanRecord.IsNo
-import CleanRecord.Label
 import CleanRecord.Nub
-import CleanRecord.Relation.OrdSub
-import CleanRecord.Relation.Sub
-import CleanRecord.Row
 
 %default total
 %access public export

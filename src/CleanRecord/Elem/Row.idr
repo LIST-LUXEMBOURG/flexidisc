@@ -1,7 +1,7 @@
-module CleanRecord.Row
+module CleanRecord.Elem.Row
 
 import CleanRecord.IsNo
-import CleanRecord.Label
+import CleanRecord.Elem.Label
 
 import Data.List
 
@@ -37,8 +37,8 @@ dropRow : (xs : List (key, value)) -> (loc : Row k v xs) ->
 dropRow xs = dropLabel xs . labelFromRow
 
 ||| Update a value in the list given it's location and an update function
-updateRow : (xs : List (key, value)) -> (loc : Row k old xs) ->
-             (new : value) -> List (key, value)
+updateRow : (xs : List (key, value)) -> (loc : Row k old xs) -> (new : value) ->
+            List (key, value)
 updateRow xs loc new = updateLabel xs (labelFromRow loc) new
 
 ||| Given a proof that an element is in a list with one element dropped
@@ -50,8 +50,7 @@ rowFromDrop Here        {loc = (There later)} = Here
 rowFromDrop (There loc) {loc = (There later)} = There (rowFromDrop loc)
 
 ||| Decide whether a key is in a vector or not
-decKey : DecEq key =>
-         (k : key) -> (xs : List (key, value)) ->
+decKey : DecEq key => (k : key) -> (xs : List (key, value)) ->
          Dec (v ** Row k v xs)
 decKey _   [] = No (\pf => absurd (snd pf))
 decKey k ((k', v') :: xs) with (decEq k k')

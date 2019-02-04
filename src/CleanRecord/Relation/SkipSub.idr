@@ -1,6 +1,6 @@
 module CleanRecord.Relation.SkipSub
 
-import CleanRecord.Label
+import CleanRecord.Elem.Label
 import CleanRecord.IsNo
 import CleanRecord.Nub
 

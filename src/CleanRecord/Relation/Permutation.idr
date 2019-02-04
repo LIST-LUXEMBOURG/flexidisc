@@ -1,7 +1,7 @@
 module CleanRecord.Relation.Permutation
 
-import CleanRecord.Label
-import CleanRecord.Row
+import CleanRecord.Elem.Label
+import CleanRecord.Elem.Row
 import CleanRecord.IsNo
 import CleanRecord.Nub
 

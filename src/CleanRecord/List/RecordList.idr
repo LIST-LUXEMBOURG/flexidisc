@@ -1,6 +1,6 @@
-module CleanRecord.RecordList
+module CleanRecord.List.RecordList
 
-import CleanRecord
+import CleanRecord.Record
 import CleanRecord.Selection
 
 %default total

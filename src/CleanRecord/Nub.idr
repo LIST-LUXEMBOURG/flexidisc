@@ -1,19 +1,19 @@
 module CleanRecord.Nub
 
-import CleanRecord.Label
+import CleanRecord.Elem.Label
 import CleanRecord.IsNo
 
-import Data.List
+%access public export
 
 ||| Proof that all labelents in a vector are distincts
-public export
 data IsNub : List (a, b) -> Type where
   Nil : IsNub []
   (::) : DecEq key =>
          {k : key} -> NotLabel k xs -> IsNub xs -> IsNub ((k, v)::xs)
 
+%name IsNub nubProof, isnub, prf, p
+
 ||| Decide whether a list is made of different labelents or not
-public export
 decNub : DecEq key => (xs : List (key, value)) -> Dec (IsNub xs)
 decNub [] = Yes []
 decNub ((k,v) :: xs) with (decNub xs)
@@ -22,7 +22,6 @@ decNub ((k,v) :: xs) with (decNub xs)
     | (No contra) = Yes (notLabelFromEvidence contra :: prf)
   | (No contra) = No (\(_ :: prf) => contra prf)
 
-public export
 mapLabelOnUpdate : DecEq key =>
                   {k : key} ->
                   (Label k (updateLabel xs p new)) ->
@@ -34,26 +33,22 @@ mapLabelOnUpdate (There later) {p = Here} {xs = (k, old) :: xs} = There later
 mapLabelOnUpdate Here {p = (There later)} {xs = (x, y) :: xs} = Here
 mapLabelOnUpdate (There e) {p = (There later)} {xs = x :: xs} = There (mapLabelOnUpdate e)
 
-public export
 updatePreservesNotField : DecEq key =>
                           {x : key} -> (p : NotLabel x xs) ->
                           NotLabel x (updateLabel xs e new)
 updatePreservesNotField p = notLabelFromEvidence (getContra p . mapLabelOnUpdate)
 
-public export
 updatePreservesNub : IsNub xs -> IsNub (updateLabel xs loc new)
 updatePreservesNub [] {loc} = absurd loc
 updatePreservesNub (p :: pf) {loc = Here} = p :: pf
 updatePreservesNub (p :: pf) {loc = (There later)} = updatePreservesNotField p :: updatePreservesNub pf
 
-public export
 dropPreservesNub : IsNub xs -> IsNub (dropLabel xs loc)
 dropPreservesNub [] {loc} = absurd loc
 dropPreservesNub (p :: pf) {loc = Here} = pf
 dropPreservesNub (p :: pf) {loc = (There later)} =
   notLabelFromEvidence (getContra p .  labelFromDrop) :: dropPreservesNub pf
 
-public export
 removeFromNubIsNotThere : DecEq key =>
                           {k : key} ->
                           IsNub xs -> (ePre : Label k xs) -> Not (Label k (dropLabel xs ePre))

@@ -1,4 +1,4 @@
-module CleanRecord.Label
+module CleanRecord.Elem.Label
 
 import CleanRecord.IsNo
 
@@ -14,6 +14,8 @@ data Label : (k : key) -> List (key, value) -> Type where
 
 %name Label lbl, loc, prf, e, elem
 
+%hint
+public export
 labelFromElem : Elem (k, v) xs -> Label k xs
 labelFromElem Here          = Here
 labelFromElem (There later) = There (labelFromElem later)
@@ -59,8 +61,7 @@ labelAfterUpdate (There later) Here        = There later
 labelAfterUpdate (There later) (There lbl) = There (labelAfterUpdate later lbl)
 
 ||| Decide whether a key is in a vector or not
-decLabel : DecEq key =>
-           (k : key) -> (xs : List (key, value)) ->
+decLabel : DecEq key => (k : key) -> (xs : List (key, value)) ->
            Dec (Label k xs)
 decLabel _   [] = No (\pf => absurd pf)
 decLabel k ((k', v') :: xs) with (decEq k k')

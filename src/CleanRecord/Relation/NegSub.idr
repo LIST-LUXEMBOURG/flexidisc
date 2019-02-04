@@ -7,7 +7,7 @@
 ||| `Record`.
 module CleanRecord.Relation.NegSub
 
-import CleanRecord.Label
+import CleanRecord.Elem.Label
 import CleanRecord.IsNo
 import CleanRecord.Nub
 
@@ -41,18 +41,10 @@ subRefl' ((k, v) :: xs) = Keep (subRefl' xs)
 subRefl : NegSub xs xs
 subRefl {xs} = subRefl' xs
 
-||| Given a proof that a label is in a `List` with one value dropped,
-||| find its location in the original `List`
-shiftLabel :  (loc : Label k ys) -> Label x (dropLabel ys loc) -> Label x ys
-shiftLabel Here label = There label
-shiftLabel (There later) Here = Here
-shiftLabel (There later) (There label) = There (shiftLabel later label)
-
 ||| `NegSub` preserves `label` proof
 labelFromNegSub : NegSub xs ys -> Label x xs -> Label x ys
 labelFromNegSub Empty label = label
-labelFromNegSub (Skip loc sub) label =
-  shiftLabel loc (labelFromNegSub sub label)
+labelFromNegSub (Skip loc sub) label = labelFromDrop (labelFromNegSub sub label)
 labelFromNegSub (Keep x) Here = Here
 labelFromNegSub (Keep sub) (There later) = There (labelFromNegSub sub later)
 

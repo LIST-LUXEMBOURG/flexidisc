@@ -4,7 +4,7 @@
 ||| It's not really useful directly, but is used internally at many places.
 module CleanRecord.Relation.OrdSub
 
-import CleanRecord.Label
+import CleanRecord.Elem.Label
 import CleanRecord.IsNo
 import CleanRecord.Nub
 

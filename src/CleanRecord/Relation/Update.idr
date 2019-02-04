@@ -1,6 +1,6 @@
 module CleanRecord.Relation.Update
 
-import CleanRecord.Label
+import CleanRecord.Elem.Label
 import CleanRecord.Nub
 
 %default total

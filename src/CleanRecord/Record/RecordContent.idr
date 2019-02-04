@@ -1,12 +1,13 @@
 ||| `RecordContent` is the meat of `CleanRecord` without the unicity proof:
 ||| `RecordContent` can contain duplicated fields, they can be compared to
 ||| _labelled `HVect`_.
-module CleanRecord.RecordContent
+module CleanRecord.Record.RecordContent
+
+import CleanRecord.Elem.Label
+import CleanRecord.Elem.Row
 
 import CleanRecord.IsNo
-import CleanRecord.Label
 import CleanRecord.Nub
-import CleanRecord.Row
 
 import CleanRecord.Relation.Disjoint
 import CleanRecord.Relation.NegSub

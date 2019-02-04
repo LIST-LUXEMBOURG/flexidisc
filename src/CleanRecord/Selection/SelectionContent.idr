@@ -1,16 +1,19 @@
 module CleanRecord.SelectionContent
 
 
-import Control.Monad.Identity
+import CleanRecord.Elem.Label
+import CleanRecord.Elem.Row
+
 import CleanRecord.IsNo
-import CleanRecord.Label
-import CleanRecord.Row
 import CleanRecord.Nub
-import CleanRecord.RecordContent
+import CleanRecord.Record.RecordContent
 import CleanRecord.Relation.Sub
 
+import Control.Monad.Identity
+
 %default total
-%access public export
+%access export
+
 
 public export
 data SelectionContentM : (Type -> Type) -> List (Field label) -> List (Field label) -> Type where
@@ -30,7 +33,7 @@ namespace PureSelection
   SelectionContent = SelectionContentM Identity
 
   toSelectionContent : PureSelectionContent source target ->
-                 SelectionContent source target
+                       SelectionContent source target
   toSelectionContent [] = []
   toSelectionContent (f :: xs) = pure . f :: toSelectionContent xs
 
@@ -97,10 +100,17 @@ nubWithMappedLabel : DecEq label => {ss : List (Field label)} ->
                      NotLabel k ts
 nubWithMappedLabel fs p = notLabelFromEvidence (p . labelBeforeSelect fs)
 
+%hint
 nubSourceTarget : SelectionContentM m source target -> IsNub source -> IsNub target
 nubSourceTarget [] y = y
 nubSourceTarget (_ :: fs) (p::prf) =
   nubWithMappedLabel fs (getContra p) :: nubSourceTarget fs prf
+
+%hint
+subSourceTarget : SelectionContentM m source target -> Sub source xs -> Sub target xs
+subSourceTarget [] Empty = Empty
+subSourceTarget xs (Skip y) = Skip (subSourceTarget x y)
+subSourceTarget xs (Keep e y) = subSourceTarget x (Keep e y)
 
 namespace NamedContent
 

@@ -15,13 +15,20 @@ sourcedir = src
 opts = "--warnreach --total"
 
 modules = CleanRecord
+        -- Elem
+        , CleanRecord.Elem.Label
+        , CleanRecord.Elem.Row
+        -- Helper for DecEq
         , CleanRecord.InjectiveDecEq
+        -- Unicity proofs
         , CleanRecord.IsNo
-        , CleanRecord.Label
         , CleanRecord.Nub
-        , CleanRecord.RecordContent
+        -- Records
+        , CleanRecord.Record
+        , CleanRecord.Record.RecordContent
+        -- Heterogeneous list of record
         , CleanRecord.RecordList
-        , CleanRecord.Row
+        -- Relation between records content
         , CleanRecord.Relation.CompatibleWith
         , CleanRecord.Relation.Disjoint
         , CleanRecord.Relation.NegSub
@@ -31,5 +38,6 @@ modules = CleanRecord
         , CleanRecord.Relation.Sub
         , CleanRecord.Relation.SubWithKeys
         , CleanRecord.Relation.Update
+        -- Entrypoint to modify records
         , CleanRecord.Selection
-        , CleanRecord.SelectionContent
+        , CleanRecord.Selection.SelectionContent
