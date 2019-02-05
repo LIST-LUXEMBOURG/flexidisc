@@ -8,6 +8,7 @@ import CleanRecord.IsNo
 import CleanRecord.Nub
 import CleanRecord.Record.RecordContent
 
+import CleanRecord.Relation.SkipSub
 import CleanRecord.Relation.NegSub
 import CleanRecord.Relation.Sub
 
@@ -42,6 +43,11 @@ MapValues : List (MapValue label) -> Type
 MapValues = MapValuesM Identity
 
 public export
+toLabels : List (MapValue label) -> List label
+toLabels [] = []
+toLabels ((MkMapValue k s t) :: xs) = k :: toLabels xs
+
+public export
 toSource : List (MapValue label) -> List (Field label)
 toSource [] = []
 toSource ((MkMapValue k s t) :: xs) = (k, s) :: toSource xs
@@ -52,7 +58,6 @@ toTarget [] = []
 toTarget ((MkMapValue k s t) :: xs) = (k, t) :: toTarget xs
 
 
-public export
 mapRecordM : Monad m =>
              (selector : MapValuesM m mapper) ->
              (xs : RecordContent (toSource mapper)) ->
@@ -62,29 +67,31 @@ mapRecordM (f :: fs) (x :: xs) = do
   x' <- f x
   map (x' ::) (mapRecordM fs xs)
 
-public export
 mapRecord : (selector : MapValues mapper) ->
             (xs : RecordContent (toSource mapper)) ->
             RecordContent (toTarget mapper)
 mapRecord selector = runIdentity . mapRecordM selector
 
 
-public export
 filterMapM : Monad m =>
           (selector : MapValuesM m mapper) ->
           (xs : RecordContent header) ->
-          {auto prf : Sub (toSource mapper) header} ->
+          (prf : Sub (toSource mapper) header) ->
           m (RecordContent (toTarget mapper))
-filterMapM selector xs {prf} = mapRecordM selector (project xs prf)
+filterMapM selector xs prf = mapRecordM selector (project xs prf)
 
-public export
 filterMap : (selector : MapValues mapper) ->
             (xs : RecordContent header) ->
-            {auto prf : Sub (toSource mapper) header} ->
+            (prf : Sub (toSource mapper) header) ->
             RecordContent (toTarget mapper)
-filterMap selector xs = runIdentity $ filterMapM selector xs
+filterMap selector xs = runIdentity . filterMapM selector xs
 
 
+unchangedBy : (selector : MapValuesM m mapper) ->
+              (xs : RecordContent header) ->
+              (prf : SkipSub (toLabels mapper) sub header) ->
+              RecordContent sub
+unchangedBy selector xs prf = negProject xs (toNegSub prf)
 
 namespace PureMapValues
 
@@ -155,5 +162,3 @@ test_mapRecord : RecordContent [("firstname", Nat), ("age", Maybe Nat)]
 test_mapRecord = mapRecord test_selection person
   where
     person = toRecordContent ["firstname" ::= "John", "age" ::= 150]
-
-

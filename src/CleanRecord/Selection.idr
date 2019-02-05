@@ -1,6 +1,7 @@
 module CleanRecord.Selection
 
 import public CleanRecord.Record
+import public CleanRecord.Relation.SkipSub
 import public CleanRecord.Selection.SelectionContent
 
 import        Control.Monad.Identity
@@ -46,4 +47,10 @@ filterMapM : Monad m =>
              SelectionM m mapper -> Record header ->
              {auto prf : Sub (toSource mapper) header} ->
              m (Record (toTarget mapper))
-filterMapM statement xs {prf} = mapRecordM statement (project xs)
+filterMapM statement xs = mapRecordM statement (project xs)
+
+unchanged : Monad m =>
+            SelectionM m mapper -> Record header ->
+            {auto prf : SkipSub (toLabels mapper) sub header} ->
+            Record sub
+unchanged fs xs {mapper} = dropN (toLabels mapper) xs
