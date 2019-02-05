@@ -1,7 +1,6 @@
 module Selection
 
 import CleanRecord
-import CleanRecord.Selection
 
 person : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
 person = rec [40, "Doe", "John"]

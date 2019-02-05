@@ -48,7 +48,6 @@ labelFromNegSub (Skip loc sub) label = labelFromDrop (labelFromNegSub sub label)
 labelFromNegSub (Keep x) Here = Here
 labelFromNegSub (Keep sub) (There later) = There (labelFromNegSub sub later)
 
-
 notInNegSub : DecEq key =>
               {k: key} -> NegSub ys xs -> Not (Label k xs) -> NotLabel k ys
 notInNegSub sub contra {k} {ys} with (decLabel k ys)

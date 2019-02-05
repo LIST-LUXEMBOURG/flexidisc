@@ -81,9 +81,9 @@ checkMatch query@(MkRecord xs nubProof) ys prf =
 
 selectMapM : (Monad m, DecEq label) =>
            {headers : List (List (Field label))} ->
-           (query : SelectionM m source target) -> (xss : RecordList headers) ->
-           {auto prf : All (CompatibleWith source) headers} ->
-           List (m (Record target))
+           (query : SelectionM m mapper) -> (xss : RecordList headers) ->
+           {auto prf : All (CompatibleWith (toSource mapper)) headers} ->
+           List (m (Record (toTarget mapper)))
 selectMapM query [] = []
 selectMapM query@(MkSelection _ nubProof) (ys :: yss) {prf = p :: prf} = let
   sub = getSub ys p

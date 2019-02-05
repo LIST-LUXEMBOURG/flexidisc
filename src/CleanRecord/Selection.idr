@@ -10,45 +10,40 @@ import        Control.Monad.Identity
 
 
 public export
-data SelectionM : (m : Type -> Type) ->
-                  (source : List (Field label)) ->
-                  (header : List (Field label)) -> Type where
-  MkSelection : (values : SelectionContentM m source target) ->
-                (nubProof : IsNub source) ->
-                SelectionM m source target
+data SelectionM : (m : Type -> Type) -> (mapper : List (MapValue label)) -> Type where
+  MkSelection : (values : MapValuesM m mapper) ->
+                (nubProof : IsNub (toSource mapper)) ->
+                SelectionM m mapper
 
 public export
-Selection : (source : List (Field label)) -> (header : List (Field label)) ->
-            Type
+Selection : (mapper : List (MapValue label)) -> Type
 Selection = SelectionM Identity
 
-sel : (xs : SelectionContentM m source target) ->
-      {auto nubProof : IsNub source} ->
-      SelectionM m source target
+sel : (xs : MapValuesM m mapper) -> {auto nubProof : IsNub (toSource mapper)} ->
+      SelectionM m mapper
 sel xs {nubProof} = MkSelection xs nubProof
 
-namedSel : (xs : NamedSelectionContentM m source target) ->
-           {auto nubProof : IsNub source} ->
-           SelectionM m source target
-namedSel xs {nubProof} = MkSelection (toSelectionContent xs) nubProof
+namedSel : (xs : NamedMapValuesM m mapper) ->
+           {auto nubProof : IsNub (toSource mapper)} ->
+           SelectionM m mapper
+namedSel xs {nubProof} = MkSelection (toMapValuesM xs) nubProof
 
 namespace PureSelection
 
-  sel : (xs : PureSelectionContent source target) ->
-        {auto nubProof : IsNub source} ->
-        Selection source target
-  sel xs = sel (toSelectionContent xs)
+  sel : (xs : PureMapValues mapper) -> {auto nubProof : IsNub (toSource mapper)} ->
+        Selection mapper
+  sel xs = sel (toMapValues xs)
 
 mapRecordM : Monad m =>
-             SelectionM m source target -> Record source ->
-             m (Record target)
-mapRecordM (MkSelection values nubProof) (MkRecord xs _) = let
+             SelectionM m mapper -> Record (toSource mapper) ->
+             m (Record (toTarget mapper))
+mapRecordM (MkSelection values nubProof) (MkRecord xs _) {mapper} = let
   content = mapRecordM values xs
-  targetProof = nubSourceTarget values nubProof
+  targetProof = nubSourceTarget mapper nubProof
   in map (\values' => MkRecord values' targetProof) content
 
 filterMapM : Monad m =>
-             SelectionM m source target -> Record header ->
-             {auto prf : Sub source header} ->
-             m (Record target)
+             SelectionM m mapper -> Record header ->
+             {auto prf : Sub (toSource mapper) header} ->
+             m (Record (toTarget mapper))
 filterMapM statement xs {prf} = mapRecordM statement (project xs)
