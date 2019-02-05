@@ -38,11 +38,6 @@ subRefl' ((k, v) :: xs) = Keep Here (subRefl' xs)
 subRefl : Sub xs xs
 subRefl {xs} = subRefl' xs
 
-||| A sub with one element missing is still a sub
-tailSubIsASub : Sub (x::sub) initial -> Sub sub initial
-tailSubIsASub (Skip prf) = ?tailSubIsASub_rhs_1 (tailSubIsASub prf)
-tailSubIsASub (Keep e prf) = ?cSubIsASub_rhs_2
-
 ||| Given the proof that a Label is in an subset of a vect
 ||| provide a proof that this label is in the initial vect
 %hint
