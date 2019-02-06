@@ -29,7 +29,8 @@ person0bis = "Doe" :: person0
 
 ||| You can also provide the label explicitly
 person1 : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
-person1 = "Age" ::= 42 :+: person0bis
+-- person1 = "Age" ::= 42 :+: person0bis
+person1 = 42 :: "Doe" :: person0
 
 ||| We can also reorder them. Such operation ensure that no-field is loss.
 person2 :  Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
