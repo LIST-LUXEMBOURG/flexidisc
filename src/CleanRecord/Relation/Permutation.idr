@@ -11,12 +11,12 @@ import Data.Vect
 %access public export
 
 ||| Proof that a `Vect` is a permutation of another vect
-data Permute : (permute : List (key, value)) ->
-               (initial : List (key, value)) ->
+data Permute : (xs : List (key, value)) ->
+               (ys : List (key, value)) ->
                Type where
   Empty : Permute [] []
-  Keep  : (e : Row k v initial) -> Permute permute (dropRow initial e) ->
-          Permute ((k, v)::permute) initial
+  Keep  : (e : Row k v ys) -> Permute xs (dropRow ys e) ->
+          Permute ((k, v)::xs) ys
 
 permuteRefl' : (xs : List (key, value)) -> Permute xs xs
 permuteRefl' [] = Empty
