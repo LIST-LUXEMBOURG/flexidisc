@@ -435,7 +435,7 @@ decLabel k rec {header} = decKey k header
 ||| Check equality between records that have the same set of
 ||| rows, in the same orders
 export
-implementation Eqs ts => Eq (Record ts) where
+implementation Eq (RecordContent ts) => Eq (Record ts) where
   (==) (MkRecord xs _) (MkRecord ys _) = xs == ys
 
 infix 6 =?=
@@ -444,7 +444,7 @@ infix 6 ?>=
 
 ||| Order independent comparison.
 export
-(=?=) : Eqs ts =>
+(=?=) : Eq (RecordContent ts) =>
        (xs : Record ts) -> (ys : Record ts') ->
        {auto perm : Permute ts ts'} ->
        Bool
@@ -452,7 +452,7 @@ export
 
 ||| Check that a Record is a subset of another record
 export
-(=<?) : Eqs ts =>
+(=<?) : Eq (RecordContent ts) =>
        (xs : Record ts) -> (ys : Record ts') ->
        {auto perm : Sub ts ts'} ->
        Bool
@@ -460,7 +460,7 @@ export
 
 ||| Check that a Record is a subset of another record
 export
-(?>=) : Eqs ts' =>
+(?>=) : Eq (RecordContent ts') =>
        (xs : Record ts) -> (ys : Record ts') ->
        {auto perm : Sub ts' ts} ->
        Bool

@@ -42,19 +42,13 @@ test_rc_value_duplicate : RecordContent [(0, Nat), (0, String)]
 test_rc_value_duplicate = [42, "Test"]
 
 
-public export
-interface Eqs (ts : List (Field a)) where
-  eqs : RecordContent ts -> RecordContent ts ->
-        Bool
+implementation Eq (RecordContent []) where
+  (==) [] [] = True
+  (/=) [] [] = False
 
-implementation Eqs [] where
-  eqs [] [] = True
-
-implementation (Eq t, Eqs ts) => Eqs ((a, t)::ts) where
-  eqs (x :: xs) (y :: ys) = x == y && eqs xs ys
-
-implementation Eqs ts => Eq (RecordContent ts) where
-  (==) xs ys = eqs xs ys
+implementation (Eq t, Eq (RecordContent ts)) => Eq (RecordContent ((a, t)::ts)) where
+  (==) (x :: xs) (y :: ys) = x == y && xs == ys
+  (/=) (x :: xs) (y :: ys) = x /= y || xs == ys
 
 public export
 interface Shows a (ts : List (Field a)) where
