@@ -49,8 +49,8 @@ isNubFromPermute (Keep e perm) pf@(p::_) =
   :: isNubFromPermute perm (dropPreservesNub pf (labelFromOrdRow e))
 
 export
-freshInsert : (DecEq k, Ord k) =>
-              {k' : k} ->
+freshInsert : (DecEq k) =>
+              {header : OrdHeader k o} ->
               IsFresh k' header -> Nub header ->
               Nub (insert (k', ty) header)
 freshInsert fresh isnub {k'} {ty} {header} =

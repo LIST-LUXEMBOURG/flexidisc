@@ -28,6 +28,8 @@ data RecordContent : List (Field label) -> Type where
   Nil : RecordContent []
   (::) : ty -> RecordContent header -> RecordContent ((lbl, ty) :: header)
 
+%name Record xs, ys, zs
+
 private
 test_rc_value_1 : RecordContent [(0, Nat), (1, String)]
 test_rc_value_1 = [42, "Test"]

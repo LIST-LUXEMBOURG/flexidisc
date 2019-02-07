@@ -9,12 +9,14 @@ import CleanRecord.THList
 import public CleanRecord.Header
 
 %default total
+%access export
 
 data Record : (k : Type) -> Header k -> Type where
-  Rec : (o : Ord k) => RecordContent k o header -> Nub header -> Record k (H header)
+  Rec : (o : Ord k) =>
+        RecordContent k o header -> Nub header -> Record k (H header)
 
-||| Build a `Record` from a list of values, the function checks unicity of
-||| the fields and build the `Record` if such proof can be generated
+%name Record xs, ys, zs
+
 rec : (xs : RecordContent k o header) -> {auto nubProof : Nub header} ->
       Record k (H header)
 rec xs {nubProof} = Rec xs nubProof
@@ -30,9 +32,19 @@ Nil = Rec [] []
 atLabel : Record k header -> (loc : Label l header) -> atLabel header loc
 atLabel (Rec xs _) (L loc) = atLabel xs loc
 
-get : Record k header -> (query : k) ->
+get : (query : k) -> Record k header ->
       {auto loc : Label query header} -> atLabel header loc
-get xs _ {loc} = atLabel xs loc
+get query xs {loc} = atLabel xs loc
+
+infixl 7 !!
+
+||| (Alomost) infix alias for `get`
+(!!) : Record k header -> (query : k) ->
+      {auto loc : Label query header} -> atLabel header loc
+(!!) rec field = get field rec
+
+project : Record k header -> {auto prf : Sub sub header} -> Record k sub
+project (Rec xs nub) {prf = S prf} = Rec (project xs prf) (isNubFromSub prf nub)
 
 toTHList : Record k header -> THList (toList header)
 toTHList (Rec xs _) = toTHList xs

@@ -8,4 +8,4 @@ import CleanRecord.OrdHeader.Type
 %access public export
 
 data Nub : (Header label) -> Type where
-  N : (o : Ord k) => {xs : OrdHeader k o} -> Nub xs -> Nub (H xs)
+  N : {xs : OrdHeader k o} -> Nub xs -> Nub (H xs)

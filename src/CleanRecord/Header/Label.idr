@@ -8,8 +8,7 @@ import CleanRecord.OrdHeader.Label
 %access public export
 
 data Label : (k : l) -> (xs : Header l) -> Type where
-  L : (o : Ord l) =>
-      {k : l} -> {xs : OrdHeader l o} -> OrdLabel k xs -> Label k (H xs)
+  L : {xs : OrdHeader l o} -> OrdLabel k xs -> Label k (H xs)
 
 %name Label lbl, loc, prf, e, elem
 

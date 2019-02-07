@@ -12,6 +12,8 @@ data RecordContent : (k : Type) -> (o : Ord k) -> (OrdHeader k o) -> Type where
   Cons  : TaggedValue k' a -> RecordContent k o xs ->
           RecordContent k o ((k', a) :: xs)
 
+%name RecordContent xs, ys, zs
+
 (::) : TaggedValue k' a -> RecordContent k o header ->
          RecordContent k o (insert (k',a) header)
 (::) x Empty = Cons x Empty
@@ -25,6 +27,12 @@ Nil = Empty
 atLabel : RecordContent k o header -> (loc : OrdLabel l header) -> atLabel header loc
 atLabel (Cons (l := x) _) Here      = x
 atLabel (Cons _ xs) (There later) = atLabel xs later
+
+project : RecordContent k o header -> Sub sub header ->
+          RecordContent k o sub
+project Empty Empty = Empty
+project (Cons x ys) (Skip sub) = project ys sub
+project (Cons x ys) (Keep sub) = Cons x (project ys sub)
 
 toTHList : RecordContent k o header -> THList (toList header)
 toTHList Empty = []
