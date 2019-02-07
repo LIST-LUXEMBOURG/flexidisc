@@ -53,6 +53,13 @@ project Empty Empty = Empty
 project (Cons x ys) (Skip sub) = project ys sub
 project (Cons x ys) (Keep sub) = Cons x (project ys sub)
 
+keep : (xs : RecordContent k o pre) -> (sub : SubWithKeys keys post pre) ->
+       RecordContent k o post
+keep xs = project xs . toSub
+
+discard : (xs : RecordContent k o pre) -> (sub : CompWithKeys keys post pre) ->
+          RecordContent k o post
+discard xs = project xs . toSub
 
 toTHList : RecordContent k o header -> THList (toList header)
 toTHList Empty = []

@@ -11,6 +11,8 @@ import public CleanRecord.Header
 %default total
 %access export
 
+-- CREATE
+
 data Record : (k : Type) -> Header k -> Type where
   Rec : (o : Ord k) =>
         RecordContent k o header -> Nub header -> Record k (H header)
@@ -29,6 +31,8 @@ Nil = Rec [] []
        Record k ((k',ty) :: header)
 (::) x (Rec xs isnub) {fresh} = Rec (x :: xs) (freshInsert fresh isnub)
 
+-- READ
+
 atLabel : Record k header -> (loc : Label l header) -> atLabel header loc
 atLabel (Rec xs _) (L loc) = atLabel xs loc
 
@@ -36,10 +40,14 @@ get : (query : k) -> Record k header ->
       {auto loc : Label query header} -> atLabel header loc
 get query xs {loc} = atLabel xs loc
 
-drop : (query : k) -> Record k header -> {auto prf : Label query header} ->
-      Record k (dropLabel header prf)
-drop query (Rec xs nub) {prf = L prf} =
-  Rec (drop xs prf) (dropPreservesNub nub prf)
+infixl 7 !!
+
+||| (Alomost) infix alias for `get`
+(!!) : Record k header -> (query : k) ->
+      {auto loc : Label query header} -> atLabel header loc
+(!!) rec field = get field rec
+
+-- UPDATE
 
 set : (query : k) -> (new : ty) -> Record k header ->
       {auto prf : Label query header} ->
@@ -54,18 +62,35 @@ update query f (Rec xs nub) {prf = R prf} =
   Rec (update xs prf f) (changeTypePreservesNub nub)
 
 
-infixl 7 !!
+-- DELETE
 
-||| (Alomost) infix alias for `get`
-(!!) : Record k header -> (query : k) ->
-      {auto loc : Label query header} -> atLabel header loc
-(!!) rec field = get field rec
+drop : (query : k) -> Record k header -> {auto prf : Label query header} ->
+      Record k (dropLabel header prf)
+drop query (Rec xs nub) {prf = L prf} =
+  Rec (drop xs prf) (dropPreservesNub nub prf)
+
+-- TRANSFORM
 
 project : Record k header -> {auto prf : Sub sub header} -> Record k sub
 project (Rec xs nub) {prf = S prf} = Rec (project xs prf) (isNubFromSub prf nub)
 
+keep : (keys : List k) -> (xs : Record k pre) ->
+       {auto prf : SubWithKeys keys post pre} ->
+       Record k post
+keep keys (Rec xs nub) {prf = S prf} =
+  Rec (keep xs prf) (isNubFromSub (toSub prf) nub)
+
+discard : (keys : List k) -> (xs : Record k pre) ->
+          {auto prf : CompWithKeys keys post pre} ->
+          Record k post
+discard keys (Rec xs nub) {prf = S prf} =
+  Rec (discard xs prf) (isNubFromSub (toSub prf) nub)
+
 toTHList : Record k header -> THList (toList header)
 toTHList (Rec xs _) = toTHList xs
+
+
+-- COMPARE
 
 implementation
 Eq (THList (toList header)) => Eq (Record k header) where
