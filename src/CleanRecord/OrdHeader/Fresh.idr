@@ -11,10 +11,6 @@ data Fresh : (l : label) -> (xs : OrdHeader label o) -> Type where
   Nil  : Fresh l []
   (::) : Not (l = l') -> Fresh l xs -> Fresh l ((l',ty') :: xs)
 
-freshCantBeLabel : Fresh l xs -> OrdLabel l xs -> Void
-freshCantBeLabel (f :: fresh) Here = f Refl
-freshCantBeLabel (f :: fresh) (There later) = freshCantBeLabel fresh later
-
 %name Fresh fresh, prf, new
 
 decFresh : DecEq label => (l : label) -> (xs : OrdHeader label o) -> Dec (Fresh l xs)
@@ -27,6 +23,12 @@ decFresh l ((l', ty) :: xs) with (decEq l l')
 
 IsFresh : DecEq label => (l : label) -> (xs : OrdHeader label o) -> Type
 IsFresh l xs = IsYes (decFresh l xs)
+
+
+export
+freshCantBeLabel : Fresh l xs -> OrdLabel l xs -> Void
+freshCantBeLabel (f :: fresh) Here = f Refl
+freshCantBeLabel (f :: fresh) (There later) = freshCantBeLabel fresh later
 
 export
 isFreshFromEvidence : DecEq label => {l : label} -> (prf : Fresh l xs) -> IsFresh l xs
