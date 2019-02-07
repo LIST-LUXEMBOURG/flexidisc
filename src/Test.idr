@@ -69,36 +69,6 @@ namespace Header
   toList : Header k -> List (k, Type)
   toList (H xs) = toList xs
 
-namespace RC
-
-  data RecordContent : (k : Type) -> (o : Ord k) -> (OrdHeader k o) -> Type where
-    Empty : RecordContent k o []
-    Cons  : TaggedValue k' a -> RecordContent k o xs ->
-            RecordContent k o ((k', a) :: xs)
-
-  (::) : TaggedValue k' a -> RecordContent k o header ->
-           RecordContent k o (insert (k',a) header)
-  (::) x Empty = Cons x Empty
-  (::) (k' := v) (Cons (kx := vx) xs') with (k' < kx)
-    | False = Cons (kx := vx) ((k' := v) :: xs')
-    | True  = Cons (k' := v) (Cons (kx := vx) xs')
-
-  Nil : (o : Ord k) => RecordContent k o []
-  Nil = Empty
-
-  toHList : RecordContent k o header -> HList (toList header)
-  toHList Empty = []
-  toHList (Cons (_ := x) xs) = x :: toHList xs
-
-  implementation Eq (RecordContent k o []) where
-    (==) x y = True
-    (/=) x y = False
-
-  implementation
-  (Eq t, Eq (RecordContent k o ts)) => Eq (RecordContent k o ((l,t)::ts)) where
-    (==) (Cons (_ := x) xs) (Cons (_ := y) ys) = x == y && xs == ys
-    (/=) (Cons (_ := x) xs) (Cons (_ := y) ys) = x /= y || xs /= ys
-
 namespace OrdLabel
 
   data OrdLabel : (k : l) -> (xs : OrdHeader l o) -> Type where
@@ -140,7 +110,21 @@ namespace OrdLabel
 namespace Label
 
   data Label : (k : l) -> (xs : Header l) -> Type where
-    L : Ord l => {k : l} -> OrdLabel k xs -> Label k (H xs)
+    L : (o : Ord l) => {k : l} -> {xs : OrdHeader l o} ->
+                       OrdLabel k xs -> Label k (H xs)
+
+  %name Label lbl, loc, prf, e, elem
+
+  atLabel : (xs : Header l) -> (loc : Label k xs) -> Type
+  atLabel (H xs) (L loc) = atLabel xs loc
+
+  ||| Given a proof that an element is in a vector, remove it
+  dropLabel : (xs : Header k) -> (loc : Label l xs) -> Header k
+  dropLabel (H xs) (L loc) = H (dropLabel xs loc)
+
+  ||| Update a value in the list given it's location and an update function
+  updateLabel : (xs : Header k) -> (loc : Label l xs) -> (new : Type) -> Header k
+  updateLabel (H xs) (L loc) = H . updateLabel xs loc
 
 namespace OrdRow
 
@@ -284,6 +268,40 @@ namespace Permute
       (permutePreservesFresh perm (removeFromNubIsFresh pf (labelFromOrdRow e)))
     :: isNubFromPermute perm (dropPreservesNub pf (labelFromOrdRow e))
 
+namespace RC
+
+  data RecordContent : (k : Type) -> (o : Ord k) -> (OrdHeader k o) -> Type where
+    Empty : RecordContent k o []
+    Cons  : TaggedValue k' a -> RecordContent k o xs ->
+            RecordContent k o ((k', a) :: xs)
+
+  (::) : TaggedValue k' a -> RecordContent k o header ->
+           RecordContent k o (insert (k',a) header)
+  (::) x Empty = Cons x Empty
+  (::) (k' := v) (Cons (kx := vx) xs') with (k' < kx)
+    | False = Cons (kx := vx) ((k' := v) :: xs')
+    | True  = Cons (k' := v) (Cons (kx := vx) xs')
+
+  Nil : (o : Ord k) => RecordContent k o []
+  Nil = Empty
+
+  atLabel : RecordContent k o header -> (loc : OrdLabel l header) -> atLabel header loc
+  atLabel (Cons (l := x) _) Here      = x
+  atLabel (Cons _ xs) (There later) = atLabel xs later
+
+  toHList : RecordContent k o header -> HList (toList header)
+  toHList Empty = []
+  toHList (Cons (_ := x) xs) = x :: toHList xs
+
+  implementation Eq (RecordContent k o []) where
+    (==) x y = True
+    (/=) x y = False
+
+  implementation
+  (Eq t, Eq (RecordContent k o ts)) => Eq (RecordContent k o ((l,t)::ts)) where
+    (==) (Cons (_ := x) xs) (Cons (_ := y) ys) = x == y && xs == ys
+    (/=) (Cons (_ := x) xs) (Cons (_ := y) ys) = x /= y || xs /= ys
+
 namespace Record
 
   data Record : (k : Type) -> Header k -> Type where
@@ -309,6 +327,13 @@ namespace Record
            {default SoTrue fresh : IsFresh k' header} ->
            Record k ((k',ty) :: H header)
   (::) x (Rec xs isnub) {fresh} = Rec (x :: xs) (freshInsert fresh isnub)
+
+  atLabel : Record k header -> (loc : Label l header) -> atLabel header loc
+  atLabel (Rec xs _) (L loc) = atLabel xs loc
+
+  get : Record k header -> (query : k) ->
+        {auto loc : Label query header} -> atLabel header loc
+  get xs _ {loc} = atLabel xs loc
 
   toHList : Record k header -> HList (toList header)
   toHList (Rec xs _) = toHList xs
