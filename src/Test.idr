@@ -61,6 +61,12 @@ update : (query : k) -> (f : a -> b) -> Record k header ->
 update query f (Rec xs nub) {prf = R prf} =
   Rec (update xs prf f) (changeTypePreservesNub nub)
 
+merge : {header : OrdHeader k o} -> {header' : OrdHeader k o} ->
+        (xs : Record k (H header)) -> (ys : Record k (H header')) ->
+        {auto prf : Disjoint header header'} ->
+        Record k (H (merge header header'))
+merge (Rec xs nubX) (Rec ys nubY) {o} {prf} =
+  Rec (merge xs ys) (disjointNub prf nubX nubY)
 
 -- DELETE
 

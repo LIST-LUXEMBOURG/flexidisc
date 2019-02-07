@@ -40,6 +40,14 @@ update : RecordContent k o header -> (loc : OrdRow l a header) ->
 update (Cons (l := x) xs) Here f = Cons (l := f x) xs
 update (Cons x xs) (There later) f = Cons x (update xs later f)
 
+merge : (xs : RecordContent k o header) -> (ys : RecordContent k o header') ->
+        RecordContent k o (merge header header')
+merge Empty ys = ys
+merge (Cons x zs) Empty = Cons x zs
+merge (Cons (k := x) zs) (Cons (k' := y) ys) with (k < k')
+  | True  = Cons (k  := x) (merge zs (Cons (k' := y) ys))
+  | False = Cons (k' := y) (merge (Cons (k := x) zs) ys)
+
 
 drop : RecordContent k o header -> (loc : OrdLabel l header) ->
        RecordContent k o (dropLabel header loc)

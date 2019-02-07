@@ -16,6 +16,13 @@ insert (k, v) ((k', v') :: xs) with (k < k')
   | False = (k',v') :: (insert (k, v) xs)
   | True  = (k,v)   :: (k',v') :: xs
 
+merge :  OrdHeader k o -> OrdHeader k o -> OrdHeader k o
+merge [] xs = xs
+merge (x :: hs) [] = (x :: hs)
+merge ((k, v) :: hs) ((k', v') :: xs) with (k < k')
+  | False = (k', v') :: merge ((k, v) :: hs) xs
+  | True  = (k , v)  :: merge hs ((k', v') :: xs)
+
 header : (o : Ord k) => List (k, Type) -> OrdHeader k o
 header = foldl (flip insert) Nil
 
