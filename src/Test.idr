@@ -36,6 +36,11 @@ get : (query : k) -> Record k header ->
       {auto loc : Label query header} -> atLabel header loc
 get query xs {loc} = atLabel xs loc
 
+drop : (query : k) -> Record k header -> {auto prf : Label l header} ->
+      Record k (dropLabel header prf)
+drop query (Rec xs nub) {prf = L prf} =
+  Rec (drop xs prf) (dropPreservesNub nub prf)
+
 set : (query : k) -> (new : ty) -> Record k header ->
       {auto prf : Label l header} ->
       Record k (changeType header prf ty)

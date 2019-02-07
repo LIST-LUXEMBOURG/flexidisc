@@ -34,6 +34,11 @@ project Empty Empty = Empty
 project (Cons x ys) (Skip sub) = project ys sub
 project (Cons x ys) (Keep sub) = Cons x (project ys sub)
 
+drop : RecordContent k o header -> (loc : OrdLabel l header) ->
+       RecordContent k o (dropLabel header loc)
+drop (Cons (l := x) xs) Here = xs
+drop (Cons x xs) (There later) = Cons x (drop xs later)
+
 set : RecordContent k o header -> (loc : OrdLabel l header) -> (new : ty) ->
       RecordContent k o (changeType header loc ty)
 set (Cons (l := x) xs) Here new = Cons (l := new) xs
