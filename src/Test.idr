@@ -20,11 +20,27 @@ data TaggedValue : (key : k) -> (v : Type) -> Type where
   (:=) : (key : k) -> v -> TaggedValue key v
 
 
+namespace HList
+
+  data HList : (List (k, Type)) -> Type where
+    Nil  : HList []
+    (::) : a -> HList xs -> HList ((l, a)::xs)
+
+  implementation Eq (HList []) where
+    (==) x y = True
+    (/=) x y = False
+
+  implementation (Eq t, Eq (HList ts)) => Eq (HList ((k,t)::ts)) where
+    (==) (x :: xs) (y :: ys) = x == y && xs == ys
+    (/=) (x :: xs) (y :: ys) = x /= y || xs /= ys
+
 namespace OrdHeader
 
   data OrdHeader : (k : Type) -> (Ord k) -> Type where
     Nil  : OrdHeader k o
     (::) : (k, Type) -> OrdHeader k o -> OrdHeader k o
+
+  %name OrdHeader hs, xs, ys, zs
 
   insert : (k, Type) -> OrdHeader k o -> OrdHeader k o
   insert x []= [x]
@@ -34,6 +50,10 @@ namespace OrdHeader
 
   header : (o : Ord k) => List (k, Type) -> OrdHeader k o
   header = foldl (flip insert) Nil
+
+  toList : OrdHeader k o -> List (k, Type)
+  toList [] = []
+  toList (x :: xs) = x :: toList xs
 
 namespace Header
 
@@ -45,6 +65,9 @@ namespace Header
 
   (::) : (k, Type) -> Header k -> Header k
   (::) x (H h) = H (insert x h)
+
+  toList : Header k -> List (k, Type)
+  toList (H xs) = toList xs
 
 namespace RC
 
@@ -63,36 +86,48 @@ namespace RC
   Nil : (o : Ord k) => RecordContent k o []
   Nil = Empty
 
+  toHList : RecordContent k o header -> HList (toList header)
+  toHList Empty = []
+  toHList (Cons (_ := x) xs) = x :: toHList xs
 
-namespace Label
+  implementation Eq (RecordContent k o []) where
+    (==) x y = True
+    (/=) x y = False
 
-  data Label : (k : l) -> (xs : OrdHeader l o) -> Type where
-    Here : Label k ((k,v)::xs)
-    There : (later : Label k xs) -> Label k (x::xs)
+  implementation
+  (Eq t, Eq (RecordContent k o ts)) => Eq (RecordContent k o ((l,t)::ts)) where
+    (==) (Cons (_ := x) xs) (Cons (_ := y) ys) = x == y && xs == ys
+    (/=) (Cons (_ := x) xs) (Cons (_ := y) ys) = x /= y || xs /= ys
 
-  %name Label lbl, loc, prf, e, elem
+namespace OrdLabel
 
-  atLabel : (xs : OrdHeader l o) -> (loc : Label k xs) -> Type
+  data OrdLabel : (k : l) -> (xs : OrdHeader l o) -> Type where
+    Here : OrdLabel k ((k,v)::xs)
+    There : (later : OrdLabel k xs) -> OrdLabel k (x::xs)
+
+  %name OrdLabel lbl, loc, prf, e, elem
+
+  atLabel : (xs : OrdHeader l o) -> (loc : OrdLabel k xs) -> Type
   atLabel ((_, v) :: _) Here = v
   atLabel (_ :: xs) (There later) = atLabel xs later
 
-  Uninhabited (Label k []) where
+  Uninhabited (OrdLabel k []) where
     uninhabited Here      impossible
     uninhabited (There _) impossible
 
   ||| Given a proof that an element is in a vector, remove it
-  dropLabel : (xs : OrdHeader k o) -> (loc : Label l xs) -> OrdHeader k o
+  dropLabel : (xs : OrdHeader k o) -> (loc : OrdLabel l xs) -> OrdHeader k o
   dropLabel (_ :: xs) Here          = xs
   dropLabel (x :: xs) (There later) = x :: dropLabel xs later
 
   ||| Update a value in the list given it's location and an update function
-  updateLabel : (xs : OrdHeader k o) -> (loc : Label l xs) ->
+  updateLabel : (xs : OrdHeader k o) -> (loc : OrdLabel l xs) ->
                 (new : Type) -> OrdHeader k o
   updateLabel ((x, old) :: xs) Here          new = (x, new) :: xs
   updateLabel (x :: xs)        (There later) new = x :: updateLabel xs later new
 
   ||| Decide whether a key is in a vector or not
-  decLabel : DecEq k => (l : k) -> (xs : OrdHeader k o) -> Dec (Label l xs)
+  decLabel : DecEq k => (l : k) -> (xs : OrdHeader k o) -> Dec (OrdLabel l xs)
   decLabel _   [] = No (\pf => absurd pf)
   decLabel k ((k', v') :: xs) with (decEq k k')
     | (Yes prf) = rewrite prf in Yes Here
@@ -102,38 +137,43 @@ namespace Label
                                        Here        => absurd (notHere Refl)
                                        There later => absurd (notThere later))
 
-namespace Row
+namespace Label
+
+  data Label : (k : l) -> (xs : Header l) -> Type where
+    L : Ord l => {k : l} -> OrdLabel k xs -> Label k (H xs)
+
+namespace OrdRow
 
   ||| Proof that a key value pair is part of a vector
-  data Row : (l : k) -> (ty : Type) -> OrdHeader k o -> Type where
-    Here  :                          Row l ty ((l, ty) :: xs)
-    There : (later : Row l ty xs) -> Row l ty (x::xs)
+  data OrdRow : (l : k) -> (ty : Type) -> OrdHeader k o -> Type where
+    Here  :                          OrdRow l ty ((l, ty) :: xs)
+    There : (later : OrdRow l ty xs) -> OrdRow l ty (x::xs)
 
-  labelFromRow : Row k ty xs -> Label k xs
-  labelFromRow Here          = Here
-  labelFromRow (There later) = There (labelFromRow later)
+  labelFromOrdRow : OrdRow k ty xs -> OrdLabel k xs
+  labelFromOrdRow Here          = Here
+  labelFromOrdRow (There later) = There (labelFromOrdRow later)
 
-  Uninhabited (Row k v []) where
+  Uninhabited (OrdRow k v []) where
     uninhabited Here      impossible
     uninhabited (There _) impossible
 
   ||| Given a proof that an element is in a vector, remove it
-  dropRow : (xs : OrdHeader k o) -> (loc : Row l ty xs) -> OrdHeader k o
-  dropRow xs = dropLabel xs . labelFromRow
+  dropOrdRow : (xs : OrdHeader k o) -> (loc : OrdRow l ty xs) -> OrdHeader k o
+  dropOrdRow xs = dropLabel xs . labelFromOrdRow
 
   ||| Update a value in the list given it's location and an update function
-  updateRow : (xs : OrdHeader k o) -> (loc : Row l old xs) -> (new : Type) ->
+  updateOrdRow : (xs : OrdHeader k o) -> (loc : OrdRow l old xs) -> (new : Type) ->
               OrdHeader k o
-  updateRow xs loc new = updateLabel xs (labelFromRow loc) new
+  updateOrdRow xs loc new = updateLabel xs (labelFromOrdRow loc) new
 
-  findInsertRow : (l : k) -> (xs : OrdHeader k o) -> Row l ty (insert (l,ty) xs)
-  findInsertRow l [] = Here
-  findInsertRow l ((kx, vx) :: xs) with (l < kx)
+  findInsertOrdRow : (l : k) -> (xs : OrdHeader k o) -> OrdRow l ty (insert (l,ty) xs)
+  findInsertOrdRow l [] = Here
+  findInsertOrdRow l ((kx, vx) :: xs) with (l < kx)
     | True = Here
-    | False = There (findInsertRow l xs)
+    | False = There (findInsertOrdRow l xs)
 
   dropInsertInv : (l : k) -> (ty : Type) -> (xs : OrdHeader k o) ->
-                  dropRow (insert (l, ty) xs) (findInsertRow l xs) = xs
+                  dropOrdRow (insert (l, ty) xs) (findInsertOrdRow l xs) = xs
   dropInsertInv l ty [] = Refl
   dropInsertInv l ty ((kx,vx) :: xs) with (l < kx)
     | True = Refl
@@ -145,7 +185,7 @@ namespace Fresh
     Nil  : Fresh l []
     (::) : Not (l = l') -> Fresh l xs -> Fresh l ((l',ty') :: xs)
 
-  freshCantBeLabel : Fresh l xs -> Label l xs -> Void
+  freshCantBeLabel : Fresh l xs -> OrdLabel l xs -> Void
   freshCantBeLabel (f :: fresh) Here = f Refl
   freshCantBeLabel (f :: fresh) (There later) = freshCantBeLabel fresh later
 
@@ -190,7 +230,7 @@ namespace Nub
   IsNub xs = IsYes (decNub xs)
 
   removeFromNubIsFresh : {k : key} ->
-                         Nub xs -> (ePre : Label k xs) -> Fresh k (dropLabel xs ePre)
+                         Nub xs -> (ePre : OrdLabel k xs) -> Fresh k (dropLabel xs ePre)
   removeFromNubIsFresh (yes :: isnub) Here = getProof yes
   removeFromNubIsFresh (yes :: isnub) (There later) =
     (\p => freshCantBeLabel (getProof yes) (rewrite (sym p) in later)) :: removeFromNubIsFresh isnub later
@@ -199,7 +239,7 @@ namespace Nub
   dropPreservesFresh (f :: fresh) {e = Here} = fresh
   dropPreservesFresh (f :: fresh) {e = (There e)} = f :: dropPreservesFresh fresh
 
-  dropPreservesNub : Nub xs -> (loc : Label l xs) -> Nub (dropLabel xs loc)
+  dropPreservesNub : Nub xs -> (loc : OrdLabel l xs) -> Nub (dropLabel xs loc)
   dropPreservesNub (yes :: x) Here = x
   dropPreservesNub (yes :: x) (There later) =
     isFreshFromEvidence (dropPreservesFresh (getProof yes)) :: dropPreservesNub x later
@@ -213,7 +253,7 @@ namespace Permute
                  (ys : OrdHeader k o) ->
                  Type where
     Empty : Permute [] []
-    Keep  : (e : Row k ty ys) -> Permute xs (dropRow ys e) ->
+    Keep  : (e : OrdRow k ty ys) -> Permute xs (dropOrdRow ys e) ->
             Permute ((k, ty)::xs) ys
 
   permuteRefl : (xs : OrdHeader k o) -> Permute xs xs
@@ -228,21 +268,21 @@ namespace Permute
 
   consInsertPermute : (x : (k, Type)) -> (xs : OrdHeader k o) -> Permute  (x :: xs) (insert x xs)
   consInsertPermute (l, ty) xs =
-    Keep (findInsertRow l xs) 
+    Keep (findInsertOrdRow l xs)
          (rewrite dropInsertInv l ty xs in (permuteRefl xs))
 
   permutePreservesFresh :  Permute ys xs -> Fresh k xs -> Fresh k ys
   permutePreservesFresh Empty fresh = fresh
   permutePreservesFresh (Keep e perm) fresh =
-    (\p => freshCantBeLabel fresh (rewrite p in labelFromRow e)) ::
+    (\p => freshCantBeLabel fresh (rewrite p in labelFromOrdRow e)) ::
     permutePreservesFresh perm (dropPreservesFresh fresh)
 
   isNubFromPermute : Permute xs ys -> Nub ys -> Nub xs
   isNubFromPermute Empty [] = []
   isNubFromPermute (Keep e perm) pf@(p::_) =
     isFreshFromEvidence
-      (permutePreservesFresh perm (removeFromNubIsFresh pf (labelFromRow e)))
-    :: isNubFromPermute perm (dropPreservesNub pf (labelFromRow e))
+      (permutePreservesFresh perm (removeFromNubIsFresh pf (labelFromOrdRow e)))
+    :: isNubFromPermute perm (dropPreservesNub pf (labelFromOrdRow e))
 
 namespace Record
 
@@ -269,3 +309,12 @@ namespace Record
            {default SoTrue fresh : IsFresh k' header} ->
            Record k ((k',ty) :: H header)
   (::) x (Rec xs isnub) {fresh} = Rec (x :: xs) (freshInsert fresh isnub)
+
+  toHList : Record k header -> HList (toList header)
+  toHList (Rec xs _) = toHList xs
+
+  implementation
+  Eq (HList (toList header)) => Eq (Record k header) where
+    (==) xs ys = toHList xs == toHList ys
+    (/=) xs ys = toHList xs /= toHList ys
+
