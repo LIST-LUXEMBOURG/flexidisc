@@ -11,6 +11,8 @@ data OrdRow : (l : k) -> (ty : Type) -> OrdHeader k o -> Type where
   Here  :                          OrdRow l ty ((l, ty) :: xs)
   There : (later : OrdRow l ty xs) -> OrdRow l ty (x::xs)
 
+%name OrdRow lbl, loc, prf, e, elem
+
 labelFromOrdRow : OrdRow k ty xs -> OrdLabel k xs
 labelFromOrdRow Here          = Here
 labelFromOrdRow (There later) = There (labelFromOrdRow later)

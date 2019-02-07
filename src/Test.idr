@@ -36,16 +36,23 @@ get : (query : k) -> Record k header ->
       {auto loc : Label query header} -> atLabel header loc
 get query xs {loc} = atLabel xs loc
 
-drop : (query : k) -> Record k header -> {auto prf : Label l header} ->
+drop : (query : k) -> Record k header -> {auto prf : Label query header} ->
       Record k (dropLabel header prf)
 drop query (Rec xs nub) {prf = L prf} =
   Rec (drop xs prf) (dropPreservesNub nub prf)
 
 set : (query : k) -> (new : ty) -> Record k header ->
-      {auto prf : Label l header} ->
+      {auto prf : Label query header} ->
       Record k (changeType header prf ty)
 set query new (Rec xs nub) {prf = L prf} =
   Rec (set xs prf new) (changeTypePreservesNub nub)
+
+update : (query : k) -> (f : a -> b) -> Record k header ->
+         {auto prf : Row query a header} ->
+         Record k (changeType header prf b)
+update query f (Rec xs nub) {prf = R prf} =
+  Rec (update xs prf f) (changeTypePreservesNub nub)
+
 
 infixl 7 !!
 
