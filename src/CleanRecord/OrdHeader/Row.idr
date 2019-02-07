@@ -24,9 +24,9 @@ dropOrdRow : (xs : OrdHeader k o) -> (loc : OrdRow l ty xs) -> OrdHeader k o
 dropOrdRow xs = dropLabel xs . labelFromOrdRow
 
 ||| Update a value in the list given it's location and an update function
-updateOrdRow : (xs : OrdHeader k o) -> (loc : OrdRow l old xs) -> (new : Type) ->
-            OrdHeader k o
-updateOrdRow xs loc new = updateLabel xs (labelFromOrdRow loc) new
+changeType : (xs : OrdHeader k o) -> (loc : OrdRow l old xs) -> (new : Type) ->
+             OrdHeader k o
+changeType xs loc new = changeType xs (labelFromOrdRow loc) new
 
 findInsertOrdRow : (l : k) -> (xs : OrdHeader k o) -> OrdRow l ty (insert (l,ty) xs)
 findInsertOrdRow l [] = Here

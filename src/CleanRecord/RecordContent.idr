@@ -34,6 +34,11 @@ project Empty Empty = Empty
 project (Cons x ys) (Skip sub) = project ys sub
 project (Cons x ys) (Keep sub) = Cons x (project ys sub)
 
+set : RecordContent k o header -> (loc : OrdLabel l header) -> (new : ty) ->
+      RecordContent k o (changeType header loc ty)
+set (Cons (l := x) xs) Here new = Cons (l := new) xs
+set (Cons x xs) (There later) new = Cons x (set xs later new)
+
 toTHList : RecordContent k o header -> THList (toList header)
 toTHList Empty = []
 toTHList (Cons (_ := x) xs) = x :: toTHList xs

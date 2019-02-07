@@ -1,7 +1,7 @@
 module CleanRecord.Nub
 
 import CleanRecord.Elem.Label
-import CleanRecord.IsNo
+import CleanRecord.Dec.IsNo
 
 %access public export
 

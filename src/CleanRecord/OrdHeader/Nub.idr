@@ -29,12 +29,19 @@ removeFromNubIsFresh : {k : key} ->
                        Nub xs -> (ePre : OrdLabel k xs) -> Fresh k (dropLabel xs ePre)
 removeFromNubIsFresh (yes :: isnub) Here = getProof yes
 removeFromNubIsFresh (yes :: isnub) (There later) =
-  (\p => freshCantBeLabel (getProof yes) (rewrite (sym p) in later)) :: removeFromNubIsFresh isnub later
+  (\p => freshCantBeLabel (getProof yes) (rewrite (sym p) in later))
+  :: removeFromNubIsFresh isnub later
 
 export
 dropPreservesFresh : Fresh l xs -> Fresh l (dropLabel xs e)
 dropPreservesFresh (f :: fresh) {e = Here} = fresh
 dropPreservesFresh (f :: fresh) {e = (There e)} = f :: dropPreservesFresh fresh
+
+changeTypePreservesNub : Nub xs -> Nub (changeType xs loc new)
+changeTypePreservesNub [] {loc} = absurd loc
+changeTypePreservesNub (p :: pf) {loc = Here} = p :: pf
+changeTypePreservesNub (p :: pf) {loc = (There later)} =
+  isFreshFromEvidence (freshOnTypeChange (getProof p)) :: changeTypePreservesNub pf
 
 export
 dropPreservesNub : Nub xs -> (loc : OrdLabel l xs) -> Nub (dropLabel xs loc)

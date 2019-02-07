@@ -20,5 +20,5 @@ dropLabel : (xs : Header k) -> (loc : Label l xs) -> Header k
 dropLabel (H xs) (L loc) = H (dropLabel xs loc)
 
 ||| Update a value in the list given it's location and an update function
-updateLabel : (xs : Header k) -> (loc : Label l xs) -> (new : Type) -> Header k
-updateLabel (H xs) (L loc) = H . updateLabel xs loc
+changeType : (xs : Header k) -> (loc : Label l xs) -> (new : Type) -> Header k
+changeType (H xs) (L loc) = H . changeType xs loc

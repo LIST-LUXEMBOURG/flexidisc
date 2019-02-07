@@ -24,6 +24,10 @@ decFresh l ((l', ty) :: xs) with (decEq l l')
 IsFresh : DecEq label => (l : label) -> (xs : OrdHeader label o) -> Type
 IsFresh l xs = IsYes (decFresh l xs)
 
+export
+freshOnTypeChange : Fresh l xs -> Fresh l (changeType xs loc new)
+freshOnTypeChange (f :: fresh) {loc = Here} = f :: fresh
+freshOnTypeChange (f :: fresh) {loc = (There later)} = f :: freshOnTypeChange fresh
 
 export
 freshCantBeLabel : Fresh l xs -> OrdLabel l xs -> Void

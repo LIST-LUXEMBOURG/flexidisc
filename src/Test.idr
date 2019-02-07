@@ -36,6 +36,12 @@ get : (query : k) -> Record k header ->
       {auto loc : Label query header} -> atLabel header loc
 get query xs {loc} = atLabel xs loc
 
+set : (query : k) -> (new : ty) -> Record k header ->
+      {auto prf : Label l header} ->
+      Record k (changeType header prf ty)
+set query new (Rec xs nub) {prf = L prf} =
+  Rec (set xs prf new) (changeTypePreservesNub nub)
+
 infixl 7 !!
 
 ||| (Alomost) infix alias for `get`

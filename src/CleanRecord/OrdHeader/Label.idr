@@ -25,7 +25,7 @@ dropLabel (_ :: xs) Here          = xs
 dropLabel (x :: xs) (There later) = x :: dropLabel xs later
 
 ||| Update a value in the list given it's location and an update function
-updateLabel : (xs : OrdHeader k o) -> (loc : OrdLabel l xs) ->
-              (new : Type) -> OrdHeader k o
-updateLabel ((x, old) :: xs) Here          new = (x, new) :: xs
-updateLabel (x :: xs)        (There later) new = x :: updateLabel xs later new
+changeType : (xs : OrdHeader k o) -> (loc : OrdLabel l xs) ->
+             (new : Type) -> OrdHeader k o
+changeType ((x, old) :: xs) Here          new = (x, new) :: xs
+changeType (x :: xs)        (There later) new = x :: changeType xs later new
