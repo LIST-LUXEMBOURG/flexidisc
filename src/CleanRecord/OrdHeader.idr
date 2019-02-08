@@ -2,6 +2,7 @@ module CleanRecord.OrdHeader
 
 import public CleanRecord.OrdHeader.CompWithKeys
 import public CleanRecord.OrdHeader.Disjoint
+import public CleanRecord.OrdHeader.HereOrNot
 import public CleanRecord.OrdHeader.Fresh
 import public CleanRecord.OrdHeader.Label
 import public CleanRecord.OrdHeader.Nub

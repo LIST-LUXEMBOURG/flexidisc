@@ -1,13 +1,13 @@
 module CleanRecord.Tutorial
 
-import CleanRecord
+import Test
 
-person0 : Record ["Firstname" := String]
-person0 = rec ["John"]
+person0 : Record String ["Firstname" ::: String]
+person0 = ["Firstname" := "John"]
 
 ||| From here, we can access row by name.
 |||
-||| Fields are verified at compile time: if we try to access a field that is
+||| Fields arepublic  verified at compile time: if we try to access a field that is
 ||| not defined for our record, we obtain a compilation error, not a runtime
 ||| error.
 |||
@@ -24,139 +24,75 @@ person0Name' = person0 !! "Firstname"
 
 
 ||| We can of course extend records:
-person0bis : Record ["Lastname" := String, "Firstname" := String]
-person0bis = "Doe" :: person0
+person1 : Record String ["Age" ::: Nat, "Lastname" ::: String, "Firstname" ::: String]
+person1 = ("Lastname" := "Doe") :: ("Age" := the Nat 42) :: person0
 
-||| You can also provide the label explicitly
-person1 : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
--- person1 = "Age" ::= 42 :+: person0bis
-person1 = 42 :: "Doe" :: person0
-
-||| We can also reorder them. Such operation ensure that no-field is loss.
-person2 :  Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
-person2 = reorder person1
-
-||| We can also project a record on a smaller and/or reordered one
-person3 : Record ["Firstname" := String, "Lastname" := String]
+||| We can also project a record on a smaller one
+person3 : Record String ["Firstname" ::: String, "Lastname" ::: String]
 person3 = project person1
 
 ||| If you want to give explicitly the order of the new elements you want
 ||| you can use `keep`
-person4 : Record ["Firstname" := String, "Lastname" := String]
+person4 : Record String ["Firstname" ::: String, "Lastname" ::: String]
 person4 = keep ["Firstname", "Lastname"] person1
 
 ||| If you want to give explicitly the order of the new elements you want
 ||| you can use `keep`
-person4' : Record ["Age" := Nat]
-person4' = dropN ["Firstname", "Lastname"] person1
+person4' : Record String ["Age" ::: Nat]
+person4' = discard ["Firstname", "Lastname"] person1
 
 ||| You can alternatively decide to drop a field by its name:
-person5 :  Record ["Firstname" := String, "Lastname" := String]
-person5 = dropByName "Age" person2
+person5 :  Record String ["Firstname" ::: String, "Lastname" ::: String]
+person5 = drop "Age" person1
 
+{-
 ||| You can also patch a record with another record
-person6 :  Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
-person6 = patch person2 (namedRec ["Lastname" ::= "Biri", "Firstname" ::= "Nicolas"])
+person6 :  Record String ["Firstname" ::: String, "Lastname" ::: String, "Age" ::: Nat]
+person6 = patch person2 (namedRec ["Lastname" := "Biri", "Firstname" := "Nicolas"])
+-}
+
 
 ||| Field can be updated quite easily too
-olderPerson2 : Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
-olderPerson2 = updateByName "Age" (+1) person2
+olderPerson : Record String ["Firstname" ::: String, "Lastname" ::: String, "Age" ::: Nat]
+olderPerson = update "Age" (+1) person1
 
 ||| What if we want a generic `birthday` function for record with an age?
 ||| The result type is a bit complex here.
 ||| Actually we just explain that we update the `"Age"` field, replacing it
 ||| its content by a Nat.
-birthday : Record xs -> {auto hasAge: Row "Age" Nat xs} ->
-           Record (updateRow xs hasAge Nat)
-birthday rec = updateByName "Age" (+1) rec
+birthday : Record String xs -> {auto hasAge: Row "Age" Nat xs} ->
+           Record String (changeType xs hasAge Nat)
+birthday rec = update "Age" (+1) rec
 
 ||| And we can check that it works on different types:
-olderPeople : ( Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
-              , Record ["Firstname" := String, "Lastname" := String, "Age" := Nat]
+olderPeople : ( Record String ["Age" ::: Nat]
+              , Record String ["Firstname" ::: String, "Lastname" ::: String, "Age" ::: Nat]
               )
-olderPeople = (birthday person1, birthday person2)
+olderPeople = (birthday person4', birthday person1)
 
-||| You can also ensure that several fields aere presents
-fullname : Record xs ->
-           {auto requiredFields : Sub [ "Firstname" := String
-                                      , "Lastname"  := String ] xs} ->
+
+||| You can also ensure that several fields are there
+fullname : Record String xs ->
+           {auto requiredFields : Sub [ "Lastname"  ::: String
+                                      , "Firstname" ::: String ] xs} ->
            String
 fullname xs = (xs !! "Firstname") ++ " " ++ (xs !! "Lastname")
 
 ||| Or ensure that some row doesn't exist to create them
-addFullname : Record xs ->
-              {auto requiredFields : Sub [ "Firstname" := String
-                                         , "Lastname"  := String ] xs} ->
-              {auto newFields : Disjoint [ "Fullname"  := String ] xs} ->
-              Record (["Fullname" :=  String] ++ xs)
-addFullname xs = rec [fullname xs] ++ xs
+addFullname : Record String (H xs) ->
+              {auto requiredFields : Sub [ "Firstname" ::: String
+                                         , "Lastname"  ::: String ] (H xs)} ->
+              {auto newFields : Disjoint [ "Fullname"  ::: String ] xs} ->
+              Record String (H (merge ["Fullname" :::  String] xs))
+addFullname r = ["Fullname" := fullname r] ++ r
 
 ||| We can also decide to merge records if there is no overlap
-twoPartsPerson : Record [ "ID" := Nat
-                        , "Firstname" := String
-                        , "Lastname" := String
-                        , "Age" := Nat
+twoPartsPerson : Record String [ "ID" ::: Nat
+                        , "Firstname" ::: String
+                        , "Lastname" ::: String
+                        , "Age" ::: Nat
                         ]
-twoPartsPerson = part1 ++ part2
-  where
-    part1 : Record ["ID" := Nat, "Firstname" := String]
-    part1 = rec [1, "John"]
-    part2 : Record ["Lastname" := String, "Age" := Nat]
-    part2 = rec ["Doe", 42]
+twoPartsPerson = ["ID" := the Nat 1, "Firstname" := "John"] ++ ["Lastname" := "Doe", "Age" := the Nat 42]
 
-||| If there is a duplicate field, you can also use it to decide whether
-||| you merge your records or not
-twoPartsWithIDPerson : Maybe (Record [ "ID" := Nat
-                                     , "Firstname" := String
-                                     , "Lastname" := String
-                                     , "Age" := Nat
-                                     ])
-twoPartsWithIDPerson = mergeOn "ID" part1 part2
-  where
-    part1 : Record ["ID" := Nat, "Firstname" := String]
-    part1 = rec [1, "John"]
-    part2 : Record ["ID" := Nat, "Lastname" := String, "Age" := Nat]
-    part2 = rec [1, "Doe", 42]
-
-
-||| So far, we had provided row names are in the type signature.
-||| This solution may look cumbersome on longer records.
-||| Moreover, it requires us to provide the values in the exact same order
-||| as the one given in the signature.
-||| We can do better with NamedRecordContent,
-||| a structure that allows the definition of rows label on the fly.
-personWithNamedRecord : Record [ "ID" := Nat
-                              , "Firstname" := String
-                              , "Lastname" := String
-                              , "Age" := Nat]
-personWithNamedRecord = namedRec [ "ID" ::= 0
-                                , "Firstname" ::= "John"
-                                , "Lastname" ::= "Doe"
-                                , "Age" ::= 42
-                                ]
-
-||| Its power is probably clearer on the merge example:
-twoPartsPersonNamed : Record [ "ID" := Nat
-                             , "Firstname" := String
-                             , "Lastname" := String
-                             , "Age" := Nat
-                             ]
-twoPartsPersonNamed =
-  namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"] ++
-  namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42]
-
-||| Equality between `Record` is defined and is order-dependent
-|||
-||| For example, this wont even compile since both record have different order.
-|||
-||| ```
-||| notEqExample = person1 == person3
-||| ```
 eqExample : Bool
-eqExample = person3 == person4
-
-||| If you want an order-independent equality check, you can either use
-||| `reorder` on one of the parameters, to reorder the content of the record,
-||| or use `=?=`, which does it for you automatically
-eqOrderIndependent : Bool
-eqOrderIndependent = person1 =?= person2
+eqExample = person1 == olderPerson

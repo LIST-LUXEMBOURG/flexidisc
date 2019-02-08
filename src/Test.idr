@@ -1,12 +1,12 @@
 module Test
 
-import CleanRecord.Dec.IsYes
-import CleanRecord.OrdHeader
 import CleanRecord.RecordContent
-import CleanRecord.TaggedValue
-import CleanRecord.THList
+import public CleanRecord.THList
 
+import public CleanRecord.OrdHeader
+import public CleanRecord.Dec.IsYes
 import public CleanRecord.Header
+import public CleanRecord.TaggedValue
 
 %default total
 %access export
@@ -21,6 +21,14 @@ data Record : (k : Type) -> (header : Header k) -> Type where
         (values : RecordContent k o header) -> (nubProof : Nub header) ->
         Record k (H header)
 
+infix 6 :::
+
+||| Convenient helper for row type lisibility
+public export
+(:::) : (k : l) -> (v : Type) -> Pair l Type
+(:::) = MkPair
+
+
 %name Record xs, ys, zs
 
 ||| The empty record
@@ -32,6 +40,10 @@ Nil = Rec empty []
        {default SoTrue fresh : IsFresh k' header} ->
        Record k ((k',ty) :: header)
 (::) x (Rec xs isnub) {fresh} = Rec (insert x xs) (freshInsert fresh isnub)
+
+private
+test_rec1 : Record String ["Firstname" ::: String]
+test_rec1 = ["Firstname" := "John"]
 
 ||| It's just monomorphic `id` with a fancy name, to help type inference
 rec : Record k header -> Record k header
@@ -63,8 +75,21 @@ atLabel (Rec xs _) (L loc) = atLabel xs loc
 |||
 ||| Complexity is _O(n)_
 get : (query : k) -> Record k header ->
-      {auto loc : Label query header} -> atLabel header loc
-get query xs {loc} = atLabel xs loc
+      {auto loc : Row query ty header} -> ty
+get query xs {loc} = atRow xs loc
+
+||| Typesafe extraction of a value from a record,
+||| `Nothing` if the Row doesn't exist.
+|||
+||| Complexity is _O(n)_
+export
+lookup : (Ord k, DecEq k) =>
+         (query : k) -> (xs : Record k header) ->
+         {auto p : Header.HereOrNot.HereOrNot [(query, ty)] header} -> Maybe ty
+lookup query xs {p} = case p of
+  HN (Skip _ _) => Nothing
+  HN (Keep loc x) => Just (atRow xs (R loc))
+
 
 infixl 7 !!
 
@@ -73,7 +98,7 @@ infixl 7 !!
 ||| Almost: it requires an implicit paramet which may leads to weird behaviour
 ||| when used as an infix operator
 (!!) : Record k header -> (query : k) ->
-      {auto loc : Label query header} -> atLabel header loc
+      {auto loc : Row query ty header} -> ty
 (!!) rec field = get field rec
 
 -- UPDATE

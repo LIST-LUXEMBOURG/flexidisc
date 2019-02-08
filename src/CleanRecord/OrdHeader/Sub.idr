@@ -50,3 +50,23 @@ isNubFromSub Empty y = y
 isNubFromSub (Skip sub) (yes :: prf) = isNubFromSub sub prf
 isNubFromSub (Keep sub) (yes :: prf) =
   isFreshFromEvidence (freshInSub sub (getProof yes)) :: isNubFromSub sub prf
+
+%hint
+public export
+rowFromSub : Sub xs ys -> OrdRow key ty xs -> OrdRow key ty ys
+rowFromSub Empty lbl = lbl
+rowFromSub (Skip sub) loc = There (rowFromSub sub loc)
+rowFromSub (Keep sub) Here = Here
+rowFromSub (Keep sub) (There later) = There (rowFromSub sub later)
+
+
+||| Given the proof that a Label is in an subset of a vect
+||| provide a proof that this label is in the initial vect
+%hint
+public export
+labelFromSub : Sub xs ys -> OrdLabel x xs -> OrdLabel x ys
+labelFromSub Empty y = y
+labelFromSub (Skip z) loc = There (labelFromSub z loc)
+labelFromSub (Keep _) Here = Here
+labelFromSub (Keep sub) (There later) = There (labelFromSub sub later)
+
