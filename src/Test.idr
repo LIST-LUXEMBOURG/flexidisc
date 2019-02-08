@@ -13,15 +13,21 @@ import public CleanRecord.Header
 
 -- CREATE
 
-data Record : (k : Type) -> Header k -> Type where
+||| A `Record` is a set of rows
+||| @ k      The type of the labels
+||| @ header The list of rows into the record, with their types
+data Record : (k : Type) -> (header : Header k) -> Type where
   Rec : (o : Ord k) =>
-        RecordContent k o header -> Nub header -> Record k (H header)
+        (values : RecordContent k o header) -> (nubProof : Nub header) ->
+        Record k (H header)
 
 %name Record xs, ys, zs
 
+||| The empty record
 Nil : Ord k => Record k []
 Nil = Rec empty []
 
+||| Insert a new row in a record
 (::) : (DecEq k, Ord k) => TaggedValue k' ty -> Record k header ->
        {default SoTrue fresh : IsFresh k' header} ->
        Record k ((k',ty) :: header)
@@ -34,16 +40,38 @@ rec = id
 
 -- READ
 
+||| Get value from a `Row`
+||| (not the most convenient way to get a value
+||| but it may be useful when you have a `Row`)
+|||
+||| Complexity is _O(n)_
+atRow : Record k header -> (loc : Row l ty header) -> ty
+atRow (Rec xs _) (R loc) = atRow xs loc
+
+||| Get value from a `Label`
+||| (not the most convenient way to get a value
+||| but it may be useful when you have a `Label`)
+|||
+||| It's slightly less efficient than `atRow`,
+||| as you need to go through the header to get the return type
+|||
+||| Complexity is _O(n)_
 atLabel : Record k header -> (loc : Label l header) -> atLabel header loc
 atLabel (Rec xs _) (L loc) = atLabel xs loc
 
+||| Typesafe extraction of a value from a record
+|||
+||| Complexity is _O(n)_
 get : (query : k) -> Record k header ->
       {auto loc : Label query header} -> atLabel header loc
 get query xs {loc} = atLabel xs loc
 
 infixl 7 !!
 
-||| (Alomost) infix alias for `get`
+||| (Almost) infix alias for `get`
+|||
+||| Almost: it requires an implicit paramet which may leads to weird behaviour
+||| when used as an infix operator
 (!!) : Record k header -> (query : k) ->
       {auto loc : Label query header} -> atLabel header loc
 (!!) rec field = get field rec
@@ -69,12 +97,36 @@ merge : {header : OrdHeader k o} -> {header' : OrdHeader k o} ->
 merge (Rec xs nubX) (Rec ys nubY) {o} {prf} =
   Rec (merge xs ys) (disjointNub prf nubX nubY)
 
+(++) : {header : OrdHeader k o} -> {header' : OrdHeader k o} ->
+       (xs : Record k (H header)) -> (ys : Record k (H header')) ->
+       {auto prf : Disjoint header header'} ->
+       Record k (H (merge header header'))
+(++) = merge
+
 -- DELETE
 
-drop : (query : k) -> Record k header -> {auto prf : Label query header} ->
-      Record k (dropLabel header prf)
-drop query (Rec xs nub) {prf = L prf} =
+||| Remove a row from a Record.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ xs the record
+||| @ loc  the proof that the row is in it
+dropByLabel : (xs : Record k header) -> (loc : Label query header) ->
+              Record k (dropLabel header loc)
+dropByLabel (Rec xs nub) (L prf) =
   Rec (drop xs prf) (dropPreservesNub nub prf)
+
+||| Remove a row from a Record.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ query  the row name
+||| @ xs     the record
+||| @ loc    the proof that the row is in it
+drop : (query : k) -> (xs : Record k header) ->
+       {auto loc : Label query header} ->
+       Record k (dropLabel header loc)
+drop _ xs {loc} = dropByLabel xs loc
 
 -- TRANSFORM
 

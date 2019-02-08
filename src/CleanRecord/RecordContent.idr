@@ -30,6 +30,11 @@ atLabel ((l := x) :: _) Here      = x
 atLabel (_ :: xs) (There later) = atLabel xs later
 
 
+atRow : RecordContent k o header -> (loc : OrdRow l ty header) -> ty
+atRow ((l := x) :: _) Here      = x
+atRow (_ :: xs) (There later) = atRow xs later
+
+
 set : RecordContent k o header -> (loc : OrdLabel l header) -> (new : ty) ->
       RecordContent k o (changeType header loc ty)
 set ((l := x) :: xs) Here new = (l := new) :: xs
