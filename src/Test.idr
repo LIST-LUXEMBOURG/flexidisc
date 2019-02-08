@@ -78,18 +78,62 @@ infixl 7 !!
 
 -- UPDATE
 
-set : (query : k) -> (new : ty) -> Record k header ->
-      {auto prf : Label query header} ->
-      Record k (changeType header prf ty)
-set query new (Rec xs nub) {prf = L prf} =
-  Rec (set xs prf new) (changeTypePreservesNub nub)
+||| Replace a row, can change its type
+|||
+||| Complexity is _O(n)_
+|||
+||| @ xs  the record
+||| @ loc the proof that the row is in it
+||| @ new the new value for the row
+setByLabel : (xs : Record k header) -> (loc : Label query header) -> (new : ty) ->
+      Record k (changeType header loc ty)
+setByLabel (Rec xs nub) (L loc) new =
+  Rec (set xs loc new) (changeTypePreservesNub nub)
 
-update : (query : k) -> (f : a -> b) -> Record k header ->
-         {auto prf : Row query a header} ->
-         Record k (changeType header prf b)
-update query f (Rec xs nub) {prf = R prf} =
-  Rec (update xs prf f) (changeTypePreservesNub nub)
+||| Update a row, the update can change the row type.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ query the row name
+||| @ xs    the record
+||| @ loc   the proof that the row is in it
+||| @ new   the new value for the row
+set : (query : k) -> (new : ty) -> (xs : Record k header) ->
+      {auto loc : Label query header} ->
+      Record k (changeType header loc ty)
+set _ new xs {loc} = setByLabel xs loc new
 
+||| Update a row at a given `Row`, can change its type.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ xs     the record
+||| @ loc    the proof that the row is in it
+||| @ f      the update function
+updateByLabel : (xs : Record k header) -> (loc : Row query a header) ->
+                (f : a -> b) ->
+                Record k (changeType header loc b)
+updateByLabel (Rec xs nub) (R loc) f =
+  Rec (update xs loc f) (changeTypePreservesNub nub)
+
+||| Update a row at a given `Row`, can change its type.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ query  the row name
+||| @ xs     the record
+||| @ loc    the proof that the row is in it
+||| @ f      the update function
+update : (query : k) -> (f : a -> b) -> (xs : Record k header) ->
+         {auto loc : Row query a header} ->
+         Record k (changeType header loc b)
+update _ f xs {loc} = updateByLabel xs loc f
+
+
+||| Append two records, it fails if some fields are duplicated
+|||
+||| Complexity is _O(n)_ where _n_ is the length of the longest record.
+|||
 merge : {header : OrdHeader k o} -> {header' : OrdHeader k o} ->
         (xs : Record k (H header)) -> (ys : Record k (H header')) ->
         {auto prf : Disjoint header header'} ->
@@ -97,6 +141,7 @@ merge : {header : OrdHeader k o} -> {header' : OrdHeader k o} ->
 merge (Rec xs nubX) (Rec ys nubY) {o} {prf} =
   Rec (merge xs ys) (disjointNub prf nubX nubY)
 
+||| Alias for `merge`
 (++) : {header : OrdHeader k o} -> {header' : OrdHeader k o} ->
        (xs : Record k (H header)) -> (ys : Record k (H header')) ->
        {auto prf : Disjoint header header'} ->
@@ -130,15 +175,29 @@ drop _ xs {loc} = dropByLabel xs loc
 
 -- TRANSFORM
 
+||| Project a record (keep only a subset of its field and reorder them.
+|||
+||| Complexity is _O(n)_
+|||
 project : Record k header -> {auto prf : Sub sub header} -> Record k sub
 project (Rec xs nub) {prf = S prf} = Rec (project xs prf) (isNubFromSub prf nub)
 
+||| Build a projection with the given keys
+|||
+||| @keys The rows to keep
+||| @xs The record to project
+||| @prf Proof that the rows are parts of the record
 keep : (keys : List k) -> (xs : Record k pre) ->
        {auto prf : SubWithKeys keys post pre} ->
        Record k post
 keep keys (Rec xs nub) {prf = S prf} =
   Rec (keep xs prf) (isNubFromSub (toSub prf) nub)
 
+||| Build a projection that excludes the given keys
+|||
+||| @keys The rows to skip
+||| @xs The record to project
+||| @prf Proof that the rows are parts of the record
 discard : (keys : List k) -> (xs : Record k pre) ->
           {auto prf : CompWithKeys keys post pre} ->
           Record k post
