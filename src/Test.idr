@@ -20,12 +20,12 @@ data Record : (k : Type) -> Header k -> Type where
 %name Record xs, ys, zs
 
 Nil : Ord k => Record k []
-Nil = Rec [] []
+Nil = Rec empty []
 
 (::) : (DecEq k, Ord k) => TaggedValue k' ty -> Record k header ->
        {default SoTrue fresh : IsFresh k' header} ->
        Record k ((k',ty) :: header)
-(::) x (Rec xs isnub) {fresh} = Rec (x :: xs) (freshInsert fresh isnub)
+(::) x (Rec xs isnub) {fresh} = Rec (insert x xs) (freshInsert fresh isnub)
 
 ||| It's just monomorphic `id` with a fancy name, to help type inference
 rec : Record k header -> Record k header
