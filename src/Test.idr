@@ -19,10 +19,6 @@ data Record : (k : Type) -> Header k -> Type where
 
 %name Record xs, ys, zs
 
-rec : (xs : RecordContent k o header) -> {auto nubProof : Nub header} ->
-      Record k (H header)
-rec xs {nubProof} = Rec xs nubProof
-
 Nil : Ord k => Record k []
 Nil = Rec [] []
 
@@ -30,6 +26,11 @@ Nil = Rec [] []
        {default SoTrue fresh : IsFresh k' header} ->
        Record k ((k',ty) :: header)
 (::) x (Rec xs isnub) {fresh} = Rec (x :: xs) (freshInsert fresh isnub)
+
+||| It's just monomorphic `id` with a fancy name, to help type inference
+rec : Record k header -> Record k header
+rec = id
+
 
 -- READ
 
