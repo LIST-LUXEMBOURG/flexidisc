@@ -47,7 +47,7 @@ update ((l := x) :: xs) Here f = (l := f x) :: xs
 update (x :: xs) (There later) f = x :: update xs later f
 
 merge : (xs : RecordContent k o header) -> (ys : RecordContent k o header') ->
-        RecordContent k o (merge header header')
+        RecordContent k o (mergeSameOrder header header')
 merge [] ys = ys
 merge (x :: zs) [] = x :: zs
 merge ((k := x) :: zs) ((k' := y) :: ys) with (k < k')

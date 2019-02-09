@@ -82,11 +82,11 @@ fullname : Record String xs ->
 fullname xs = (xs !! "Firstname") ++ " " ++ (xs !! "Lastname")
 
 ||| Or ensure that some row doesn't exist to create them
-addFullname : Record String (H xs) ->
+addFullname : Record String xs ->
               {auto requiredFields : Sub [ "Firstname" ::: String
-                                         , "Lastname"  ::: String ] (H xs)} ->
+                                         , "Lastname"  ::: String ] xs} ->
               {auto newFields : Disjoint [ "Fullname"  ::: String ] xs} ->
-              Record String (H (merge ["Fullname" :::  String] xs))
+              Record String (merge ["Fullname" :::  String] xs)
 addFullname r = ["Fullname" := fullname r] ++ r
 
 ||| We can also decide to merge records if there is no overlap

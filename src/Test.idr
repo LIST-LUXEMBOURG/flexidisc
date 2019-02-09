@@ -160,18 +160,16 @@ update _ f xs {loc} = updateByLabel xs loc f
 |||
 ||| Complexity is _O(n)_ where _n_ is the length of the longest record.
 |||
-merge : {header : OrdHeader k o} -> {header' : OrdHeader k o} ->
-        (xs : Record k (H header)) -> (ys : Record k (H header')) ->
+merge : (xs : Record k header) -> (ys : Record k header') ->
         {auto prf : Disjoint header header'} ->
-        Record k (H (merge header header'))
-merge (Rec xs nubX) (Rec ys nubY) {o} {prf} =
+        Record k (merge header header')
+merge (Rec xs nubX) (Rec ys nubY) {prf = D prf} =
   Rec (merge xs ys) (disjointNub prf nubX nubY)
 
 ||| Alias for `merge`
-(++) : {header : OrdHeader k o} -> {header' : OrdHeader k o} ->
-       (xs : Record k (H header)) -> (ys : Record k (H header')) ->
+(++) : (xs : Record k header) -> (ys : Record k header') ->
        {auto prf : Disjoint header header'} ->
-       Record k (H (merge header header'))
+       Record k (merge header header')
 (++) = merge
 
 -- DELETE
