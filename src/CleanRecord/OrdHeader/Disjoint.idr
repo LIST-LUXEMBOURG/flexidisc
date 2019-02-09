@@ -9,7 +9,7 @@ import CleanRecord.OrdHeader.Type
 %default total
 %access public export
 
-data Disjoint : (left : OrdHeader k o) -> (right : OrdHeader k o) -> Type where
+data Disjoint : (left : OrdHeader k o) -> (right : OrdHeader k o2) -> Type where
   Nil : Disjoint [] right
   (::) : DecEq l => {k : l} -> IsFresh k right -> Disjoint left right ->
                     Disjoint ((k,v) :: left) right

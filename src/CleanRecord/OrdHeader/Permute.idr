@@ -11,8 +11,8 @@ import CleanRecord.OrdHeader.Type
 
 ||| Proof that a `Vect` is a permutation of another vect
 public export
-data Permute : (xs : OrdHeader k o) ->
-               (ys : OrdHeader k o) ->
+data Permute : (xs : OrdHeader k o1) ->
+               (ys : OrdHeader k o2) ->
                Type where
   Empty : Permute [] []
   Keep  : (e : OrdRow k ty ys) -> Permute xs (dropOrdRow ys e) ->
@@ -36,7 +36,7 @@ consInsertPermute (l, ty) xs =
        (rewrite dropInsertInv l ty xs in (permuteRefl xs))
 
 permutePreservesFresh :  Permute ys xs -> Fresh k xs -> Fresh k ys
-permutePreservesFresh Empty fresh = fresh
+permutePreservesFresh Empty [] = []
 permutePreservesFresh (Keep e perm) fresh =
   (\p => freshCantBeLabel fresh (rewrite p in labelFromOrdRow e)) ::
   permutePreservesFresh perm (dropPreservesFresh fresh)

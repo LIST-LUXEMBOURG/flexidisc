@@ -37,6 +37,11 @@ dropPreservesFresh : Fresh l xs -> Fresh l (dropLabel xs e)
 dropPreservesFresh (f :: fresh) {e = Here} = fresh
 dropPreservesFresh (f :: fresh) {e = (There e)} = f :: dropPreservesFresh fresh
 
+changeOrderPreservesNub : (o : Ord k) => {xs : OrdHeader k o'} -> Nub xs ->
+                                     Nub (the (OrdHeader k o) (reorder xs))
+changeOrderPreservesNub [] = []
+changeOrderPreservesNub (yes :: nub) = ?vebb (changeOrderPreservesNub nub)
+
 changeTypePreservesNub : Nub xs -> Nub (changeType xs loc new)
 changeTypePreservesNub [] {loc} = absurd loc
 changeTypePreservesNub (p :: pf) {loc = Here} = p :: pf

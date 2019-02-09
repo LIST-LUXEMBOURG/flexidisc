@@ -11,7 +11,7 @@ import CleanRecord.OrdHeader.Type
 
 ||| Proof that a `Vect` is a permutation of another vect
 public export
-data HereOrNot : (xs : OrdHeader k o) -> (ys : OrdHeader k o) -> Type where
+data HereOrNot : (xs : OrdHeader k o1) -> (ys : OrdHeader k o2) -> Type where
   Empty : HereOrNot [] xs
   Skip  : DecEq k => {xs : OrdHeader k o} ->
           HereOrNot xs ys -> Fresh l xs -> HereOrNot ((l, ty) :: xs) ys

@@ -22,6 +22,9 @@ person0Name = get "Firstname" person0
 person0Name' : String
 person0Name' = person0 !! "Firstname"
 
+||| you can even lookup for fields that my or may not be there
+person0age : Maybe Nat
+person0age = lookup "Age" person0
 
 ||| We can of course extend records:
 person1 : Record String ["Age" ::: Nat, "Lastname" ::: String, "Firstname" ::: String]

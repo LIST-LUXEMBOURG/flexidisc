@@ -8,5 +8,5 @@ import CleanRecord.OrdHeader.Type
 %access public export
 
 data HereOrNot : (xs : Header k) -> (ys : Header k) -> Type where
-  HN : {xs : OrdHeader k o} -> {ys : OrdHeader k o} ->
+  HN : {xs : OrdHeader k o1} -> {ys : OrdHeader k o2} ->
        HereOrNot xs ys -> HereOrNot (H xs) (H ys)

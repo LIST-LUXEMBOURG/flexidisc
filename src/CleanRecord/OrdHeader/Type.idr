@@ -16,6 +16,13 @@ insert (k, v) ((k', v') :: xs) with (k < k')
   | False = (k',v') :: (insert (k, v) xs)
   | True  = (k,v)   :: (k',v') :: xs
 
+reorder' : OrdHeader k o1 -> OrdHeader k o2 -> OrdHeader k o2
+reorder' [] res = res
+reorder' (x::xs) res = insert x (reorder' xs res)
+
+reorder : OrdHeader k o1 -> OrdHeader k o2
+reorder xs = reorder' xs []
+
 merge :  OrdHeader k o -> OrdHeader k o -> OrdHeader k o
 merge [] xs = xs
 merge (x :: hs) [] = (x :: hs)

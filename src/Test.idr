@@ -226,8 +226,8 @@ keep keys (Rec xs nub) {prf = S prf} =
 discard : (keys : List k) -> (xs : Record k pre) ->
           {auto prf : CompWithKeys keys post pre} ->
           Record k post
-discard keys (Rec xs nub) {prf = S prf} =
-  Rec (discard xs prf) (isNubFromSub (toSub prf) nub)
+discard keys (Rec xs nub) {prf = S prf} = ?vrv
+  -- Rec (discard xs prf) (isNubFromSub (toSub prf) nub)
 
 toTHList : Record k header -> THList (toList header)
 toTHList (Rec xs _) = toTHList xs
