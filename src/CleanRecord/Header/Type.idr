@@ -8,6 +8,9 @@ import CleanRecord.OrdHeader.Type
 data Header : (k : Type) -> Type where
   H : (o : Ord k) => OrdHeader k o -> Header k
 
+unwrap : Header k -> (o ** OrdHeader k o)
+unwrap (H hs) = (_ ** hs)
+
 Nil : Ord k => Header k
 Nil = H []
 
