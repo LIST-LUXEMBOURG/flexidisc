@@ -49,7 +49,7 @@ person5 :  Record String ["Firstname" ::: String, "Lastname" ::: String]
 person5 = drop "Age" person1
 
 {-
-||| You can also patch a record with another record
+||| You can also patch a record with another record:
 person6 :  Record String ["Firstname" ::: String, "Lastname" ::: String, "Age" ::: Nat]
 person6 = patch person2 (namedRec ["Lastname" := "Biri", "Firstname" := "Nicolas"])
 -}

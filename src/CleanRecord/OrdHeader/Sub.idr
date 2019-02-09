@@ -49,7 +49,7 @@ isNubFromSub : Sub xs ys -> Nub ys -> Nub xs
 isNubFromSub Empty y = y
 isNubFromSub (Skip sub) (yes :: prf) = isNubFromSub sub prf
 isNubFromSub (Keep sub) (yes :: prf) =
-  isFreshFromEvidence (freshInSub sub (getProof yes)) :: isNubFromSub sub prf
+  freshInSub sub yes :: isNubFromSub sub prf
 
 %hint
 public export

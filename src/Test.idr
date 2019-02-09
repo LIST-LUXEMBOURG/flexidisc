@@ -39,7 +39,8 @@ Nil = Rec empty []
 (::) : (DecEq k, Ord k) => TaggedValue k' ty -> Record k header ->
        {default SoTrue fresh : IsFresh k' header} ->
        Record k ((k',ty) :: header)
-(::) x (Rec xs isnub) {fresh} = Rec (insert x xs) (freshInsert fresh isnub)
+(::) x (Rec xs isnub) {fresh} =
+  Rec (insert x xs) (freshInsert (getProof fresh) isnub)
 
 private
 test_rec1 : Record String ["Firstname" ::: String]
@@ -226,8 +227,8 @@ keep keys (Rec xs nub) {prf = S prf} =
 discard : (keys : List k) -> (xs : Record k pre) ->
           {auto prf : CompWithKeys keys post pre} ->
           Record k post
-discard keys (Rec xs nub) {prf = S prf} = ?vrv
-  -- Rec (discard xs prf) (isNubFromSub (toSub prf) nub)
+discard keys (Rec xs nub) {prf = S prf} =
+  Rec (discard xs prf) (isNubFromSub (toSub prf) nub)
 
 toTHList : Record k header -> THList (toList header)
 toTHList (Rec xs _) = toTHList xs

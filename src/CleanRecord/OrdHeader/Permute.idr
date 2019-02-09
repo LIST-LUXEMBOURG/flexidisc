@@ -44,14 +44,11 @@ permutePreservesFresh (Keep e perm) fresh =
 isNubFromPermute : Permute xs ys -> Nub ys -> Nub xs
 isNubFromPermute Empty [] = []
 isNubFromPermute (Keep e perm) pf@(p::_) =
-  isFreshFromEvidence
-    (permutePreservesFresh perm (removeFromNubIsFresh pf (labelFromOrdRow e)))
-  :: isNubFromPermute perm (dropPreservesNub pf (labelFromOrdRow e))
+  permutePreservesFresh perm (removeFromNubIsFresh pf (labelFromOrdRow e))
+    :: isNubFromPermute perm (dropPreservesNub pf (labelFromOrdRow e))
 
 export
-freshInsert : (DecEq k) =>
-              {header : OrdHeader k o} ->
-              IsFresh k' header -> Nub header ->
+freshInsert : Fresh k' header -> Nub header ->
               Nub (insert (k', ty) header)
 freshInsert fresh isnub {k'} {ty} {header} =
   isNubFromPermute (insertConsPermute (k', ty) header) (fresh :: isnub)
