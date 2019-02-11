@@ -17,6 +17,10 @@ diffKeys ((lx, vx) :: xs) ys with (decFresh lx ys)
   | (Yes prf) = (lx, vx) :: diffKeys xs ys
   | (No contra) = diffKeys xs ys
 
+patch : DecEq k =>
+        (xs : OrdList k v o) -> (ys : OrdList k v o) -> OrdList k v o
+patch xs ys = merge (diffKeys ys xs) xs
+
 diffIsSub : DecEq k => {xs : OrdList k v o} ->
             Sub (diffKeys xs ys) xs
 diffIsSub {xs = []} = Empty

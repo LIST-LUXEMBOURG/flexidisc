@@ -67,7 +67,7 @@ infixl 7 |>
 
 (|>) : DecEq k =>
              (xs : RecordContent k o header) -> (ys : RecordContent k o header') ->
-        RecordContent k o (merge (diffKeys header' header) header)
+        RecordContent k o (patch header header')
 (|>) xs ys = merge (diff ys xs) xs
 
 

@@ -50,3 +50,7 @@ namespace SmaeOrd
 
 diffKeys : DecEq k => (xs : Header k) -> (ys : Header k) -> Header k
 diffKeys (H xs) (H ys) = H (diffKeys xs ys)
+
+patch : DecEq k =>
+        (xs : Header k) -> (ys : Header k) -> Header k
+patch (H xs) (H ys) = H (patch xs ys)

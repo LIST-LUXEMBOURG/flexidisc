@@ -176,7 +176,7 @@ merge (Rec xs nubX) (Rec ys nubY) {prf = D prf} =
 (|>) : DecEq k =>
        (xs : Record k header) -> (ys : Record k header') ->
        {default (S Same) prf : SameOrd header header'} ->
-        Record k (merge (diffKeys header' header) header)
+        Record k (patch header header')
 (|>) (Rec xs nubX) (Rec ys nubY) {prf = S prf} = let
   nubProof = disjointNub diffIsDisjoint (isNubFromSub diffIsSub nubY) nubX
   in Rec (xs |> ys) nubProof
