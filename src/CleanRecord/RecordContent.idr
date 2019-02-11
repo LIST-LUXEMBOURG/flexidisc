@@ -7,6 +7,7 @@ import CleanRecord.THList
 %default total
 %access export
 
+public export
 data RecordContent : (k : Type) -> (o : Ord k) -> (OrdHeader k o) -> Type where
   Nil  : RecordContent k o []
   (::) : TaggedValue k' a -> RecordContent k o xs ->

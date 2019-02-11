@@ -45,3 +45,7 @@ modules = CleanRecord
         -- Records
         , CleanRecord.Record
         , CleanRecord.RecordContent
+        -- Syntactical helper
+        , CleanRecord.TaggedValue
+        -- Transformation of Records
+        , CleanRecord.Transformation.Type
