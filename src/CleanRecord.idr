@@ -12,29 +12,4 @@
 |||   interface.
 module CleanRecord
 
-import public CleanRecord.Elem.Label
-import public CleanRecord.Elem.Row
-
-import public CleanRecord.InjectiveDecEq
-import public CleanRecord.IsNo
-import public CleanRecord.Nub
-
 import public CleanRecord.Record
-import public CleanRecord.Record.RecordContent
-
-import public CleanRecord.RecordList
-
-import public CleanRecord.Relation.CompatibleWith
-import public CleanRecord.Relation.Disjoint
-import public CleanRecord.Relation.NegSub
-import public CleanRecord.Relation.OrdSub
-import public CleanRecord.Relation.Permutation
-import public CleanRecord.Relation.SkipSub
-import public CleanRecord.Relation.Sub
-import public CleanRecord.Relation.SubWithKeys
-import public CleanRecord.Relation.Update
-
-import public CleanRecord.Selection
-import public CleanRecord.Selection.SelectionContent
-
-%default total

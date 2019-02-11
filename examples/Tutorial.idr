@@ -1,6 +1,6 @@
 module CleanRecord.Tutorial
 
-import Test
+import CleanRecord
 
 person0 : Record String ["Firstname" ::: String]
 person0 = ["Firstname" := "John"]

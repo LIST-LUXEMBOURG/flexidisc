@@ -1,471 +1,249 @@
-||| `Record` The core module, home of the record implementation.
-module CleanRecord.Record
+module ClecnRecord.Record
 
-import public CleanRecord.Elem.Label
-import public CleanRecord.Elem.Row
+import CleanRecord.RecordContent
+import public CleanRecord.THList
 
-import public CleanRecord.IsNo
-import public CleanRecord.Nub
-
-import public CleanRecord.Record.RecordContent
-
-import public CleanRecord.Relation.CompatibleWith
-import public CleanRecord.Relation.Disjoint
-import public CleanRecord.Relation.NegSub
-import public CleanRecord.Relation.OrdSub
-import public CleanRecord.Relation.Permutation
-import public CleanRecord.Relation.SkipSub
-import public CleanRecord.Relation.Sub
-import public CleanRecord.Relation.SubWithKeys
-import public CleanRecord.Relation.Update
+import public CleanRecord.OrdHeader
+import public CleanRecord.Dec.IsYes
+import public CleanRecord.Header
+import public CleanRecord.TaggedValue
 
 %default total
+%access export
+
+-- CREATE
 
 ||| A `Record` is a set of rows
+||| @ k      The type of the labels
 ||| @ header The list of rows into the record, with their types
+data Record : (k : Type) -> (header : Header k) -> Type where
+  Rec : (o : Ord k) =>
+        (values : RecordContent k o header) -> (nubProof : Nub header) ->
+        Record k (H header)
+
+infix 6 :::
+
+||| Convenient helper for row type lisibility
 public export
-data Record : (header : List (Field label)) -> Type where
-  MkRecord : (values : RecordContent header) -> (nubProof : IsNub header) ->
-             Record header
-
-||| Build a `Record` from a list of values, the function checks unicity of
-||| the fields and build the `Record` if such proof can be generated
-export
-rec : (xs : RecordContent header) -> {auto nubProof : IsNub header} ->
-      Record header
-rec xs {nubProof} = MkRecord xs nubProof
-
-||| Build a `Record` from a list of named values (rows). This version is
-||| an alternative to `rec` that allows to gdet rid of the `Record` signature.
-export
-namedRec : (xs : NamedRecordContent header) -> {auto nubProof : IsNub header} ->
-      Record header
-namedRec xs {nubProof} = MkRecord (toRecordContent xs) nubProof
+(:::) : (k : l) -> (v : Type) -> Pair l Type
+(:::) = MkPair
 
 
-||| Prepend a value to a record, the label name is given by the result type.
-export
-cons : DecEq label =>
-         {lbl : label} ->
-         ty ->
-         Record header ->
-         {auto fresh : NotLabel lbl header} ->
-         Record ((lbl, ty) :: header)
-cons x (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
+%name Record xs, ys, zs
 
-||| (Almost) infix alias for `cons`
-export
-(::) : DecEq label =>
-         {lbl : label} ->
-         ty -> Record header ->
-         {default SoFalse fresh : NotLabel lbl header} ->
-        Record ((lbl, ty) :: header)
-(::) x (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
+||| The empty record
+Nil : Ord k => Record k []
+Nil = Rec empty []
 
-infixr 7 :+:
+||| Insert a new row in a record
+(::) : (DecEq k, Ord k) => TaggedValue k' ty -> Record k header ->
+       {default SoTrue fresh : IsFresh k' header} ->
+       Record k ((k',ty) :: header)
+(::) x (Rec xs isnub) {fresh} =
+  Rec (insert x xs) (freshInsert (getProof fresh) isnub)
 
-||| Prepend a named value to a record.
-export
-consRow : DecEq label =>
-         {lbl : label} ->
-         (Row lbl ty) ->
-         Record header ->
-         {default SoFalse fresh : NotLabel lbl header} ->
-        Record ((lbl, ty) :: header)
-consRow (MkRow x) (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
+private
+test_rec1 : Record String ["Firstname" ::: String]
+test_rec1 = ["Firstname" := "John"]
+
+||| It's just monomorphic `id` with a fancy name, to help type inference
+rec : Record k header -> Record k header
+rec = id
 
 
-||| (Almost) infix alias for `consRow`
-export
-(:+:) : DecEq label =>
-         {lbl : label} ->
-         (Row lbl ty) ->
-         Record header ->
-         {default SoFalse fresh : NotLabel lbl header} ->
-        Record ((lbl, ty) :: header)
-(:+:) (MkRow x) (MkRecord xs prf) {fresh} = MkRecord (x::xs) (fresh::prf)
+-- READ
 
-
-infix 9 :=
-
-||| An alias for `MkPair`, that provides a clearer representation of the
-||| row types.
-public export
-(:=) : a -> b -> (a,b)
-(:=) = MkPair
-
-t_record1 : Record ["Bar" := Nat]
-t_record1 = rec [42]
-
-t_record2 : Record ["Foo" := String]
-t_record2 = rec ["Test"]
-
-t_record_3 : Record ["Foo" := String, "Bar" := Nat]
-t_record_3 = rec ["Test", 42]
-
-t_record_3' : Record ["Foo" := String, "Bar" := Nat]
-t_record_3' = "Test" :: t_record1
-
-t_record_4 : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
-t_record_4 = Just "Test2" :: t_record_3
-
-t_record_4' : Record ["Foobar" := Maybe String, "Foo" := String, "Bar" := Nat]
-t_record_4' = rec [Nothing, "Test", 19]
-
-||| Get value from a Row
+||| Get value from a `Row`
 ||| (not the most convenient way to get a value
 ||| but it may be useful when you have a `Row`)
 |||
 ||| Complexity is _O(n)_
-export
-atRow : (xs : Record header) -> (Row field ty header) -> ty
-atRow (MkRecord xs nubProof) row = atRow xs row
+atRow : Record k header -> (loc : Row l ty header) -> ty
+atRow (Rec xs _) (R loc) = atRow xs loc
+
+||| Get value from a `Label`
+||| (not the most convenient way to get a value
+||| but it may be useful when you have a `Label`)
+|||
+||| It's slightly less efficient than `atRow`,
+||| as you need to go through the header to get the return type
+|||
+||| Complexity is _O(n)_
+atLabel : Record k header -> (loc : Label l header) -> atLabel header loc
+atLabel (Rec xs _) (L loc) = atLabel xs loc
 
 ||| Typesafe extraction of a value from a record
 |||
 ||| Complexity is _O(n)_
-export
-get : (field : a) -> (rec : Record xs) -> {auto p : Row field ty xs} -> ty
-get field (MkRecord xs _) {p} = atRow xs p
+get : (query : k) -> Record k header ->
+      {auto loc : Row query ty header} -> ty
+get query xs {loc} = atRow xs loc
 
 ||| Typesafe extraction of a value from a record,
 ||| `Nothing` if the Row doesn't exist.
 |||
 ||| Complexity is _O(n)_
 export
-lookup : DecEq a =>
-         (field : a) -> (rec : Record xs) ->
-         {auto p : CompatibleWith [field := ty] xs} -> Maybe ty
-lookup field rec {p} = case p of
-                            (Skip x y) => Nothing
-                            (Keep loc x) => Just (get field rec)
+lookup : (Ord k, DecEq k) =>
+         (query : k) -> (xs : Record k header) ->
+         {auto p : Header.HereOrNot.HereOrNot [(query, ty)] header} -> Maybe ty
+lookup query xs {p} = case p of
+  HN (Skip _ _) => Nothing
+  HN (Keep loc x) => Just (atRow xs (R loc))
 
 
 infixl 7 !!
 
-||| (Alomost) infix alias for `get`
-export
-(!!) : (rec : Record xs) -> (field : a) -> {auto p : Row field ty xs} -> ty
+||| (Almost) infix alias for `get`
+|||
+||| Almost: it requires an implicit paramet which may leads to weird behaviour
+||| when used as an infix operator
+(!!) : Record k header -> (query : k) ->
+      {auto loc : Row query ty header} -> ty
 (!!) rec field = get field rec
 
-t_get_1 : String
-t_get_1 = get "Foo" t_record_3
+-- UPDATE
 
-t_get_2 : Nat
-t_get_2 = get "Bar" t_record_3
-
-
-||| project a part of a `Record`, preserving the order of the fields
+||| Replace a row, can change its type
 |||
-||| Complexity is _O(n)_ where _n_ is the initial record size
+||| Complexity is _O(n)_
 |||
-||| the final record size.
-export
-ordSub : Record header -> (ordSubPrf : OrdSub sub header) ->
-         Record sub
-ordSub (MkRecord xs prf) ordSubPrf =
-  MkRecord (ordSub xs ordSubPrf) (isNubFromOrdSub ordSubPrf prf)
+||| @ xs  the record
+||| @ loc the proof that the row is in it
+||| @ new the new value for the row
+setByLabel : (xs : Record k header) -> (loc : Label query header) -> (new : ty) ->
+      Record k (changeType header loc ty)
+setByLabel (Rec xs nub) (L loc) new =
+  Rec (set xs loc new) (changeTypePreservesNub nub)
+
+||| Update a row, the update can change the row type.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ query the row name
+||| @ xs    the record
+||| @ loc   the proof that the row is in it
+||| @ new   the new value for the row
+set : (query : k) -> (new : ty) -> (xs : Record k header) ->
+      {auto loc : Label query header} ->
+      Record k (changeType header loc ty)
+set _ new xs {loc} = setByLabel xs loc new
+
+||| Update a row at a given `Row`, can change its type.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ xs     the record
+||| @ loc    the proof that the row is in it
+||| @ f      the update function
+updateByLabel : (xs : Record k header) -> (loc : Row query a header) ->
+                (f : a -> b) ->
+                Record k (changeType header loc b)
+updateByLabel (Rec xs nub) (R loc) f =
+  Rec (update xs loc f) (changeTypePreservesNub nub)
+
+||| Update a row at a given `Row`, can change its type.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ query  the row name
+||| @ xs     the record
+||| @ loc    the proof that the row is in it
+||| @ f      the update function
+update : (query : k) -> (f : a -> b) -> (xs : Record k header) ->
+         {auto loc : Row query a header} ->
+         Record k (changeType header loc b)
+update _ f xs {loc} = updateByLabel xs loc f
+
+
+||| Append two records, it fails if some fields are duplicated
+|||
+||| Complexity is _O(n)_ where _n_ is the length of the longest record.
+|||
+merge : (xs : Record k header) -> (ys : Record k header') ->
+        {auto prf : Disjoint header header'} ->
+        Record k (merge header header')
+merge (Rec xs nubX) (Rec ys nubY) {prf = D prf} =
+  Rec (merge xs ys) (disjointNub prf nubX nubY)
+
+||| Alias for `merge`
+(++) : (xs : Record k header) -> (ys : Record k header') ->
+       {auto prf : Disjoint header header'} ->
+       Record k (merge header header')
+(++) = merge
+
+
+(|>) : DecEq k =>
+       (xs : Record k header) -> (ys : Record k header') ->
+       {default (S Same) prf : SameOrd header header'} ->
+        Record k (merge (diffKeys header' header) header)
+(|>) (Rec xs nubX) (Rec ys nubY) {prf = S prf} = let
+  nubProof = disjointNub diffIsDisjoint (isNubFromSub diffIsSub nubY) nubX
+  in Rec (xs |> ys) nubProof
+
+-- DELETE
 
 ||| Remove a row from a Record.
 |||
 ||| Complexity is _O(n)_
 |||
 ||| @ xs the record
-||| @ p  the proof that the row is in it
-export
-dropByLabel : {header : List (Field a)} ->
-          (xs : Record header) -> (p : Label k header) ->
-          Record (dropLabel header p)
-dropByLabel xs p {header} = ordSub xs (ordSubFromDrop header p)
+||| @ loc  the proof that the row is in it
+dropByLabel : (xs : Record k header) -> (loc : Label query header) ->
+              Record k (dropLabel header loc)
+dropByLabel (Rec xs nub) (L prf) =
+  Rec (drop xs prf) (dropPreservesNub nub prf)
 
 ||| Remove a row from a Record.
 |||
 ||| Complexity is _O(n)_
 |||
-||| @ k  the row name
-||| @ xs the record
-||| @ p  the proof that the row is in it
-export
-dropByName : {header : List (Field a)} ->
-             (k : a) -> (xs : Record header) ->
-             {auto p : Label k header} ->
-             Record (dropLabel header p)
-dropByName name rec {p} {header} = ordSub rec (ordSubFromDrop header p)
+||| @ query  the row name
+||| @ xs     the record
+||| @ loc    the proof that the row is in it
+drop : (query : k) -> (xs : Record k header) ->
+       {auto loc : Label query header} ->
+       Record k (dropLabel header loc)
+drop _ xs {loc} = dropByLabel xs loc
 
-t_drop_1 : Record ["Bar" := Nat]
-t_drop_1 = dropByLabel t_record_3 Here
-
-t_drop_2 : Record ["Bar" := Nat]
-t_drop_2 = dropByName "Foo" t_record_3
-
-t_drop_3 : Record ["Foo" := String]
-t_drop_3 = dropByLabel t_record_3 (There Here)
-
-t_drop_4 : Record ["Foo" := String]
-t_drop_4 = dropByName "Bar" t_record_3
-
-||| Update a row, the update can change the row type.
-|||
-||| Complexity is _O(n)_
-|||
-||| @ xs  the record
-||| @ loc the proof that the row is in it
-||| @ f   the update function
-export
-updateRow : {header : List (Field a)} ->
-            (xs : Record header) ->
-            (loc : Row k ty header) -> (f : ty -> tNew) ->
-            Record (updateRow header loc tNew)
-updateRow (MkRecord xs prf) loc f {header} =
-  MkRecord (updateRow xs loc f) (updatePreservesNub prf)
-
-
-
-||| Update a row, the update can change the row type.
-|||
-||| Complexity is _O(n)_
-|||
-||| @ k  the row name
-||| @ xs  the record
-||| @ loc the proof that the row is in it
-||| @ f   the update function
-export
-updateByName : {header : List (Field a)} ->
-               (k : a) ->
-               (f : ty -> tNew) ->
-               (xs : Record header) ->
-               {auto loc : Row k ty header} ->
-               Record (updateRow header loc tNew)
-updateByName k f xs {loc} = updateRow xs loc f
-
-t_update_1 : Record ["Foo" := Nat, "Bar" := Nat]
-t_update_1 = updateRow t_record_3 Here length
-
-t_update_2 : Record ["Foo" := String, "Bar" := String]
-t_update_2 = updateByName "Bar" (const "BAAAAAR") t_record_3
-
-||| Replace a row, with a new value (it can change the type)
-|||
-||| Complexity is _O(n)_
-|||
-||| @ xs  the record
-||| @ loc the proof that the row is in it
-||| @ new   the new value for the row
-export
-replaceRow : {header : List (Field a)} ->
-            (xs : Record header) ->
-            (loc : Label k header) -> (new : tNew) ->
-            Record (updateLabel header loc tNew)
-replaceRow (MkRecord xs prf) loc new =
-  MkRecord (replaceRow xs loc new) (updatePreservesNub prf)
-
-||| Update a row, the update can change the row type.
-|||
-||| Complexity is _O(n)_
-|||
-||| @ k  the row name
-||| @ xs  the record
-||| @ loc the proof that the row is in it
-||| @ new   the new value for the row
-export
-replaceByName : {header : List (Field a)} ->
-                (k : a) ->
-                (new : tNew) ->
-                (xs : Record header) ->
-                {auto loc : Label k header} ->
-                Record (updateLabel header loc tNew)
-replaceByName k new xs {loc} = replaceRow xs loc new
-
-||| Traverse a record with a function
-export
-traverseByName : Functor f =>
-                 {header : List (Field a)} ->
-                 (k : a) ->
-                 (func : ty -> f tNew) ->
-                 (xs : Record header) ->
-                 {auto loc : Row k ty header} ->
-                 f (Record (updateRow header loc tNew))
-traverseByName k func xs = let
-  fx = func (xs !! k)
-  in map (\x => replaceByName k x xs) fx
-
-||| Like project, but with an explicit proof that the final
-||| set of rows is a subset of the initial set.
-|||
-||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
-||| the target size
-|||
-export
-project' : Record header ->
-           (subPrf : Sub sub header) ->
-           Record sub
-project' (MkRecord xs prf) subPrf =
-  MkRecord (project xs subPrf) (isNubFromSub subPrf prf)
+-- TRANSFORM
 
 ||| Project a record (keep only a subset of its field and reorder them.
 |||
-||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
-||| the target size
+||| Complexity is _O(n)_
 |||
-export
-project : Record pre -> {auto prf : Sub post pre} ->
-          Record post
-project rec {prf} = project' rec prf
-
-t_sub_1 : Record ["Bar" := Nat, "Foo" := String]
-t_sub_1 = project t_record_4
-
-t_sub_2 : Record ["Bar" := Nat, "Foo" := String]
-t_sub_2 = project t_record_3
-
-||| Like project, but with an explicit proof that the final
-||| set of rows is a subset of the initial set.
-|||
-||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
-||| the target size
-|||
-negProject' : Record header ->
-           (negPrf : NegSub sub header) ->
-           Record sub
-negProject' (MkRecord xs prf) subPrf =
-  MkRecord (negProject xs subPrf) (isNubFromNegSub subPrf prf)
+project : Record k header -> {auto prf : Sub sub header} -> Record k sub
+project (Rec xs nub) {prf = S prf} = Rec (project xs prf) (isNubFromSub prf nub)
 
 ||| Build a projection with the given keys
-|||
-||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
-||| the target size
 |||
 ||| @keys The rows to keep
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
-export
-keep : (keys : List a) -> (xs : Record pre) ->
+keep : (keys : List k) -> (xs : Record k pre) ->
        {auto prf : SubWithKeys keys post pre} ->
-       Record post
-keep _ xs {prf} = project' xs (toSub prf)
+       Record k post
+keep keys (Rec xs nub) {prf = S prf} =
+  Rec (keep xs prf) (isNubFromSub (toSub prf) nub)
 
 ||| Build a projection that excludes the given keys
-|||
-||| Complexity is _O(mxn)_ where _m_ is the initial record size and _n_
-||| the target size
 |||
 ||| @keys The rows to skip
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
-export
-dropN : (keys : List a) -> (xs : Record pre) ->
-        {auto prf : SkipSub keys post pre} ->
-        Record post
-dropN _ xs {prf} = negProject' xs (toNegSub prf)
+discard : (keys : List k) -> (xs : Record k pre) ->
+          {auto prf : CompWithKeys keys post pre} ->
+          Record k post
+discard keys (Rec xs nub) {prf = S prf} =
+  Rec (discard xs prf) (isNubFromSub (toSub prf) nub)
 
-export
-reorder' : Record header -> (permPrf : Permute sub header) ->
-           Record sub
-reorder' (MkRecord xs prf) permPrf =
-  MkRecord (reorder xs permPrf) (isNubFromPermute permPrf prf)
-
-||| Change the order of the rows. It's used intensively to make
-||| records "order independent".
-|||
-||| Complexity is _O(n^2)_ where _n_ is the record size
-|||
-export
-reorder : Record pre -> {auto prf : Permute post pre} ->
-          Record post
-reorder rec {prf} = reorder' rec prf
-
-t_reorder_1 : Record ["Bar" := Nat, "Foo" := String]
-t_reorder_1 = reorder t_record_3
-
-||| Append two records, it fails if some fields are duplicated
-|||
-||| Complexity is _O(n)_ where _n_ is the length of the first record.
-|||
-export
-merge : DecEq label =>
-        {left : List (Field label)} ->
-        Record left -> Record right ->
-        {auto prf : Disjoint left right} ->
-        Record (left ++ right)
-merge (MkRecord xs leftNub) (MkRecord ys rightNub) {left} {right} {prf} =
-  MkRecord (xs ++ ys) (disjointNub left leftNub right rightNub prf)
-
-||| An infix alias for merge
-export
-(++) : DecEq label =>
-        {left : List (Field label)} ->
-        Record left -> Record right ->
-        {auto prf : Disjoint left right} ->
-        Record (left ++ right)
-(++) = merge
-
-t_merge : Record ["Foo" := Nat] -> Record ["Bar" := String] ->
-          Record ["Foo" := Nat, "Bar" := String]
-t_merge x y = x ++ y
-
-||| Merge data only if the given row has the same value in both records
-export
-mergeOn : (DecEq label, Eq ty) =>
-          (k : label) ->
-          Record left  ->
-          Record right ->
-          {auto leftLoc  : Row k ty left}  ->
-          {auto rightLoc : Row k ty right} ->
-          {auto prf : Disjoint left (dropRow right rightLoc)} ->
-          Maybe (Record (left ++ dropRow right rightLoc))
-mergeOn k left right = let
-  l = get k left
-  r = get k right
-  in guard (l == r) *> pure (merge left (dropByName k right))
-
-||| Patch a record with hte values of another record
-export
-patch : Record pre -> Record update -> {auto prf : Patch update pre post} ->
-        Record post
-patch (MkRecord xs nubProof) (MkRecord ys _) {prf} =
-  MkRecord (patch xs ys prf) (patchPreservesNub nubProof prf)
-
-||| Decide whether a key is defined in a record or not
-export
-decLabel : DecEq a =>
-         (k : a) -> (rec : Record header) -> Dec (ty ** Row k ty header)
-decLabel k rec {header} = decKey k header
+toTHList : Record k header -> THList (toList header)
+toTHList (Rec xs _) = toTHList xs
 
 
-||| Check equality between records that have the same set of
-||| rows, in the same orders
-export
-implementation Eq (RecordContent ts) => Eq (Record ts) where
-  (==) (MkRecord xs _) (MkRecord ys _) = xs == ys
+-- COMPARE
 
-infix 6 =?=
-infix 6 =<?
-infix 6 ?>=
-
-||| Order independent comparison.
-export
-(=?=) : Eq (RecordContent ts) =>
-       (xs : Record ts) -> (ys : Record ts') ->
-       {auto perm : Permute ts ts'} ->
-       Bool
-(=?=) xs ys = xs == reorder ys
-
-||| Check that a Record is a subset of another record
-export
-(=<?) : Eq (RecordContent ts) =>
-       (xs : Record ts) -> (ys : Record ts') ->
-       {auto perm : Sub ts ts'} ->
-       Bool
-(=<?) xs ys = xs == project ys
-
-||| Check that a Record is a subset of another record
-export
-(?>=) : Eq (RecordContent ts') =>
-       (xs : Record ts) -> (ys : Record ts') ->
-       {auto perm : Sub ts' ts} ->
-       Bool
-(?>=) xs ys = project xs == ys
-
-export
-implementation Shows key header => Show (Record header) where
-  show (MkRecord xs _) = show xs
+implementation
+Eq (THList (toList header)) => Eq (Record k header) where
+  (==) xs ys = toTHList xs == toTHList ys
+  (/=) xs ys = toTHList xs /= toTHList ys

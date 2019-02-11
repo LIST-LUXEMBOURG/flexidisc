@@ -44,7 +44,6 @@ disjointNub djt [] z {left = []} {right = right} = z
 disjointNub djt (yes :: x) [] {left = ((l, ty) :: xs)} {right = []} = yes :: x
 disjointNub (fll :: djt) (yes :: x) (prf :: w)
             {left = ((ll, tl) :: xs)} {right = ((lr, tr) :: hs)} with (ll < lr)
-  | True  = freshInMerge yes (getProof fll)
-              :: disjointNub djt x (prf :: w)
+  | True  = freshInMerge yes (getProof fll) :: disjointNub djt x (prf :: w)
   | False = freshInMerge (invertFresh (fll :: djt)) prf
               :: disjointNub (disjointSmallerRight (fll :: djt)) (yes :: x) w

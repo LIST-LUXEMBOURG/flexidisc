@@ -15,29 +15,36 @@ sourcedir = src
 opts = "--warnreach --total"
 
 modules = CleanRecord
-        -- Elem
-        , CleanRecord.Elem.Label
-        , CleanRecord.Elem.Row
+        -- Dec (proof that a Dec is Yes / No
+        , CleanRecord.Dec.IsNo
+        , CleanRecord.Dec.IsYes
+        -- Header (wrapped OrdHeader (for type readability)
+        , CleanRecord.Header
+        , CleanRecord.Header.CompWithKeys
+        , CleanRecord.Header.Disjoint
+        , CleanRecord.Header.Fresh
+        , CleanRecord.Header.HereOrNot
+        , CleanRecord.Header.Label
+        , CleanRecord.Header.Nub
+        , CleanRecord.Header.Row
+        , CleanRecord.Header.Sub
+        , CleanRecord.Header.SubWithKeys
+        , CleanRecord.Header.Type
         -- Helper for DecEq
         , CleanRecord.InjectiveDecEq
-        -- Unicity proofs
-        , CleanRecord.IsNo
-        , CleanRecord.Nub
+        -- OrdHeader (wrapped OrdHeader (for type readability)
+        , CleanRecord.OrdHeader
+        , CleanRecord.OrdHeader.CompWithKeys
+        , CleanRecord.OrdHeader.Disjoint
+        , CleanRecord.OrdHeader.Fresh
+        , CleanRecord.OrdHeader.HereOrNot
+        , CleanRecord.OrdHeader.Label
+        , CleanRecord.OrdHeader.Nub
+        , CleanRecord.OrdHeader.Permute
+        , CleanRecord.OrdHeader.Row
+        , CleanRecord.OrdHeader.Sub
+        , CleanRecord.OrdHeader.SubWithKeys
+        , CleanRecord.OrdHeader.Type
         -- Records
         , CleanRecord.Record
-        , CleanRecord.Record.RecordContent
-        -- Heterogeneous list of record
-        , CleanRecord.RecordList
-        -- Relation between records content
-        , CleanRecord.Relation.CompatibleWith
-        , CleanRecord.Relation.Disjoint
-        , CleanRecord.Relation.NegSub
-        , CleanRecord.Relation.OrdSub
-        , CleanRecord.Relation.Permutation
-        , CleanRecord.Relation.SkipSub
-        , CleanRecord.Relation.Sub
-        , CleanRecord.Relation.SubWithKeys
-        , CleanRecord.Relation.Update
-        -- Entrypoint to modify records
-        , CleanRecord.Selection
-        , CleanRecord.Selection.SelectionContent
+        , CleanRecord.RecordContent
