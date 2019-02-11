@@ -31,7 +31,7 @@ atLabel (_ :: xs) (There later) = atLabel xs later
 
 
 atRow : RecordContent k o header -> (loc : OrdRow l ty header) -> ty
-atRow ((l := x) :: _) Here      = x
+atRow ((l := x) :: _) Here      = ?vrev -- x
 atRow (_ :: xs) (There later) = atRow xs later
 
 
@@ -42,7 +42,7 @@ set (x :: xs) (There later) new = x :: set xs later new
 
 update : RecordContent k o header -> (loc : OrdRow l a header) ->
          (f : a -> b) ->
-         RecordContent k o (changeType header loc b)
+         RecordContent k o (changeValue header loc b)
 update ((l := x) :: xs) Here f = (l := f x) :: xs
 update (x :: xs) (There later) f = x :: update xs later f
 

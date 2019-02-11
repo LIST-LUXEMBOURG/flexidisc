@@ -1,18 +1,18 @@
-module CleanRecord.OrdHeader.Sub
+module CleanRecord.OrdList.Sub
 
 import CleanRecord.Dec.IsYes
-import CleanRecord.OrdHeader.Fresh
-import CleanRecord.OrdHeader.Label
-import CleanRecord.OrdHeader.Nub
-import CleanRecord.OrdHeader.Row
-import CleanRecord.OrdHeader.Type
+import CleanRecord.OrdList.Fresh
+import CleanRecord.OrdList.Label
+import CleanRecord.OrdList.Nub
+import CleanRecord.OrdList.Row
+import CleanRecord.OrdList.Type
 
 %default total
 %access private
 
 ||| Proof that a `Vect` is a permutation of another vect
 public export
-data Sub : (xs : OrdHeader k o) -> (ys : OrdHeader k o) -> Type where
+data Sub : (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
   Empty : Sub [] []
   Skip  : Sub xs ys -> Sub xs (y::ys)
   Keep  : Sub xs ys -> Sub (x::xs) (x::ys)
@@ -20,7 +20,7 @@ data Sub : (xs : OrdHeader k o) -> (ys : OrdHeader k o) -> Type where
 %name Sub sub, issub, ss
 
 ||| An empty `List` is an ordered subset of any `Any`
-subEmpty' : (xs : OrdHeader k o) -> Sub [] xs
+subEmpty' : (xs : OrdList k v o) -> Sub [] xs
 subEmpty' [] = Empty
 subEmpty' (_ :: xs) = Skip (subEmpty' xs)
 
@@ -29,7 +29,7 @@ subEmpty : Sub [] xs
 subEmpty {xs} = subEmpty' xs
 
 ||| A `List` is an ordered subset of itself
-subRefl' : (xs : OrdHeader k o) -> Sub xs xs
+subRefl' : (xs : OrdList k v o) -> Sub xs xs
 subRefl' [] = Empty
 subRefl' (x :: xs) = Keep (subRefl' xs)
 

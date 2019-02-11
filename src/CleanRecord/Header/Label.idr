@@ -1,8 +1,9 @@
 module CleanRecord.Header.Label
 
 import CleanRecord.Header.Type
-import CleanRecord.OrdHeader.Type
 import CleanRecord.OrdHeader.Label
+import CleanRecord.OrdHeader.Type
+import CleanRecord.OrdList.Label
 
 %default total
 %access public export

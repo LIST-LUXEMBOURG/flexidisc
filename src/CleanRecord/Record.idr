@@ -86,7 +86,7 @@ get query xs {loc} = atRow xs loc
 export
 lookup : (Ord k, DecEq k) =>
          (query : k) -> (xs : Record k header) ->
-         {auto p : Header.HereOrNot.HereOrNot [(query, ty)] header} -> Maybe ty
+         {auto p : HereOrNot [(query, ty)] header} -> Maybe ty
 lookup query xs {p} = case p of
   HN (Skip _ _) => Nothing
   HN (Keep loc x) => Just (atRow xs (R loc))
@@ -114,7 +114,7 @@ infixl 7 !!
 setByLabel : (xs : Record k header) -> (loc : Label query header) -> (new : ty) ->
       Record k (changeType header loc ty)
 setByLabel (Rec xs nub) (L loc) new =
-  Rec (set xs loc new) (changeTypePreservesNub nub)
+  Rec (set xs loc new) (changeValuePreservesNub nub)
 
 ||| Update a row, the update can change the row type.
 |||
@@ -140,7 +140,7 @@ updateByLabel : (xs : Record k header) -> (loc : Row query a header) ->
                 (f : a -> b) ->
                 Record k (changeType header loc b)
 updateByLabel (Rec xs nub) (R loc) f =
-  Rec (update xs loc f) (changeTypePreservesNub nub)
+  Rec (update xs loc f) (changeValuePreservesNub nub)
 
 ||| Update a row at a given `Row`, can change its type.
 |||

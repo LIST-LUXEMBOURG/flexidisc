@@ -18,32 +18,29 @@ modules = CleanRecord
         -- Dec (proof that a Dec is Yes / No
         , CleanRecord.Dec.IsNo
         , CleanRecord.Dec.IsYes
+        -- OrdList
+        , CleanRecord.OrdList
+        , CleanRecord.OrdList.CompWithKeys
+        , CleanRecord.OrdList.Disjoint
+        , CleanRecord.OrdList.Fresh
+        , CleanRecord.OrdList.HereOrNot
+        , CleanRecord.OrdList.Label
+        , CleanRecord.OrdList.Nub
+        , CleanRecord.OrdList.Permute
+        , CleanRecord.OrdList.Row
+        , CleanRecord.OrdList.Sub
+        , CleanRecord.OrdList.SubWithKeys
         -- Header (wrapped OrdHeader (for type readability)
         , CleanRecord.Header
-        , CleanRecord.Header.CompWithKeys
-        , CleanRecord.Header.Disjoint
-        , CleanRecord.Header.Fresh
-        , CleanRecord.Header.HereOrNot
         , CleanRecord.Header.Label
-        , CleanRecord.Header.Nub
         , CleanRecord.Header.Row
         , CleanRecord.Header.Sub
-        , CleanRecord.Header.SubWithKeys
         , CleanRecord.Header.Type
         -- Helper for DecEq
         , CleanRecord.InjectiveDecEq
         -- OrdHeader (wrapped OrdHeader (for type readability)
         , CleanRecord.OrdHeader
-        , CleanRecord.OrdHeader.CompWithKeys
-        , CleanRecord.OrdHeader.Disjoint
-        , CleanRecord.OrdHeader.Fresh
-        , CleanRecord.OrdHeader.HereOrNot
         , CleanRecord.OrdHeader.Label
-        , CleanRecord.OrdHeader.Nub
-        , CleanRecord.OrdHeader.Permute
-        , CleanRecord.OrdHeader.Row
-        , CleanRecord.OrdHeader.Sub
-        , CleanRecord.OrdHeader.SubWithKeys
         , CleanRecord.OrdHeader.Type
         -- Records
         , CleanRecord.Record

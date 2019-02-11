@@ -2,7 +2,7 @@ module CleanRecord.Header.Row
 
 import CleanRecord.Header.Type
 import CleanRecord.OrdHeader.Type
-import CleanRecord.OrdHeader.Row
+import CleanRecord.OrdList.Row
 
 %default total
 %access public export
@@ -19,4 +19,4 @@ dropRow (H xs) (R loc) = H (dropOrdRow xs loc)
 ||| Update a value in the list given it's location and an update function
 changeType : (xs : Header k) -> (loc : Row l old xs) -> (new : Type) ->
              Header k
-changeType (H xs) (R loc) = H . changeType xs loc
+changeType (H xs) (R loc) = H . changeValue xs loc

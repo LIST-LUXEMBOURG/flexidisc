@@ -3,9 +3,10 @@ module CleanRecord.Header.Sub
 import CleanRecord.Header.Label
 import CleanRecord.Header.Row
 import CleanRecord.Header.Type
+import CleanRecord.OrdList.Label
+import CleanRecord.OrdList.Row
+import CleanRecord.OrdList.Sub
 import CleanRecord.OrdHeader.Label
-import CleanRecord.OrdHeader.Row
-import CleanRecord.OrdHeader.Sub
 import CleanRecord.OrdHeader.Type
 
 %default total

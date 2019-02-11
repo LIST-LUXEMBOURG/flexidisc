@@ -1,7 +1,7 @@
-module CleanRecord.OrdHeader.CompWithKeys
+module CleanRecord.OrdList.CompWithKeys
 
-import CleanRecord.OrdHeader.Sub
-import CleanRecord.OrdHeader.Type
+import CleanRecord.OrdList.Sub
+import CleanRecord.OrdList.Type
 
 import public Data.List
 
@@ -10,7 +10,7 @@ import public Data.List
 ||| Proof that a `Vect` is a permutation of another vect
 public export
 data CompWithKeys : (keys : List k) ->
-                   (xs : OrdHeader k o) -> (ys : OrdHeader k o) -> Type where
+                   (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
   Empty : CompWithKeys [] [] []
   Skip  : (loc : Elem k keys) -> CompWithKeys (dropElem keys loc) xs ys ->
           CompWithKeys keys xs (y::ys)

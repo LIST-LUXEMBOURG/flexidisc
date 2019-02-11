@@ -1,15 +1,15 @@
-module CleanRecord.OrdHeader.Disjoint
+module CleanRecord.OrdList.Disjoint
 
 import CleanRecord.Dec.IsYes
-import CleanRecord.OrdHeader.Fresh
-import CleanRecord.OrdHeader.Label
-import CleanRecord.OrdHeader.Nub
-import CleanRecord.OrdHeader.Type
+import CleanRecord.OrdList.Fresh
+import CleanRecord.OrdList.Label
+import CleanRecord.OrdList.Nub
+import CleanRecord.OrdList.Type
 
 %default total
 %access public export
 
-data Disjoint : (left : OrdHeader k o) -> (right : OrdHeader k o) -> Type where
+data Disjoint : (left : OrdList k v o) -> (right : OrdList k v o) -> Type where
   Nil : Disjoint [] right
   (::) : DecEq l => {k : l} -> IsFresh k right -> Disjoint left right ->
                     Disjoint ((k,v) :: left) right
