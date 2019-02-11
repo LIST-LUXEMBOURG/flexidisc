@@ -172,6 +172,15 @@ merge (Rec xs nubX) (Rec ys nubY) {prf = D prf} =
        Record k (merge header header')
 (++) = merge
 
+
+(|>) : DecEq k =>
+       (xs : Record k header) -> (ys : Record k header') ->
+       {default (S Same) prf : SameOrd header header'} ->
+        Record k (merge (diffKeys header' header) header)
+(|>) (Rec xs nubX) (Rec ys nubY) {prf = S prf} = let
+  nubProof = disjointNub diffIsDisjoint (isNubFromSub diffIsSub nubY) nubX
+  in Rec (xs |> ys) nubProof
+
 -- DELETE
 
 ||| Remove a row from a Record.

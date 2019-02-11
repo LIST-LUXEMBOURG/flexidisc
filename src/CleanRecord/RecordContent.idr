@@ -47,12 +47,27 @@ update ((l := x) :: xs) Here f = (l := f x) :: xs
 update (x :: xs) (There later) f = x :: update xs later f
 
 merge : (xs : RecordContent k o header) -> (ys : RecordContent k o header') ->
-        RecordContent k o (mergeSameOrder header header')
+        RecordContent k o (merge header header')
 merge [] ys = ys
 merge (x :: zs) [] = x :: zs
 merge ((k := x) :: zs) ((k' := y) :: ys) with (k < k')
   | True  = (k  := x) :: (merge zs ((k' := y) :: ys))
   | False = (k' := y) :: (merge ((k := x) :: zs) ys)
+
+diff : DecEq k =>
+       (xs : RecordContent k o header) -> (ys : RecordContent k o header') ->
+       RecordContent k o (diffKeys header header')
+diff [] ys = []
+diff (kx := vx :: xs) ys {header'} with (decFresh kx header')
+  | (Yes prf) = kx := vx :: diff xs ys
+  | (No contra) = diff xs ys
+
+infixl 7 |>
+
+(|>) : DecEq k =>
+             (xs : RecordContent k o header) -> (ys : RecordContent k o header') ->
+        RecordContent k o (merge (diffKeys header' header) header)
+(|>) xs ys = merge (diff ys xs) xs
 
 
 drop : RecordContent k o header -> (loc : OrdLabel l header) ->
