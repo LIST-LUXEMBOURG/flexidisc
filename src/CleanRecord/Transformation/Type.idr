@@ -16,7 +16,7 @@ data MapValue = (:->) Type Type
 
 public export
 data MapValuesM : (m : Type -> Type) -> (k : Type) -> (o : Ord k) ->
-                  OrdList k MapValue o -> Type where
+                  (header : OrdList k MapValue o) -> Type where
     Nil  : (o : Ord k) => MapValuesM m k o []
     (::) : TaggedValue l (s -> m t) -> MapValuesM m k o header ->
            MapValuesM m k o ((l, s :-> t) :: header)
@@ -24,6 +24,13 @@ data MapValuesM : (m : Type -> Type) -> (k : Type) -> (o : Ord k) ->
 public export
 MapValues :  (k : Type) -> (o : Ord k) -> OrdList k MapValue o -> Type
 MapValues = MapValuesM Identity
+
+insert : TaggedValue k' (s -> m t) -> MapValuesM m k o header ->
+         MapValuesM m k o (insert (k', s :-> t) header)
+insert x [] = [x]
+insert (k' := v) ((kx := vx) :: xs') with (k' < kx)
+  | False = (kx := vx) :: (insert (k' := v) xs')
+  | True  = (k' := v) :: (kx := vx) :: xs'
 
 public export
 toLabels : OrdList k MapValue o -> List k
@@ -40,12 +47,20 @@ toTarget : OrdList k MapValue o -> OrdHeader k o
 toTarget [] = []
 toTarget ((k, s :-> t) :: xs) = (k, t) :: toTarget xs
 
-excactMapRecordM : (o : Ord k, Monad m) =>
-             (selector : MapValuesM m k o mapper) ->
+mapRecordM : (o : Ord k, Monad m) =>
+             (trans : MapValuesM m k o mapper) ->
              (xs : RecordContent k o (toSource mapper)) ->
              m (RecordContent k o (toTarget mapper))
-excactMapRecordM [] xs = pure xs
-excactMapRecordM ((k := f) :: fs) ((k := x) :: xs) = do
+mapRecordM [] [] = pure []
+mapRecordM ((k := f) :: fs) ((k := x) :: xs) = do
   x' <- f x
-  map ((k := x') ::) (excactMapRecordM fs xs)
+  map ((k := x') ::) (mapRecordM fs xs)
 
+patchM : (DecEq k, Monad m) =>
+         (trans : MapValuesM m k o mapper) ->
+         (xs : RecordContent k o header) ->
+         (prf : Sub (toSource mapper) header) ->
+         m (RecordContent k o (patch (toTarget mapper) header))
+patchM trans xs {prf} = do
+  p <- mapRecordM trans (project xs prf)
+  pure $ p |> xs

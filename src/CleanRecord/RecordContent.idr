@@ -32,7 +32,7 @@ atLabel (_ :: xs) (There later) = atLabel xs later
 
 
 atRow : RecordContent k o header -> (loc : OrdRow l ty header) -> ty
-atRow ((l := x) :: _) Here      = ?vrev -- x
+atRow ((l := x) :: _) Here      = x
 atRow (_ :: xs) (There later) = atRow xs later
 
 

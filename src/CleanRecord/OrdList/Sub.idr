@@ -69,4 +69,3 @@ labelFromSub Empty y = y
 labelFromSub (Skip z) loc = There (labelFromSub z loc)
 labelFromSub (Keep _) Here = Here
 labelFromSub (Keep sub) (There later) = There (labelFromSub sub later)
-

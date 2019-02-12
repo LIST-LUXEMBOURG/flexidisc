@@ -1,4 +1,4 @@
-module ClecnRecord.Record
+module CleanRecord.Record
 
 import CleanRecord.RecordContent
 import public CleanRecord.THList
@@ -16,6 +16,7 @@ import public CleanRecord.TaggedValue
 ||| A `Record` is a set of rows
 ||| @ k      The type of the labels
 ||| @ header The list of rows into the record, with their types
+public export
 data Record : (k : Type) -> (header : Header k) -> Type where
   Rec : (o : Ord k) =>
         (values : RecordContent k o header) -> (nubProof : Nub header) ->
