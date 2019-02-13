@@ -30,8 +30,11 @@ IsFresh l (H xs) = IsYes (decFresh l xs)
 
 
 data HereOrNot : (xs : Header k) -> (ys : Header k) -> Type where
-  HN : {xs : OrdHeader k o1} -> {ys : OrdHeader k o2} ->
+  HN : {xs : OrdHeader k o} -> {ys : OrdHeader k o} ->
        HereOrNot xs ys -> HereOrNot (H xs) (H ys)
+
+toSub : {xs : Header k} -> HereOrNot xs ys -> Maybe (Sub xs ys)
+toSub (HN compat) = map S (toSub compat)
 
 
 data Nub : (Header label) -> Type where

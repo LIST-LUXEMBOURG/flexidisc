@@ -1,7 +1,10 @@
 module CleanRecord.OrdList.SubWithKeys
 
+import CleanRecord.OrdList.Label
 import CleanRecord.OrdList.Sub
 import CleanRecord.OrdList.Type
+
+import Data.List
 
 import public Data.List
 
@@ -16,6 +19,10 @@ data SubWithKeys : (keys : List k) ->
   Keep  : (loc : Elem k keys) -> SubWithKeys (dropElem keys loc) xs ys ->
           SubWithKeys keys ((k, ty)::xs) ((k, ty)::ys)
 
+Uninhabited (SubWithKeys (x::xs) sub []) where
+  uninhabited Empty impossible
+  uninhabited (Skip _) impossible
+  uninhabited (Keep _ _) impossible
 
 %name SubWithKeys sub, issub, ss
 

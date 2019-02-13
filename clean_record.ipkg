@@ -44,8 +44,14 @@ modules = CleanRecord
         , CleanRecord.OrdHeader.Type
         -- Records
         , CleanRecord.Record
+        , CleanRecord.Record.Endo
+        , CleanRecord.Record.Read
+        , CleanRecord.Record.Transformation
+        , CleanRecord.Record.Type
+        , CleanRecord.Record.Update
         , CleanRecord.RecordContent
         -- Syntactical helper
         , CleanRecord.TaggedValue
         -- Transformation of Records
         , CleanRecord.Transformation.Type
+        , CleanRecord.Transformation.TransHeader

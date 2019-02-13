@@ -5,9 +5,9 @@ import CleanRecord.OrdList.Type
 %default total
 %access public export
 
-data OrdLabel : (k : l) -> (xs : OrdList l v o) -> Type where
-  Here : OrdLabel k ((k,v)::xs)
-  There : (later : OrdLabel k xs) -> OrdLabel k (x::xs)
+data OrdLabel : (l : k) -> (xs : OrdList k v o) -> Type where
+  Here : OrdLabel l ((l,v)::xs)
+  There : (later : OrdLabel l xs) -> OrdLabel l (x::xs)
 
 %name OrdLabel lbl, loc, prf, e, elem
 
@@ -18,6 +18,16 @@ atLabel (_ :: xs) (There later) = atLabel xs later
 Uninhabited (OrdLabel k []) where
   uninhabited Here      impossible
   uninhabited (There _) impossible
+
+decLabel : DecEq k => (l : k) -> (xs : OrdList k v o) -> Dec (OrdLabel l xs)
+decLabel l [] = No uninhabited
+decLabel l ((kx, vx) :: xs) with (decEq l kx)
+  | (Yes prf) = Yes (rewrite prf in Here)
+  | (No contraHere) with (decLabel l xs)
+    | (Yes prf) = Yes (There prf)
+    | (No contraThere) = No (\p => case p of
+                                        Here => contraHere Refl
+                                        There later => contraThere later)
 
 ||| Given a proof that an element is in a vector, remove it
 dropLabel : (xs : OrdList k v o) -> (loc : OrdLabel l xs) -> OrdList k v o

@@ -1,22 +1,17 @@
 module Selection
 
-import CleanRecord
+import CleanRecord.Record
+import CleanRecord.Record.Transformation
 
-person : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
-person = rec [40, "Doe", "John"]
+person : Record String ["Age" ::: Nat, "Lastname" ::: String, "Firstname" ::: String]
+person = ["Age" := 40, "Lastname" := "Doe", "Firstname" := "John"]
 
-justSelection : Maybe (Record ["Firstname" := String, "Age" := Nat])
-justSelection = filterMapM (namedSel [ "Firstname" ::= pure
-                                     , "Age" ::= \x => guard (x >= 18) *> Just x
-                                     ])
-                           person
+justSelection : Maybe (Record String ["Firstname" ::: String, "Lastname" ::: String, "Age" ::: Nat])
+justSelection = Transformation.patchM ["Age" := keepIf (>= 18)] person
 
 
-kid : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
-kid = rec [10, "Doe", "John"]
+kid : Record String ["Age" ::: Nat, "Lastname" ::: String, "Firstname" ::: String]
+kid = ["Age" := 10, "Lastname" := "Doe", "Firstname" := "John"]
 
-nothingSelection : Maybe (Record ["Firstname" := String, "Age" := Nat])
-nothingSelection = filterMapM (namedSel [ "Firstname" ::= pure
-                                        ,  "Age" ::= \x => guard (x >= 18) *> Just x
-                                        ])
-                              kid
+nothingSelection : Maybe (Record String ["Firstname" ::: String, "Lastname" ::: String, "Age" ::: Nat])
+nothingSelection = Transformation.patchM ["Age" := keepIf (>= 18)] kid

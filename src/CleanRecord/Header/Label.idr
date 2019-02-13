@@ -8,10 +8,15 @@ import CleanRecord.OrdList.Label
 %default total
 %access public export
 
-data Label : (k : l) -> (xs : Header l) -> Type where
-  L : {xs : OrdHeader l o} -> OrdLabel k xs -> Label k (H xs)
+data Label : (l : k) -> (xs : Header k) -> Type where
+  L : {xs : OrdHeader k o} -> OrdLabel l xs -> Label l (H xs)
 
 %name Label lbl, loc, prf, e, elem
+
+decLabel : DecEq k => (l : k) -> (xs : Header k) -> Dec (Label l xs)
+decLabel l (H xs) with (decLabel l xs)
+  | (Yes prf) = Yes (L prf)
+  | (No contra) = No (\(L p) => contra p)
 
 atLabel : (xs : Header l) -> (loc : Label k xs) -> Type
 atLabel (H xs) (L loc) = atLabel xs loc

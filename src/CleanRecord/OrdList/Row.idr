@@ -30,6 +30,11 @@ changeValue : (xs : OrdList k v o) -> (loc : OrdRow l old xs) -> (new : v) ->
              OrdList k v o
 changeValue xs loc new = changeValue xs (labelFromOrdRow loc) new
 
+changeWithSameTypeIsUnchanged : (row : OrdRow l x xs) -> changeValue xs row x = xs
+changeWithSameTypeIsUnchanged Here = Refl
+changeWithSameTypeIsUnchanged (There later) = cong $ changeWithSameTypeIsUnchanged later
+
+
 findInsertOrdRow : (l : k) -> (xs : OrdList k v o) -> OrdRow l ty (insert (l,ty) xs)
 findInsertOrdRow l [] = Here
 findInsertOrdRow l ((kx, vx) :: xs) with (l < kx)

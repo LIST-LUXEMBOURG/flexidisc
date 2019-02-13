@@ -38,8 +38,14 @@ atRow (_ :: xs) (There later) = atRow xs later
 
 set : RecordContent k o header -> (loc : OrdLabel l header) -> (new : ty) ->
       RecordContent k o (changeType header loc ty)
-set ((l := x) :: xs) Here new = (l := new) :: xs
-set (x :: xs) (There later) new = x :: set xs later new
+set ((l := x) :: xs) Here          new = (l := new) :: xs
+set (x :: xs)        (There later) new = x          :: set xs later new
+
+setByRow : RecordContent k o header -> (loc : OrdRow l tOld header) ->
+           (new : tNew) ->
+           RecordContent k o (changeValue header loc tNew)
+setByRow ((l := x) :: xs) Here          new = (l := new) :: xs
+setByRow (x :: xs)        (There later) new = x :: setByRow xs later new
 
 update : RecordContent k o header -> (loc : OrdRow l a header) ->
          (f : a -> b) ->

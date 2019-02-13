@@ -17,6 +17,5 @@ dropRow : (xs : Header k) -> (loc : Row l ty xs) -> Header k
 dropRow (H xs) (R loc) = H (dropOrdRow xs loc)
 
 ||| Update a value in the list given it's location and an update function
-changeType : (xs : Header k) -> (loc : Row l old xs) -> (new : Type) ->
-             Header k
+changeType : (xs : Header k) -> (loc : Row l old xs) -> (new : Type) -> Header k
 changeType (H xs) (R loc) = H . changeValue xs loc
