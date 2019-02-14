@@ -40,12 +40,6 @@ Nil = Trans [] []
 (::) x (Trans xs isnub) {fresh} =
   Trans (insert x xs) (freshInsert (getProof fresh) isnub)
 
-keepIf : (Alternative m, Applicative m) => (a -> Bool) -> a -> m a
-keepIf f x = map (const x) (guard (f x))
-
-is : (Eq a, Alternative m, Applicative m) => a -> a -> m a
-is expected = keepIf (== expected)
-
 transPreservesFresh : Ord k => (xs : OrdList k MapValue o) -> (y : Fresh l (toSource xs)) -> Fresh l (toTarget xs)
 transPreservesFresh [] y = y
 transPreservesFresh ((k, s :-> t) :: xs) (f :: fresh) = f :: transPreservesFresh xs fresh
@@ -84,3 +78,15 @@ patch : DecEq k =>
         {auto prf : Sub (toSource mapper) header} ->
         Record k (patch (toTarget mapper) header)
 patch trans xs = runIdentity (patchM trans xs)
+
+-- Operators
+
+keepIf : (Alternative m, Applicative m) => (a -> Bool) -> a -> m a
+keepIf f x = map (const x) (guard (f x))
+
+is : (Eq a, Alternative m, Applicative m) => a -> a -> m a
+is expected = keepIf (== expected)
+
+isnot : (Eq a, Alternative m, Applicative m) => a -> a -> m a
+isnot expected = keepIf (/= expected)
+

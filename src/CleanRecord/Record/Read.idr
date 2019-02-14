@@ -42,7 +42,6 @@ lookup : (Ord k, DecEq k) =>
          {auto p : HereOrNot [(query, ty)] header} -> Maybe ty
 lookup _ xs {p = (HN p)} = (atRow xs . R) <$> (toRow p)
 
-
 infixl 7 !!
 
 ||| (Almost) infix alias for `get`

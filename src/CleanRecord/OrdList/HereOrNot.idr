@@ -3,6 +3,7 @@ module CleanRecord.OrdList.HereOrNot
 import CleanRecord.Dec.IsYes
 import CleanRecord.OrdList.Fresh
 import CleanRecord.OrdList.Label
+import CleanRecord.OrdList.Nub
 import CleanRecord.OrdList.Row
 import CleanRecord.OrdList.Sub
 import CleanRecord.OrdList.Type

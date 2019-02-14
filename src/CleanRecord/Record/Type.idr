@@ -39,11 +39,18 @@ Nil = Rec empty []
 
 ||| Insert a new row in a record
 public export
+cons : (DecEq k, Ord k) => TaggedValue k' ty -> Record k header ->
+       {default SoTrue fresh : IsFresh k' header} ->
+       Record k ((k',ty) :: header)
+cons x (Rec xs isnub) {fresh} =
+  Rec (insert x xs) (freshInsert (getProof fresh) isnub)
+
+||| Insert a new row in a record
+public export
 (::) : (DecEq k, Ord k) => TaggedValue k' ty -> Record k header ->
        {default SoTrue fresh : IsFresh k' header} ->
        Record k ((k',ty) :: header)
-(::) x (Rec xs isnub) {fresh} =
-  Rec (insert x xs) (freshInsert (getProof fresh) isnub)
+(::) = cons
 
 private
 test_rec1 : Record String ["Firstname" ::: String]

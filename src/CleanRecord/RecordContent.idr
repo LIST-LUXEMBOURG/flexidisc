@@ -97,6 +97,13 @@ discard : (xs : RecordContent k o pre) -> (sub : CompWithKeys keys post pre) ->
           RecordContent k o post
 discard xs = project xs . toSub
 
+optional : (xs : RecordContent k o pre) -> (opt : HereOrNot post pre) ->
+           RecordContent k o (optional post)
+optional [] Empty = []
+optional xs (Skip compat yes) = _ := Nothing :: optional xs compat
+optional (x :: xs) (Extra compat yes) = optional xs compat
+optional (l := v :: xs) (Keep compat) = l := Just v :: optional xs compat
+
 toTHList : RecordContent k o header -> THList (toList header)
 toTHList [] = []
 toTHList ((_ := x) :: xs) = x :: toTHList xs

@@ -22,3 +22,6 @@ merge (H xs) (H ys) = H (merge xs ys)
 
 toList : Header k -> List (k, Type)
 toList (H xs) = toList xs
+
+optional : Header k -> Header k
+optional (H xs) = H (optional xs)

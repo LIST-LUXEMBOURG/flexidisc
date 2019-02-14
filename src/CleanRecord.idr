@@ -14,3 +14,4 @@ module CleanRecord
 
 import public CleanRecord.Record
 import public CleanRecord.Record.Transformation
+import public CleanRecord.RecordList

@@ -99,9 +99,36 @@ discard keys (Rec xs nub) {prf = S prf} =
 decLabel : DecEq k => (l : k) -> (xs : Record k header) -> Dec (Label l header)
 decLabel l _ {header} = decLabel l header
 
+optional : DecEq k => (post : Header k) ->
+           (xs : Record k header) ->
+           {auto prf : HereOrNot post header} ->
+           {default SoTrue postNub : IsNub post} ->
+           Record k (optional post)
+optional _ (Rec xs nubXS) {prf = HN prf} {postNub} =
+  Rec (optional xs prf) (optionalPreservesNub (getProof postNub))
 
 toTHList : Record k header -> THList (toList header)
 toTHList (Rec xs _) = toTHList xs
+
+-- Foldmap
+
+public export
+data RecordFunc : (required : Header k) -> (optional : Header k) ->
+                  (reasult : Type) -> Type where
+  Func : (Record k required -> Record k (optional opt) -> a) ->
+         RecordFunc required opt a
+
+||| Apply a function on a known set of data
+foldRecord : (Ord k, DecEq k) =>
+             RecordFunc required opt a ->
+             Record k header ->
+             {default SoTrue optNub : IsNub opt} ->
+             {auto decomp : Decomp required opt header} ->
+             a
+foldRecord (Func f) xs {opt} {decomp = D sub op} {optNub} =
+  f (project xs) (optional opt xs {postNub = optNub})
+
+
 
 
 -- COMPARE

@@ -40,6 +40,9 @@ toSub (HN compat) = map S (toSub compat)
 data Nub : (Header label) -> Type where
   N : {xs : OrdHeader k o} -> Nub xs -> Nub (H xs)
 
+IsNub : DecEq label => (xs : Header label) -> Type
+IsNub (H xs) = IsYes (decNub xs)
+
 namespace SubWithKeys
 
   data SubWithKeys : (List k) -> (xs : Header k) -> (ys : Header k) -> Type where
@@ -50,6 +53,12 @@ namespace SmaeOrd
 
   data SameOrd : (xs : Header k) -> (ys : Header k) -> Type where
     S : {xs : OrdHeader k o} -> {ys : OrdHeader k o} -> SameOrd xs ys -> SameOrd (H xs) (H ys)
+
+namespace Decomp
+
+  data Decomp : (required : Header k) -> (optional : Header k) -> (xs : Header k) -> Type where
+    D : Header.Sub.Sub required xs -> HereOrNot optional xs -> Decomp required optional xs
+
 
 diffKeys : DecEq k => (xs : Header k) -> (ys : Header k) -> Header k
 diffKeys (H xs) (H ys) = H (diffKeys xs ys)

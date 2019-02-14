@@ -15,12 +15,20 @@ sourcedir = src
 opts = "--warnreach --total"
 
 modules = CleanRecord
-        -- Dec (proof that a Dec is Yes / No
         , CleanRecord.Dec.IsNo
         , CleanRecord.Dec.IsYes
-        -- OrdList
+        , CleanRecord.Header
+        , CleanRecord.Header.Label
+        , CleanRecord.Header.Row
+        , CleanRecord.Header.Sub
+        , CleanRecord.Header.Type
+        , CleanRecord.InjectiveDecEq
+        , CleanRecord.OrdHeader
+        , CleanRecord.OrdHeader.Label
+        , CleanRecord.OrdHeader.Type
         , CleanRecord.OrdList
         , CleanRecord.OrdList.CompWithKeys
+        , CleanRecord.OrdList.Diff
         , CleanRecord.OrdList.Disjoint
         , CleanRecord.OrdList.Fresh
         , CleanRecord.OrdList.HereOrNot
@@ -30,19 +38,7 @@ modules = CleanRecord
         , CleanRecord.OrdList.Row
         , CleanRecord.OrdList.Sub
         , CleanRecord.OrdList.SubWithKeys
-        -- Header (wrapped OrdHeader (for type readability)
-        , CleanRecord.Header
-        , CleanRecord.Header.Label
-        , CleanRecord.Header.Row
-        , CleanRecord.Header.Sub
-        , CleanRecord.Header.Type
-        -- Helper for DecEq
-        , CleanRecord.InjectiveDecEq
-        -- OrdHeader (wrapped OrdHeader (for type readability)
-        , CleanRecord.OrdHeader
-        , CleanRecord.OrdHeader.Label
-        , CleanRecord.OrdHeader.Type
-        -- Records
+        , CleanRecord.OrdList.Type
         , CleanRecord.Record
         , CleanRecord.Record.Endo
         , CleanRecord.Record.Read
@@ -50,8 +46,10 @@ modules = CleanRecord
         , CleanRecord.Record.Type
         , CleanRecord.Record.Update
         , CleanRecord.RecordContent
-        -- Syntactical helper
+        , CleanRecord.RecordList
+        , CleanRecord.Selection
+        , CleanRecord.Selection.SelectionContent
+        , CleanRecord.THList
         , CleanRecord.TaggedValue
-        -- Transformation of Records
-        , CleanRecord.Transformation.Type
         , CleanRecord.Transformation.TransHeader
+        , CleanRecord.Transformation.Type
