@@ -1,7 +1,7 @@
 module CleanRecord.Header.Row
 
 import CleanRecord.Header.Type
-import CleanRecord.OrdHeader.Type
+import CleanRecord.OrdHeader
 import CleanRecord.OrdList.Row
 
 %default total

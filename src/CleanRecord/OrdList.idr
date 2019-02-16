@@ -18,6 +18,3 @@ import public CleanRecord.OrdList.Row
 
 data SameOrd : (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
   Same : SameOrd xs ys
-
-data Decomp : (required : OrdList k v o) -> (optional : OrdList k v o) -> (xs : OrdList k v o) -> Type where
-  MkDecomp : Sub required xs -> HereOrNot optional xs -> Decomp required optional xs

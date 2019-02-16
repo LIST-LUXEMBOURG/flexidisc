@@ -6,8 +6,7 @@ import CleanRecord.Header.Type
 import CleanRecord.OrdList.Label
 import CleanRecord.OrdList.Row
 import CleanRecord.OrdList.Sub
-import CleanRecord.OrdHeader.Label
-import CleanRecord.OrdHeader.Type
+import CleanRecord.OrdHeader
 
 %default total
 %access public export

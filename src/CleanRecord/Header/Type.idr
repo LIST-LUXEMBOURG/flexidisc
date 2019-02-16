@@ -1,6 +1,6 @@
 module CleanRecord.Header.Type
 
-import CleanRecord.OrdHeader.Type
+import CleanRecord.OrdHeader
 
 %default total
 %access public export

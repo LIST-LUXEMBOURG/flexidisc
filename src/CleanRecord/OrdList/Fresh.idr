@@ -24,22 +24,18 @@ decFresh l ((l', ty) :: xs) with (decEq l l')
 IsFresh : DecEq label => (l : label) -> (xs : OrdList label value o) -> Type
 IsFresh l xs = IsYes (decFresh l xs)
 
-export
 freshOnValueChange : Fresh l xs -> Fresh l (changeValue xs loc new)
 freshOnValueChange (f :: fresh) {loc = Here} = f :: fresh
 freshOnValueChange (f :: fresh) {loc = (There later)} = f :: freshOnValueChange fresh
 
-export
 freshCantBeLabel : Fresh l xs -> OrdLabel l xs -> Void
 freshCantBeLabel (f :: fresh) Here = f Refl
 freshCantBeLabel (f :: fresh) (There later) = freshCantBeLabel fresh later
 
-export
 isFreshFromEvidence : DecEq label => {l : label} -> (prf : Fresh l xs) -> IsFresh l xs
 isFreshFromEvidence prf {l} {xs} with (decFresh l xs)
   | (Yes _) = SoTrue
   | (No contra) = absurd (contra prf)
 
-export
 tailIsFresh : DecEq label => {l : label} -> IsFresh l (x :: xs) -> IsFresh l xs
 tailIsFresh x = case getProof x of (f :: fresh) => isFreshFromEvidence fresh

@@ -16,9 +16,6 @@ data Disjoint : (left : OrdList k v o) -> (right : OrdList k v o) -> Type where
 
 %name Disjoint djt, dis, prf
 
-freshTail : DecEq k => {l : k} -> IsFresh l (x::xs) -> IsFresh l xs
-freshTail = isFreshFromEvidence . (\ (_::fresh) => fresh) . getProof
-
 freshInMerge : Fresh l left -> Fresh l right -> Fresh l (merge left right)
 freshInMerge [] freshR = freshR
 freshInMerge (f :: fresh) [] = f :: fresh
@@ -36,7 +33,7 @@ invertFresh (fresh :: djt) =
 disjointSmallerRight : Disjoint left (r::right) -> Disjoint left right
 disjointSmallerRight [] = []
 disjointSmallerRight (fresh :: djt) =
-  freshTail fresh :: disjointSmallerRight djt
+  tailIsFresh fresh :: disjointSmallerRight djt
 
 disjointNub : Disjoint left right -> Nub left -> Nub right ->
               Nub (merge left right)

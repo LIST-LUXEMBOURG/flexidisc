@@ -3,7 +3,6 @@ module CleanRecord.OrdList.Diff
 import public CleanRecord.OrdList.Disjoint
 import public CleanRecord.OrdList.Fresh
 import public CleanRecord.OrdList.Label
-import public CleanRecord.OrdList.Nub
 import public CleanRecord.OrdList.Sub
 import public CleanRecord.OrdList.Type
 

@@ -1,10 +1,10 @@
 module CleanRecord.Transformation.TransHeader
 
 import CleanRecord.Dec.IsYes
-import CleanRecord.OrdList
-import CleanRecord.Transformation.Type
-import CleanRecord.OrdHeader.Type
 import CleanRecord.Header.Type
+import CleanRecord.OrdList
+import CleanRecord.OrdHeader
+import CleanRecord.Transformation.Type
 
 %default total
 %access public export

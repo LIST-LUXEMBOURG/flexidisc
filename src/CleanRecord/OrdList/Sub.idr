@@ -8,7 +8,7 @@ import CleanRecord.OrdList.Row
 import CleanRecord.OrdList.Type
 
 %default total
-%access private
+%access public export
 
 ||| Proof that a `Vect` is a permutation of another vect
 public export
@@ -44,7 +44,6 @@ freshInSub (Keep sub) (f :: fresh) = f :: freshInSub sub fresh
 
 ||| If the original vector doesn't contain any duplicate,
 ||| an orderred subset doesn't contain duplicate as well
-export
 isNubFromSub : Sub xs ys -> Nub ys -> Nub xs
 isNubFromSub Empty y = y
 isNubFromSub (Skip sub) (yes :: prf) = isNubFromSub sub prf
@@ -52,7 +51,6 @@ isNubFromSub (Keep sub) (yes :: prf) =
   freshInSub sub yes :: isNubFromSub sub prf
 
 %hint
-public export
 rowFromSub : Sub xs ys -> OrdRow key ty xs -> OrdRow key ty ys
 rowFromSub Empty lbl = lbl
 rowFromSub (Skip sub) loc = There (rowFromSub sub loc)
@@ -63,7 +61,6 @@ rowFromSub (Keep sub) (There later) = There (rowFromSub sub later)
 ||| Given the proof that a Label is in an subset of a vect
 ||| provide a proof that this label is in the initial vect
 %hint
-public export
 labelFromSub : Sub xs ys -> OrdLabel x xs -> OrdLabel x ys
 labelFromSub Empty y = y
 labelFromSub (Skip z) loc = There (labelFromSub z loc)

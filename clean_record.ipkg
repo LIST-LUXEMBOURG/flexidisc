@@ -24,8 +24,6 @@ modules = CleanRecord
         , CleanRecord.Header.Type
         , CleanRecord.InjectiveDecEq
         , CleanRecord.OrdHeader
-        , CleanRecord.OrdHeader.Label
-        , CleanRecord.OrdHeader.Type
         , CleanRecord.OrdList
         , CleanRecord.OrdList.CompWithKeys
         , CleanRecord.OrdList.Diff

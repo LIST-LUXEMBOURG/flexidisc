@@ -12,6 +12,8 @@ data Nub : (OrdList label value o) -> Type where
   Nil  : Nub []
   (::) : Fresh l xs -> Nub xs -> Nub ((l,ty) :: xs)
 
+%name Nub nub, isnub, prf
+
 ||| Decide whether a list is made of different labelents or not
 decNub : DecEq label => (xs : OrdList label value o) -> Dec (Nub xs)
 decNub [] = Yes []
