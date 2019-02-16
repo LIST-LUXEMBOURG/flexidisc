@@ -45,8 +45,6 @@ modules = CleanRecord
         , CleanRecord.Record.Update
         , CleanRecord.RecordContent
         , CleanRecord.RecordList
-        , CleanRecord.Selection
-        , CleanRecord.Selection.SelectionContent
         , CleanRecord.THList
         , CleanRecord.TaggedValue
         , CleanRecord.Transformation.TransHeader
