@@ -122,7 +122,7 @@ data RecordFunc : (required : Header k) -> (optional : Header k) ->
 foldRecord : (Ord k, DecEq k) =>
              RecordFunc required opt a ->
              Record k header ->
-             {default SoTrue optNub : IsNub opt} ->
+             {auto optNub : IsNub opt} ->
              {auto decomp : Decomp required opt header} ->
              a
 foldRecord (Func f) xs {opt} {decomp = D sub op} {optNub} =

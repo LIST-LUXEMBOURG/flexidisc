@@ -65,3 +65,6 @@ longerFullname = Func go
     go req opt = unwords $ (req !! "firstname")
                          :: catMaybes [ opt !! "nickname"
                                       , opt !! "lastname" ]
+
+charactersName : List String
+charactersName = foldAll longerFullname theHobbitCharacters

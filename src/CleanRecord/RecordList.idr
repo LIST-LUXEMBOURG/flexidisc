@@ -52,3 +52,9 @@ firstWith f (xs :: xss) {prf = p::_} = checkOne <|> firstWith f xss
       toSub p
       res <- patchM f xs
       pure (_ ** res)
+
+foldAll : (Ord k, DecEq k) => RecordFunc req opt a -> RecordList k xss ->
+          {auto optNub : IsNub opt} ->
+          {auto prf : All (Decomp req opt) xss} -> List a
+foldAll f [] = []
+foldAll f (xs :: xss) {prf = p :: prf} = foldRecord f xs :: foldAll f xss

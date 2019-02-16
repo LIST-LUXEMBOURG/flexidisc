@@ -49,7 +49,7 @@ namespace SubWithKeys
     S : {xs : OrdHeader k o } -> {ys : OrdHeader k o } ->
         SubWithKeys keys xs ys -> SubWithKeys keys (H xs) (H ys)
 
-namespace SmaeOrd
+namespace SameOrd
 
   data SameOrd : (xs : Header k) -> (ys : Header k) -> Type where
     S : {xs : OrdHeader k o} -> {ys : OrdHeader k o} -> SameOrd xs ys -> SameOrd (H xs) (H ys)
