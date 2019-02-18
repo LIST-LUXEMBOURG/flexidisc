@@ -47,20 +47,20 @@ toTarget : OrdList k MapValue o -> OrdHeader k o
 toTarget [] = []
 toTarget ((k, s :-> t) :: xs) = (k, t) :: toTarget xs
 
-mapRecordM : (o : Ord k, Monad m) =>
+mapRecordM : (o : Ord k, Applicative m) =>
              (trans : MapValuesM m k o mapper) ->
              (xs : RecordContent k o (toSource mapper)) ->
              m (RecordContent k o (toTarget mapper))
 mapRecordM [] [] = pure []
-mapRecordM ((k := f) :: fs) ((k := x) :: xs) = do
-  x' <- f x
-  map ((k := x') ::) (mapRecordM fs xs)
+mapRecordM ((k := f) :: fs) ((k := x) :: xs) =
+  mapHead k <$> f x <*> mapRecordM fs xs
+    where
+      mapHead k' x' xs' = k' := x' :: xs'
 
-patchM : (DecEq k, Monad m) =>
+patchM : (DecEq k, Applicative m) =>
          (trans : MapValuesM m k o mapper) ->
          (xs : RecordContent k o header) ->
          (prf : Sub (toSource mapper) header) ->
          m (RecordContent k o (patch (toTarget mapper) header))
-patchM trans xs {prf} = do
-  p <- mapRecordM trans (project xs prf)
-  pure $ p |> xs
+patchM trans xs {prf} =
+  (\p => p |> xs) <$> mapRecordM trans (project xs prf)
