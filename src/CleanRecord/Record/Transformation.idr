@@ -48,7 +48,7 @@ transPreservesNub : (header : OrdList k MapValue o) -> Nub (toSource header) -> 
 transPreservesNub [] xs = xs
 transPreservesNub ((l, s :-> t) :: xs) (y::ys) = transPreservesFresh xs y :: transPreservesNub xs ys
 
-mapRecordM : Monad m =>
+mapRecordM : Applicative m =>
              (trans : TransformationM m k mapper) ->
              (xs : Record k (toSource mapper)) ->
              m (Record k (toTarget mapper))
@@ -61,7 +61,7 @@ mapRecord : (trans : Transformation k mapper) ->
 mapRecord trans xs = runIdentity (mapRecordM trans xs)
 
 
-patchM : (DecEq k, Monad m) =>
+patchM : (DecEq k, Applicative m) =>
          (trans : TransformationM m k mapper) ->
          (xs : Record k header) ->
          {auto prf : Sub (toSource mapper) header} ->

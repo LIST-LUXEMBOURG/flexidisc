@@ -1,7 +1,7 @@
 module TheHobbit
 
 import CleanRecord
-import CleanRecord.RecordList
+import CleanRecord.Validation
 
 location : Record String ["city" ::: String, "region" ::: String, "smial" ::: String]
 location = [ "region" := "Shire"
@@ -68,3 +68,19 @@ longerFullname = Func go
 
 charactersName : List String
 charactersName = foldAll longerFullname theHobbitCharacters
+
+gandalf' : Record String [ "firstname" ::: String
+                         , "nickname"  ::: String
+                         ]
+gandalf' = [ "firstname" := "gandalf" , "nickname"  := "The grey" ]
+
+testGandalf : Validation (List String)
+                (Record String [ "firstname" ::: String
+                               , "nickname"  ::: String ])
+testGandalf = patchM [ "firstname" := uppercaseFirst
+                     , "nickname"  := uppercaseFirst ]
+                     gandalf'
+  where
+    uppercaseFirst =
+      validateL (\str => "In \"" ++ str ++ "\" each word should start with an uppercase")
+                (all (isUpper . strHead) . words)
