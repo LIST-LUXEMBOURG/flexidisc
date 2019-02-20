@@ -74,13 +74,25 @@ gandalf' : Record String [ "firstname" ::: String
                          ]
 gandalf' = [ "firstname" := "gandalf" , "nickname"  := "The grey" ]
 
-testGandalf : Validation (List String)
-                (Record String [ "firstname" ::: String
-                               , "nickname"  ::: String ])
-testGandalf = patchM [ "firstname" := uppercaseFirst
-                     , "nickname"  := uppercaseFirst ]
-                     gandalf'
+secureFullname : RecordFunc [ "firstname" ::: String ]
+                            [ "lastname"  ::: String
+                            , "nickname"  ::: String ]
+                            (Validation (List String) String)
+secureFullname = Func go
   where
+    uppercaseFirst : String -> Validation (List String) String
     uppercaseFirst =
       validateL (\str => "In \"" ++ str ++ "\" each word should start with an uppercase")
                 (all (isUpper . strHead) . words)
+    go req opt = map unwords $ sequence $ catMaybes
+                   [ Just (uppercaseFirst (req !! "firstname"))
+                   , map  uppercaseFirst (opt !! "nickname")
+                   , map  uppercaseFirst (opt !! "lastname")
+                   ]
+
+checkedCharactersName : List (Validation (List String) String)
+checkedCharactersName = foldAll secureFullname theHobbitCharacters
+
+errorOnCharachtersName : List (Validation (List String) String)
+errorOnCharachtersName = foldAll secureFullname [bilbo, gandalf']
+

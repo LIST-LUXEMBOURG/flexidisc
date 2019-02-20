@@ -1,0 +1,36 @@
+-- One upon a time, in the region of Shire, in the small town of Hobbiton,
+
+rec ["location" := rec ["region" := "Shire", "city" := "Hobbiton"]]
+
+-- Lived a hobbit
+
+"characters" := rec ["race" := "Hobbit"] :: it
+
+-- named "Bilbo baggins"
+
+update "characters" (\xs => rec ["firstname" := "Bilbo", "lastname" := "Baggins"] ++ xs) it
+
+-- The action takes place in his house, "Bag End"
+
+update "location" (cons ("house" := "Bag End")) it
+
+-- A old magician, named Gandalf was knocking at the door
+
+update "characters" (recordList . (:: [rec ["firstname" := "Gandalf", "class" := "Magician"]])) it
+
+-- Narrator: pause there
+
+:let opening = it
+
+-- What's their firstname?
+
+opening !! "characters"
+
+the (List (Record String ["firstname" ::: String])) (toList it)
+
+the (List String) (map (\x => get "firstname" x) it)
+
+-- We don't have fullname !
+
+
+recordList [ rec ["firstname" := "Bilbo", "lastname" := "Baggins"] , namedRec ["firstname" := "Gandalf", "nickname" := "The Grey"] ]
