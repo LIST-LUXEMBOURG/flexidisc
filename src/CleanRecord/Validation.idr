@@ -16,6 +16,10 @@ implementation Semigroup e => Applicative (Validation e) where
   (<*>) (Valid _) (Error y) = Error y
   (<*>) (Valid f) (Valid x) = Valid (f x)
 
+implementation (Show e, Show a) => Show (Validation e a) where
+  show (Error x) = "KO: " <+> show x
+  show (Valid x) = "OK: " <+> show x
+
 export
 validate : (a -> e) -> (a -> Bool) -> a -> Validation e a
 validate err f x = if f x then Valid x else Error (err x)
