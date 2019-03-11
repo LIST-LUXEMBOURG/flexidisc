@@ -107,7 +107,7 @@ optional : DecEq k => (post : Header k) ->
 optional _ (Rec xs nubXS) {prf = HN prf} {postNub} =
   Rec (optional xs prf) (optionalPreservesNub (getProof postNub))
 
-toTHList : Record k header -> THList (toList header)
+toTHList : Record k header -> THList k (toList header)
 toTHList (Rec xs _) = toTHList xs
 
 -- Foldmap
@@ -134,6 +134,13 @@ foldRecord (Func f) xs {opt} {decomp = D sub op} {optNub} =
 -- COMPARE
 
 implementation
-Eq (THList (toList header)) => Eq (Record k header) where
+Eq (THList k (toList header)) => Eq (Record k header) where
   (==) xs ys = toTHList xs == toTHList ys
   (/=) xs ys = toTHList xs /= toTHList ys
+
+
+-- SHOW
+
+implementation
+Show (THList k (toList header)) => Show (Record k header) where
+  show xs = show (toTHList xs)

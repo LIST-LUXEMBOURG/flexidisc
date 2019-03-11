@@ -104,7 +104,7 @@ optional xs (Skip compat yes) = _ := Nothing :: optional xs compat
 optional (x :: xs) (Extra compat yes) = optional xs compat
 optional (l := v :: xs) (Keep compat) = l := Just v :: optional xs compat
 
-toTHList : RecordContent k o header -> THList (toList header)
+toTHList : RecordContent k o header -> THList k (toList header)
 toTHList [] = []
 toTHList ((_ := x) :: xs) = x :: toTHList xs
 
