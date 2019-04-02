@@ -1,10 +1,12 @@
-# CleanRecord
+# Flexidisc
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-## Overview
 
-`CleanRecord` is an typesafe implementation of extensible records in Idris.
+
+## Presentation
+
+`Flexidisc` is an typesafe implementation of extensible records in Idris.
 An extensible record is a record that can be extended or shrink on demand.
 
 ### Features
@@ -22,7 +24,7 @@ An extensible record is a record that can be extended or shrink on demand.
 ## Getting started
 
 Idris sohuld be available on your computer.
-Then, the easiest way to start with CleanRecord is to clone this repository:
+Then, the easiest way to start with Flexidisc is to clone this repository:
 
 Clone this repository, go into its dirctory, and install the `clean_record`
 package.
@@ -36,9 +38,11 @@ $ idris --install clean_record.ipkg
 
 And then start idris REPL with the `clean_record` package:
 
+There's no `nix` install at this stage, I should work on it.
+
 ```
 $ idris -p clean_record
-Idris> :module CleanRecord
+Idris> :module Flexidisc
 ```
 
 If you want, you can also load the `Tutorial` file to use it as a start
@@ -105,7 +109,7 @@ idJohn = namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"]
 
 We can also easily delete rows or reorder them.
 As in many libraries support of extensible records,
-the rows order is significant in `CleanRecord`.
+the rows order is significant in `Flexidisc`.
 Although, in many situations, we don't want to consider
 this order.
 A workaround is to provide a way to easily reorder a record:
@@ -148,7 +152,7 @@ john = dropN ["Lastname", "Age"] agedJohn
 
 # Type-Safety
 
-The CleanRecord manipulation functions provided in the library are type safe.
+The Flexidisc manipulation functions provided in the library are type safe.
 
 Type safety is mostly handled by idris [automatic proof generation].
 

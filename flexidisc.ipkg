@@ -1,0 +1,53 @@
+package flexidisc
+
+brief = "Type-safe extensible records for Idris"
+readme = Readme.md
+version = 1.0
+
+author = Nicolas Biri <nicolas@biri.name>
+maintainer = Nicolas Biri
+
+sourceloc = https://github.com/berewt/flexidisc
+bugtracker = https://github.com/berewt/flexidisc/issues
+
+sourcedir = src
+
+opts = "--warnreach --total"
+
+modules = Flexidisc
+        , Flexidisc
+        , Flexidisc.InjectiveDecEq
+        , Flexidisc.Validation
+        , Flexidisc.Record.Endo
+        , Flexidisc.Record.Read
+        , Flexidisc.Record.Transformation
+        , Flexidisc.Record.Type
+        , Flexidisc.Record.Update
+        , Flexidisc.RecordContent
+        , Flexidisc.RecordList
+        , Flexidisc.Transformation.TransHeader
+        , Flexidisc.Transformation.Type
+        , Flexidisc.OrdList
+        , Flexidisc.Header
+        , Flexidisc.TaggedValue
+        , Flexidisc.Dec.IsNo
+        , Flexidisc.Dec.IsYes
+        , Flexidisc.OrdHeader
+        , Flexidisc.THList
+        , Flexidisc.Record
+        , Flexidisc.OrdList.SubWithKeys
+        , Flexidisc.OrdList.HereOrNot
+        , Flexidisc.OrdList.Row
+        , Flexidisc.OrdList.Permute
+        , Flexidisc.OrdList.Fresh
+        , Flexidisc.OrdList.Label
+        , Flexidisc.OrdList.Disjoint
+        , Flexidisc.OrdList.Type
+        , Flexidisc.OrdList.Diff
+        , Flexidisc.OrdList.Sub
+        , Flexidisc.OrdList.CompWithKeys
+        , Flexidisc.OrdList.Nub
+        , Flexidisc.Header.Row
+        , Flexidisc.Header.Label
+        , Flexidisc.Header.Type
+        , Flexidisc.Header.Sub
