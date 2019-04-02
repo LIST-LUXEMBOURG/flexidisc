@@ -1,8 +1,8 @@
 module RecordList
 
-import CleanRecord.Record
-import CleanRecord.Record.Transformation
-import CleanRecord.RecordList
+import Flexidisc.Record
+import Flexidisc.Record.Transformation
+import Flexidisc.RecordList
 
 ||| `RecordList` are Heterogeneous lists of record
 people : RecordList String [ [ "firstname" ::: String
@@ -29,18 +29,18 @@ whereIsWaldo : Maybe (header ** Record String header)
 whereIsWaldo = firstWith ["firstname" := is "Waldo"] people
 
 
-whereIsDoe : Maybe (header : List (Field String) ** Record header)
+whereIsDoe : Maybe (header ** Record String header)
 whereIsDoe = firstWith ["lastname" := is "Doe"] people
 
 ||| You can even search for something that is not available in every record
-whoIs42 : Maybe (header : List (Field String) ** Record header)
-whoIs42 = firstWith ["age" ::= is (the Nat 42)] people
+whoIs42 : Maybe (header ** Record String header)
+whoIs42 = firstWith ["age" := is (the Nat 42)] people
 
 
 -- with one limitation, if you look for a specific row,
--- it should have the same type in every rows it's defined
+-- it should have the same type in every rows where it's defined
 --
 -- this would fail:
 --
--- whoIsHidden : Maybe (header : List (Field String) ** Record header)
+-- whoIsHidden : Maybe (header ** Record String header)
 -- whoIsHidden = firstWith ["location" := is "Hidden"] people

@@ -1,7 +1,7 @@
 module TheHobbit
 
-import CleanRecord
-import CleanRecord.Validation
+import Flexidisc
+import Flexidisc.Validation
 
 location : Record String ["city" ::: String, "region" ::: String, "smial" ::: String]
 location = [ "region" := "Shire"

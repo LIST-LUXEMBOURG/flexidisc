@@ -33,6 +33,11 @@ freshOnValueChange : Fresh l xs -> Fresh l (changeValue xs loc new)
 freshOnValueChange (f :: fresh) {loc = Here} = f :: fresh
 freshOnValueChange (f :: fresh) {loc = (There later)} = f :: freshOnValueChange fresh
 
+||| Changing values doesn't impact the freshness of a label
+freshOnMapValues : (p : Fresh l xs) -> Fresh l (mapValues f xs)
+freshOnMapValues [] = []
+freshOnMapValues (prf :: fresh) = prf :: freshOnMapValues fresh
+
 ||| We can't find a label that is `Fresh` in an `OrdList`
 freshCantBeLabel : Fresh l xs -> Not (OrdLabel l xs)
 freshCantBeLabel (f :: fresh) Here = f Refl

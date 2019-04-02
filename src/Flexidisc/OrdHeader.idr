@@ -5,6 +5,7 @@ import public Flexidisc.OrdList
 %default total
 %access public export
 
+||| An alias for `OrdList` that ensures that the values are `Type`
 OrdHeader : (k : Type) -> (o : Ord k) -> Type
 OrdHeader k o = OrdList k Type o
 
@@ -13,14 +14,6 @@ changeType : (xs : OrdHeader k o) -> (loc : OrdLabel l xs) -> (new : Type) ->
              OrdHeader k o
 changeType = changeValue
 
+||| Make types optional (encapsulate them in `Maybe`)
 optional : OrdHeader k o -> OrdHeader k o
-optional [] = []
-optional ((l, ty) :: xs) = (l, Maybe ty) :: optional xs
-
-freshOnOptional : (p : Fresh l xs) -> Fresh l (optional xs)
-freshOnOptional [] = []
-freshOnOptional (f :: fresh) = f :: freshOnOptional fresh
-
-optionalPreservesNub : {xs : OrdHeader k o} -> Nub xs -> Nub (optional xs)
-optionalPreservesNub [] = []
-optionalPreservesNub (p::prf) = freshOnOptional p :: optionalPreservesNub prf
+optional = mapValues Maybe

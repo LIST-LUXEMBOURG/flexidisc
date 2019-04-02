@@ -1,6 +1,6 @@
-module CleanRecord.Tutorial
+module Flexidisc.Tutorial
 
-import CleanRecord
+import Flexidisc
 
 person0 : Record String ["Firstname" ::: String]
 person0 = ["Firstname" := "John"]
@@ -11,7 +11,7 @@ person0 = ["Firstname" := "John"]
 ||| not defined for our record, we obtain a compilation error, not a runtime
 ||| error.
 |||
-||| One of the key contribution in CleanRecord is that you can't declare the
+||| One of the key contribution in Flexidisc is that you can't declare the
 ||| smae field twice (no, it's not that easy)
 ||| If we add another field 'Firstname', even with a different type,
 ||| we'll obtain a compilation error.

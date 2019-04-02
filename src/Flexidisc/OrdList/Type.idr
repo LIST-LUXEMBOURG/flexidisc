@@ -31,6 +31,11 @@ merge ((k, v) :: hs) ((k', v') :: xs) with (k < k')
   | False = (k', v') :: merge ((k, v) :: hs) xs
   | True  = (k , v)  :: merge hs ((k', v') :: xs)
 
+||| Apply a function to all values
+mapValues : (v -> v') -> OrdList k v o -> OrdList k v' o
+mapValues f [] = []
+mapValues f ((l, x) :: xs) = (l, f x) :: mapValues f xs
+
 ||| Sort a list.
 toOrdList : (o : Ord k) => List (k, v) -> OrdList k v o
 toOrdList = foldl (flip insert) Nil

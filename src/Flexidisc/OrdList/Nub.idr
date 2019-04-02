@@ -51,3 +51,7 @@ dropPreservesNub : Nub xs -> (loc : OrdLabel l xs) -> Nub (dropLabel xs loc)
 dropPreservesNub (yes :: x) Here = x
 dropPreservesNub (yes :: x) (There later) =
   dropPreservesFresh yes :: dropPreservesNub x later
+
+mapValuesPreservesNub : Nub xs -> Nub (mapValues f xs)
+mapValuesPreservesNub [] = []
+mapValuesPreservesNub (fresh :: nub) = freshOnMapValues fresh :: mapValuesPreservesNub nub

@@ -1,9 +1,9 @@
 ||| This example follows the same framework as the tutorial, but with custom labels
 ||| We use a custom datatype for labels instead of `String`.
-module CleanRecord.CustomLabels
+module Flexidisc.CustomLabels
 
-import CleanRecord
-import CleanRecord.InjectiveDecEq
+import Flexidisc
+import Flexidisc.InjectiveDecEq
 
 export
 data Feature = Firstname | Lastname | Age | ID
@@ -41,7 +41,7 @@ person0 = [Firstname := "John"]
 ||| not defined for our record, we obtain a compilation error, not a runtime
 ||| error.
 |||
-||| One of the key contribution in CleanRecord is that you can't declare the
+||| One of the key contribution in Flexidisc is that you can't declare the
 ||| smae field twice (no, it's not that easy)
 ||| If we add another field 'Firstname', even with a different type,
 ||| we'll obtain a compilation error.

@@ -1,7 +1,7 @@
 module Selection
 
-import CleanRecord.Record
-import CleanRecord.Record.Transformation
+import Flexidisc.Record
+import Flexidisc.Record.Transformation
 
 person : Record String ["Age" ::: Nat, "Lastname" ::: String, "Firstname" ::: String]
 person = ["Age" := 40, "Lastname" := "Doe", "Firstname" := "John"]

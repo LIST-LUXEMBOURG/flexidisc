@@ -105,7 +105,7 @@ optional : DecEq k => (post : Header k) ->
            {default SoTrue postNub : IsNub post} ->
            Record k (optional post)
 optional _ (Rec xs nubXS) {prf = HN prf} {postNub} =
-  Rec (optional xs prf) (optionalPreservesNub (getProof postNub))
+  Rec (optional xs prf) (mapValuesPreservesNub (getProof postNub))
 
 toTHList : Record k header -> THList k (toList header)
 toTHList (Rec xs _) = toTHList xs
