@@ -40,11 +40,11 @@ Nil = Trans [] []
 (::) x (Trans xs isnub) {fresh} =
   Trans (insert x xs) (freshInsert (getProof fresh) isnub)
 
-transPreservesFresh : Ord k => (xs : OrdList k MapValue o) -> (y : Fresh l (toSource xs)) -> Fresh l (toTarget xs)
+transPreservesFresh : Ord k => (xs : OrdList k o MapValue) -> (y : Fresh l (toSource xs)) -> Fresh l (toTarget xs)
 transPreservesFresh [] y = y
 transPreservesFresh ((k, s :-> t) :: xs) (f :: fresh) = f :: transPreservesFresh xs fresh
 
-transPreservesNub : (header : OrdList k MapValue o) -> Nub (toSource header) -> Nub (toTarget header)
+transPreservesNub : (header : OrdList k o MapValue) -> Nub (toSource header) -> Nub (toTarget header)
 transPreservesNub [] xs = xs
 transPreservesNub ((l, s :-> t) :: xs) (y::ys) = transPreservesFresh xs y :: transPreservesNub xs ys
 

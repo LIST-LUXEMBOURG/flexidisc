@@ -17,8 +17,9 @@ diffKeys ((lx, vx) :: xs) ys with (decFresh lx ys)
   | (Yes prf) = (lx, vx) :: diffKeys xs ys
   | (No contra) = diffKeys xs ys
 
-||| Applya a patch `xs` to an `OrdList` `ys`. The label of `ys` that are
-||| in `xs` are updated, and the fresh element of `xs` are added
+||| Apply a patch `xs` to an `OrdList` `ys`.
+||| The label of `ys` that are in `xs` are updated,
+||| and the fresh element of `xs` are added
 patch : DecEq k =>
         (xs : OrdList k v o) -> (ys : OrdList k v o) -> OrdList k v o
 patch xs ys = merge (diffKeys ys xs) xs

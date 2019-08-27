@@ -10,7 +10,9 @@ import Flexidisc.OrdList.Label
 
 ||| A proof that each value in the list has a different label
 data Nub : (OrdList label value o) -> Type where
+  ||| in an empty list, all the values are different indeed
   Nil  : Nub []
+  ||| If we add a fresh value, it still holds
   (::) : Fresh l xs -> Nub xs -> Nub ((l,ty) :: xs)
 
 %name Nub nub, isnub, prf
@@ -52,6 +54,6 @@ dropPreservesNub (yes :: x) Here = x
 dropPreservesNub (yes :: x) (There later) =
   dropPreservesFresh yes :: dropPreservesNub x later
 
-mapValuesPreservesNub : Nub xs -> Nub (mapValues f xs)
+mapValuesPreservesNub : Nub xs -> Nub (f <$> xs)
 mapValuesPreservesNub [] = []
 mapValuesPreservesNub (fresh :: nub) = freshOnMapValues fresh :: mapValuesPreservesNub nub

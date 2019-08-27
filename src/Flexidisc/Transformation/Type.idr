@@ -16,13 +16,13 @@ data MapValue = (:->) Type Type
 
 public export
 data MapValuesM : (m : Type -> Type) -> (k : Type) -> (o : Ord k) ->
-                  (header : OrdList k MapValue o) -> Type where
+                  (header : OrdList k o MapValue) -> Type where
     Nil  : (o : Ord k) => MapValuesM m k o []
     (::) : TaggedValue l (s -> m t) -> MapValuesM m k o header ->
            MapValuesM m k o ((l, s :-> t) :: header)
 
 public export
-MapValues :  (k : Type) -> (o : Ord k) -> OrdList k MapValue o -> Type
+MapValues :  (k : Type) -> (o : Ord k) -> OrdList k o MapValue -> Type
 MapValues = MapValuesM Identity
 
 insert : TaggedValue k' (s -> m t) -> MapValuesM m k o header ->
@@ -33,17 +33,17 @@ insert (k' := v) ((kx := vx) :: xs') with (k' < kx)
   | True  = (k' := v) :: (kx := vx) :: xs'
 
 public export
-toLabels : OrdList k MapValue o -> List k
+toLabels : OrdList k o MapValue -> List k
 toLabels [] = []
 toLabels ((k, s :-> t) :: xs) = k :: toLabels xs
 
 public export
-toSource : OrdList k MapValue o -> OrdHeader k o
+toSource : OrdList k o MapValue -> OrdHeader k o
 toSource [] = []
 toSource ((k, s :-> t) :: xs) = (k, s) :: toSource xs
 
 public export
-toTarget : OrdList k MapValue o -> OrdHeader k o
+toTarget : OrdList k o MapValue -> OrdHeader k o
 toTarget [] = []
 toTarget ((k, s :-> t) :: xs) = (k, t) :: toTarget xs
 

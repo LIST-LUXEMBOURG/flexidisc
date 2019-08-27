@@ -11,7 +11,9 @@ import Flexidisc.OrdList.Type
 
 ||| A proof that two `OrdList` don't share a key.
 data Disjoint : (left : OrdList k v o) -> (right : OrdList k v o) -> Type where
+  ||| The empty `OrdList` is always `Disjoint` from another `OrdList`
   Nil : Disjoint [] right
+  ||| A key in the first `OrdList` is fresh in the second `OrdList`.
   (::) : DecEq l => {k : l} -> IsFresh k right -> Disjoint left right ->
                     Disjoint ((k,v) :: left) right
 

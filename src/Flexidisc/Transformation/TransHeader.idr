@@ -10,7 +10,7 @@ import Flexidisc.Transformation.Type
 %access public export
 
 data TransHeader : (k : Type) -> Type where
-  T : (o : Ord k) => OrdList k MapValue o -> TransHeader k
+  T : (o : Ord k) => OrdList k o MapValue -> TransHeader k
 
 Nil : Ord k => TransHeader k
 Nil = T []

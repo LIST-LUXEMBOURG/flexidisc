@@ -10,12 +10,15 @@ import public Data.List
 
 %default total
 
-||| Proof that an `OrdList` is a permutation of an other
+||| Proof that an `OrdList` has some given `keys` and is a sublist of an other
 public export
 data SubWithKeys : (keys : List k) ->
                    (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+  ||| The empty `Ordlist` is a sublist of the empty `OrdList`
   Empty : SubWithKeys [] [] []
+  ||| Making the second list larger don't change the property
   Skip  : SubWithKeys keys xs ys -> SubWithKeys keys xs (y::ys)
+  ||| To add an element to the first list, we need to add it to the second one
   Keep  : (loc : Elem k keys) -> SubWithKeys (dropElem keys loc) xs ys ->
           SubWithKeys keys ((k, ty)::xs) ((k, ty)::ys)
 

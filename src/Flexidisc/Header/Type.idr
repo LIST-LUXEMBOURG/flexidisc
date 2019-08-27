@@ -4,6 +4,10 @@
 ||| For example
 ||| `the (Header Char) ['a' ::: String, 'b' ::: Bool] = the (Header Char) ['b' ::: Bool, 'a' ::: String]`
 ||| holds.
+|||
+||| While `Header` doesn't define the usual `List` constructors,
+||| the `List` syntax is available (and should be use)
+||| as both `Nil` and `::` are defined for `Header`
 module Flexidisc.Header.Type
 
 import Flexidisc.OrdHeader
@@ -15,9 +19,11 @@ import Flexidisc.OrdHeader
 data Header : (k : Type) -> Type where
   H : (o : Ord k) => OrdHeader k o -> Header k
 
+||| Extract the wrapped `OrdHeader` along with it's order relation
 unwrap : Header k -> (o ** OrdHeader k o)
 unwrap (H hs) = (_ ** hs)
 
+||| A helper for the empty header creation
 Nil : Ord k => Header k
 Nil = H []
 

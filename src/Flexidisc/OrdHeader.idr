@@ -7,7 +7,7 @@ import public Flexidisc.OrdList
 
 ||| An alias for `OrdList` that ensures that the values are `Type`
 OrdHeader : (k : Type) -> (o : Ord k) -> Type
-OrdHeader k o = OrdList k Type o
+OrdHeader k o = OrdList k o Type
 
 ||| Update a value in the list given it's location and an update function
 changeType : (xs : OrdHeader k o) -> (loc : OrdLabel l xs) -> (new : Type) ->
@@ -16,4 +16,4 @@ changeType = changeValue
 
 ||| Make types optional (encapsulate them in `Maybe`)
 optional : OrdHeader k o -> OrdHeader k o
-optional = mapValues Maybe
+optional = map Maybe

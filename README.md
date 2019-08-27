@@ -32,16 +32,14 @@ package.
 Install it:
 
 ```
-$ cd cleanRecord
-$ idris --install clean_record.ipkg
+$ cd flexidisc
+$ idris --install flexidisc.ipkg
 ```
 
-And then start idris REPL with the `clean_record` package:
-
-There's no `nix` install at this stage, I should work on it.
+And then start idris REPL with the `flexidisc` package:
 
 ```
-$ idris -p clean_record
+$ idris -p flexidisc
 Idris> :module Flexidisc
 ```
 
@@ -52,6 +50,8 @@ record manipulations):
 ```
 $ idris -p clean_record examples/Tutorial.idr
 ```
+
+There's no `nix` install at this stage, I should work on it.
 
 ## Usage
 

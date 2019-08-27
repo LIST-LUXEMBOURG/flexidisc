@@ -6,15 +6,18 @@ import Flexidisc.OrdList.Type
 %default total
 %access public export
 
-||| Proof that a key value pair is part of an `OrdList`
-data OrdRow : (l : k) -> (ty : v) -> OrdList k v o -> Type where
-  Here  :                          OrdRow l ty ((l, ty) :: xs)
+||| Proof that a key value pair is part of an `OrdList`.
+||| If you don't need the value, use `Label`.
+data OrdRow : (l : k) -> (ty : v) -> OrdList k o v -> Type where
+  ||| The label is in the first element of the list
+  Here  :                             OrdRow l ty ((l, ty) :: xs)
+  ||| The label is in the tail
   There : (later : OrdRow l ty xs) -> OrdRow l ty (x::xs)
 
 %name OrdRow lbl, loc, prf, e, elem
 
 ||| Demote it to a label existence proof
-labelFromOrdRow : OrdRow k v xs -> OrdLabel k xs
+labelFromOrdRow : OrdRow l v xs -> OrdLabel l xs
 labelFromOrdRow Here          = Here
 labelFromOrdRow (There later) = There (labelFromOrdRow later)
 
@@ -23,12 +26,12 @@ Uninhabited (OrdRow k v []) where
   uninhabited (There _) impossible
 
 ||| Given a proof that an element is in a vector, remove it
-dropOrdRow : (xs : OrdList k v o) -> (loc : OrdRow l ty xs) -> OrdList k v o
+dropOrdRow : (xs : OrdList k o v) -> (loc : OrdRow l ty xs) -> OrdList k o v
 dropOrdRow xs = dropLabel xs . labelFromOrdRow
 
 ||| Update a value in the list given it's location and an update function
-changeValue : (xs : OrdList k v o) -> (loc : OrdRow l old xs) -> (new : v) ->
-             OrdList k v o
+changeValue : (xs : OrdList k o v) -> (loc : OrdRow l old xs) -> (new : v) ->
+             OrdList k o v
 changeValue xs loc new = changeValue xs (labelFromOrdRow loc) new
 
 changeWithSameTypeIsUnchanged : (row : OrdRow l x xs) -> changeValue xs row x = xs
@@ -36,13 +39,13 @@ changeWithSameTypeIsUnchanged Here = Refl
 changeWithSameTypeIsUnchanged (There later) = cong $ changeWithSameTypeIsUnchanged later
 
 
-findInsertOrdRow : (l : k) -> (xs : OrdList k v o) -> OrdRow l ty (insert (l,ty) xs)
+findInsertOrdRow : (l : k) -> (xs : OrdList k o v) -> OrdRow l ty (insert (l,ty) xs)
 findInsertOrdRow l [] = Here
 findInsertOrdRow l ((kx, vx) :: xs) with (l < kx)
   | True = Here
   | False = There (findInsertOrdRow l xs)
 
-dropInsertInv : (l : k) -> (ty : v) -> (xs : OrdList k v o) ->
+dropInsertInv : (l : k) -> (ty : v) -> (xs : OrdList k o v) ->
                 dropOrdRow (insert (l, ty) xs) (findInsertOrdRow l xs) = xs
 dropInsertInv l ty [] = Refl
 dropInsertInv l ty ((kx,vx) :: xs) with (l < kx)

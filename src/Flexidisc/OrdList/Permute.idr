@@ -11,25 +11,26 @@ import Flexidisc.OrdList.Type
 
 ||| Proof that an `OrdList` is a permutation of another `OrdList`
 public export
-data Permute : (xs : OrdList k v o1) ->
-               (ys : OrdList k v o2) ->
+data Permute : (xs : OrdList k o1 v) ->
+               (ys : OrdList k o2 v) ->
                Type where
+  ||| The empty list is a permutation of an empty list
   Empty : Permute [] []
   Keep  : (e : OrdRow k ty ys) -> Permute xs (dropOrdRow ys e) ->
           Permute ((k, ty)::xs) ys
 
-permuteRefl : (xs : OrdList k v o) -> Permute xs xs
+permuteRefl : (xs : OrdList k o v) -> Permute xs xs
 permuteRefl [] = Empty
 permuteRefl ((k, v)::xs) = Keep Here (permuteRefl xs)
 
-insertConsPermute : (x : (k, v)) -> (xs : OrdList k v o) ->
+insertConsPermute : (x : (k, v)) -> (xs : OrdList k o v) ->
                     Permute  (insert x xs) (x :: xs)
 insertConsPermute (k, ty) [] = Keep Here Empty
 insertConsPermute (k, ty) ((kx, tx) :: xs) with (k < kx)
   | True  = Keep Here (Keep Here (permuteRefl xs))
   | False = Keep (There Here) (insertConsPermute (k, ty) xs)
 
-consInsertPermute : (x : (k, v)) -> (xs : OrdList k v o) ->
+consInsertPermute : (x : (k, v)) -> (xs : OrdList k o v) ->
                     Permute  (x :: xs) (insert x xs)
 consInsertPermute (l, ty) xs =
   Keep (findInsertOrdRow l xs)

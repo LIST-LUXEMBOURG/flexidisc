@@ -13,9 +13,13 @@ import Flexidisc.OrdList.Type
 ||| A proof that labels that are in both lists have the same values
 public export
 data HereOrNot : (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+  ||| It holds for two empty `OrdList`
   Empty : HereOrNot [] []
+  ||| If an element of the first list is not in the second list, it holds
   Skip  : DecEq k => {xs : OrdList k v o} -> HereOrNot xs ys -> IsFresh l ys -> HereOrNot ((l, ty) :: xs) ys
+  ||| If an element of the second list is not in the first list, it holds
   Extra : DecEq k => {xs : OrdList k v o} -> HereOrNot xs ys -> IsFresh l xs -> HereOrNot xs ((l, ty) :: ys)
+  ||| If an element is in both list, the values should be the same
   Keep  : HereOrNot xs ys -> HereOrNot ((l, ty) :: xs) ((l, ty) :: ys)
 
 export

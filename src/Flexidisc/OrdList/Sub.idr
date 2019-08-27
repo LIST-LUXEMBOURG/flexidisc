@@ -10,11 +10,14 @@ import Flexidisc.OrdList.Type
 %default total
 %access public export
 
-||| Proof that an `OrdList` is a permutation of another vect
+||| Proof that an `OrdList` is a sublist of another vect
 public export
 data Sub : (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+  ||| The empty `Ordlist` is a sublist of the empty `OrdList`
   Empty : Sub [] []
+  ||| Making the second list larger don't change the property
   Skip  : Sub xs ys -> Sub xs (y::ys)
+  ||| To add an element to the first list, we need to add it to the second one
   Keep  : Sub xs ys -> Sub (x::xs) (x::ys)
 
 %name Sub sub, issub, ss

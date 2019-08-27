@@ -7,15 +7,18 @@ import public Data.List
 
 %default total
 
-||| Proof that a vector is composed of the given keys and another vector.
+||| Proof that an `Ordlist` is composed of the given keys and another `OrdList`.
 |||
 ||| Used in `discard`, probably not useful anywhere else.
 public export
 data CompWithKeys : (keys : List k) ->
                    (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+  ||| Both `OrdList`s are empty
   Empty : CompWithKeys [] [] []
+  ||| The second `OrdList` contains an extra key, that is not in the first `OrdList`
   Skip  : (loc : Elem k keys) -> CompWithKeys (dropElem keys loc) xs ys ->
           CompWithKeys keys xs (y::ys)
+  ||| An element is shared bit both `OrdList`s
   Keep  : CompWithKeys keys xs ys -> CompWithKeys keys ((k, ty)::xs) ((k, ty)::ys)
 
 
