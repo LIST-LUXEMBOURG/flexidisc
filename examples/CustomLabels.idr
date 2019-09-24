@@ -2,14 +2,17 @@
 ||| We use a custom datatype for labels instead of `String`.
 module Flexidisc.CustomLabels
 
+import public Decidable.Order
+
 import Flexidisc
-import Flexidisc.InjectiveDecEq
+import Flexidisc.InjectiveKey
+
+%default total
 
 export
 data Feature = Firstname | Lastname | Age | ID
 
-implementation
-InjectiveDecEq Feature Nat where
+implementation InjectiveKey Feature Nat where
 
   inj Firstname = 0
   inj Lastname  = 1
@@ -26,11 +29,17 @@ InjectiveDecEq Feature Nat where
   inv Age       = Refl
   inv ID        = Refl
 
-implementation Eq Feature where
- (==) x y = (==) (inj x) (inj y)
+testEqFalse : Firstname == Lastname = False
+testEqFalse = Refl
 
-implementation Ord Feature where
-  compare x y = compare (inj x) (inj y)
+testEqTrue : Firstname == Firstname = True
+testEqTrue = Refl
+
+testOrdLT : Firstname < Lastname = True
+testOrdLT = Refl
+
+testOrdEQ : compare Firstname Firstname = EQ
+testOrdEQ = Refl
 
 person0 : Record Feature [Firstname ::: String]
 person0 = [Firstname := "John"]
