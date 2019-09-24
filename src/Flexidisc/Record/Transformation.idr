@@ -12,6 +12,9 @@ import public Control.Monad.Identity
 %default total
 %access export
 
+||| A list of transformation of tagged values.
+||| Its purpose is to apply several transformation on different fields
+||| simultaneously.
 data TransformationM : (m : Type -> Type) -> (k : Type) ->
                        (header : TransHeader k) -> Type where
   Trans : (o : Ord k) =>
@@ -23,9 +26,11 @@ public export
 Transformation : (k : Type) -> (header : TransHeader k) -> Type
 Transformation = TransformationM Identity
 
+||| Monomorphic `id` to help inference
 transM : TransformationM m k header -> TransformationM m k header
 transM = id
 
+||| Monomorphic `id` to help inference
 trans : TransformationM Identity k header -> TransformationM Identity k header
 trans = id
 
@@ -48,6 +53,7 @@ transPreservesNub : (header : OrdList k o MapValue) -> Nub (toSource header) -> 
 transPreservesNub [] xs = xs
 transPreservesNub ((l, s :-> t) :: xs) (y::ys) = transPreservesFresh xs y :: transPreservesNub xs ys
 
+||| Map all the field of a record
 mapRecordM : Applicative m =>
              (trans : TransformationM m k mapper) ->
              (xs : Record k (toSource mapper)) ->
@@ -61,6 +67,7 @@ mapRecord : (trans : Transformation k mapper) ->
 mapRecord trans xs = runIdentity (mapRecordM trans xs)
 
 
+||| Map a subset of a record
 patchM : (DecEq k, Applicative m) =>
          (trans : TransformationM m k mapper) ->
          (xs : Record k header) ->

@@ -18,6 +18,10 @@ data OrdList : (k : Type) ->  (o : Ord k) -> (v : Type) -> Type where
 
 %name OrdList xs, ys, zs
 
+keys : OrdList k o v -> List k
+keys [] = []
+keys ((a, b) :: xs) = a :: keys xs
+
 implementation Functor (OrdList k o) where
 
   map f [] = []
@@ -34,7 +38,7 @@ insert (k, v) ((k', v') :: xs) with (k < k')
 ||| Merge two `OrdList`, preserving the order if the initial list are ordered.
 merge :  OrdList k o v -> OrdList k o v -> OrdList k o v
 merge [] xs = xs
-merge (x :: hs) [] = (x :: hs)
+merge xs [] = xs
 merge ((k, v) :: hs) ((k', v') :: xs) with (k < k')
   | False = (k', v') :: merge ((k, v) :: hs) xs
   | True  = (k , v)  :: merge hs ((k', v') :: xs)
@@ -47,3 +51,10 @@ toOrdList = foldl (flip insert) Nil
 toList : OrdList k o v -> List (k, v)
 toList [] = []
 toList (x :: xs) = x :: toList xs
+
+namespace properties
+
+  mapPreservesKeys : (xs : OrdList k o v) -> (f : v-> v') ->
+                     keys xs = keys (map f xs)
+  mapPreservesKeys [] f = Refl
+  mapPreservesKeys ((a, b) :: xs) f = cong $ mapPreservesKeys xs f

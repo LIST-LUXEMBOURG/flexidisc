@@ -33,4 +33,4 @@ the (List String) (map (\x => get "firstname" x) it)
 -- We don't have fullname !
 
 
-recordList [ rec ["firstname" := "Bilbo", "lastname" := "Baggins"] , namedRec ["firstname" := "Gandalf", "nickname" := "The Grey"] ]
+recordList [ rec ["firstname" := "Bilbo", "lastname" := "Baggins"] , rec ["firstname" := "Gandalf", "nickname" := "The Grey"] ]

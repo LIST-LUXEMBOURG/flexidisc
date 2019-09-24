@@ -52,10 +52,16 @@ public export
        Record k ((k',ty) :: header)
 (::) = cons
 
-private
-test_rec1 : Record String ["Firstname" ::: String]
-test_rec1 = ["Firstname" := "John"]
-
 ||| It's just monomorphic `id` with a fancy name, to help type inference
 rec : Record k header -> Record k header
 rec = id
+
+namespace test
+  %access private
+
+  test_rec1 : Record String ["Firstname" ::: String]
+  test_rec1 = ["Firstname" := "John"]
+
+  test_rec2 : Record String ["Lastname" ::: String, "Firstname" ::: String]
+  test_rec2 = ["Firstname" := "John", "Lastname" := "Doe"]
+

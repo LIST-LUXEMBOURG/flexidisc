@@ -32,6 +32,7 @@ merge (Rec xs nubX) (Rec ys nubY) {prf = D prf} =
 (++) = merge
 
 
+||| Patch the right-hand side record with the values on the left-hand side
 (|>) : DecEq k =>
        (xs : Record k header) -> (ys : Record k header') ->
        {default (S Same) prf : SameOrd header header'} ->
@@ -99,6 +100,8 @@ discard keys (Rec xs nub) {prf = S prf} =
 decLabel : DecEq k => (l : k) -> (xs : Record k header) -> Dec (Label l header)
 decLabel l _ {header} = decLabel l header
 
+||| Create a record of Maybe type, with the values of the initial record,
+||| if defined, or with `Nothing` if the field is not defined.
 optional : DecEq k => (post : Header k) ->
            (xs : Record k header) ->
            {auto prf : HereOrNot post header} ->

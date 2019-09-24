@@ -3,29 +3,32 @@ module TheHobbit
 import Flexidisc
 import Flexidisc.Validation
 
-location : Record String ["city" ::: String, "region" ::: String, "smial" ::: String]
+Record' : Header String -> Type
+Record' = Record String
+
+location : Record' ["city" ::: String, "region" ::: String, "smial" ::: String]
 location = [ "region" := "Shire"
            , "city"   := "Hobbiton"
            , "smial"  := "Bag End"
            ]
 
-gandalf : Record String [ "firstname" ::: String
-                        , "nickname"  ::: String
-                        ]
+gandalf : Record' [ "firstname" ::: String
+                  , "nickname"  ::: String
+                  ]
 gandalf = [ "firstname" := "Gandalf" , "nickname"  := "The Grey" ]
 
-magician : Record String [ "firstname" ::: String
-                         , "nickname"  ::: String
-                         , "class"     ::: String
-                         ]
+magician : Record' [ "firstname" ::: String
+                   , "nickname"  ::: String
+                   , "class"     ::: String
+                   ]
 magician = "class" := "Magician" :: gandalf
 
-backToGandalf : Record String [ "firstname" ::: String
-                              , "nickname"  ::: String
-                              ]
+backToGandalf : Record' [ "firstname" ::: String
+                        , "nickname"  ::: String
+                        ]
 backToGandalf = drop "class" magician
 
-keepArbitrary : Record String [ "class" ::: String ]
+keepArbitrary : Record' [ "class" ::: String ]
 keepArbitrary = keep ["class"] magician
 
 theGrey : String
@@ -34,9 +37,9 @@ theGrey = gandalf !! "nickname"
 gandalfWho : Maybe String
 gandalfWho = lookup "lastname" gandalf -- Nothing
 
-bilbo : Record String [ "firstname" ::: String
-                      , "lastname"  ::: String
-                      ]
+bilbo : Record' [ "firstname" ::: String
+                , "lastname"  ::: String
+                ]
 bilbo = [ "firstname" := "Bilbo", "lastname" := "Baggins" ]
 
 theHobbitCharacters : RecordList String
@@ -47,10 +50,10 @@ theHobbitCharacters : RecordList String
                                  ]
 theHobbitCharacters = [gandalf, bilbo]
 
-theHobbitFirstnames : List (Record String ["firstname" ::: String])
+theHobbitFirstnames : List (Record' ["firstname" ::: String])
 theHobbitFirstnames = toList theHobbitCharacters
 
-fullname : Record String header ->
+fullname : Record' header ->
            {auto fProof : Row "firstname" String header} ->
            {auto lProof : Row "lastname"  String header} ->
            String
@@ -69,9 +72,9 @@ longerFullname = Func go
 charactersName : List String
 charactersName = foldAll longerFullname theHobbitCharacters
 
-gandalf' : Record String [ "firstname" ::: String
-                         , "nickname"  ::: String
-                         ]
+gandalf' : Record' [ "firstname" ::: String
+                   , "nickname"  ::: String
+                   ]
 gandalf' = [ "firstname" := "gandalf" , "nickname"  := "The grey" ]
 
 secureFullname : RecordFunc [ "firstname" ::: String ]
