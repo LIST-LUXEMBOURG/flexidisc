@@ -19,10 +19,11 @@ implementation InjectiveKey Feature Nat where
   inj Age       = 2
   inj ID        = 3
 
-  ret Z             = Firstname
-  ret (S Z)         = Lastname
-  ret (S (S Z))     = Age
-  ret (S (S (S k))) = ID
+  ret x with (toIntegerNat x)
+    | 0 = Firstname
+    | 1 = Lastname
+    | 2 = Age
+    | n = ID
 
   inv Firstname = Refl
   inv Lastname  = Refl
