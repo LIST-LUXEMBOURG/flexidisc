@@ -29,7 +29,6 @@ public export
 (:::) : (k : l) -> (v : Type) -> Pair l Type
 (:::) = MkPair
 
-
 %name Record xs, ys, zs
 
 ||| The empty record

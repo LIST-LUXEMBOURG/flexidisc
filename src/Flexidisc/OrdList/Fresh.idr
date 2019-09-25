@@ -42,8 +42,8 @@ freshOnMapValues (prf :: fresh) = prf :: freshOnMapValues fresh
 
 ||| We can't find a label that is `Fresh` in an `OrdList`
 freshCantBeLabel : Fresh l xs -> Not (OrdLabel l xs)
-freshCantBeLabel (f :: fresh) Here = f Refl
-freshCantBeLabel (f :: fresh) (There later) = freshCantBeLabel fresh later
+freshCantBeLabel (f :: _    ) Here = f Refl
+freshCantBeLabel (_ :: fresh) (There later) = freshCantBeLabel fresh later
 
 ||| If a label is not in a list, is not in this list minus one element.
 export

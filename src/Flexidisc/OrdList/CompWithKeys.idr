@@ -21,7 +21,6 @@ data CompWithKeys : (keys : List k) ->
   ||| An element is shared bit both `OrdList`s
   Keep  : CompWithKeys keys xs ys -> CompWithKeys keys ((k, ty)::xs) ((k, ty)::ys)
 
-
 %name CompWithKeys sub, issub, ss
 
 export
