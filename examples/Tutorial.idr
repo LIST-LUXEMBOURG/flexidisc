@@ -34,6 +34,11 @@ person1 = ("Lastname" := "Doe") :: ("Age" := the Nat 42) :: person0
 person3 : Record String ["Firstname" ::: String, "Lastname" ::: String]
 person3 = project person1
 
+||| You can merge records
+idJohn : Record String [("ID", Nat), ("Firstname", String), ("Lastname", String), ("Age", Nat)]
+idJohn = ["ID" := the Nat 1, "Firstname" := "John"]
+      ++ ["Lastname" := "Doe", "Age" := the Nat 42]
+
 ||| If you want to give explicitly the order of the new elements you want
 ||| you can use `keep`
 person4 : Record String ["Firstname" ::: String, "Lastname" ::: String]

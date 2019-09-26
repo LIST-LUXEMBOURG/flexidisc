@@ -4,22 +4,24 @@
 
 
 
-## Presentation
-
 `Flexidisc` is an typesafe implementation of extensible records in Idris.
-An extensible record is a record that can be extended or shrink on demand.
+An extensible record is a record that can be extended, shrink or modified on demand.
+
+### Why?
+
+The initial motivation was to handle data transformation pipeline, where you want to
+create, modify and delete fields from records while presesrving type safety.
 
 ### Features
 
-- Inferred (from type) or explicit labels
 - Record extension
 - Projection
 - Typesafe accesses/updates
 - Concatenation of disjoint records
 - Pach a record with another one
-- Order dependent equality of records
 - Order independent equality of records
-- Row polymorphic operations
+- Row polymorphic functions
+- List of heterogeneous records + operations on them
 
 ## Getting started
 
@@ -55,99 +57,61 @@ There's no `nix` install at this stage, I should work on it.
 
 ## Usage
 
+The core of `Flexidisc` is the `Record` type:
+
+```
+Record : (key : Type) -> (header : Header key) -> Type
+```
+
+`Record` takes two parameter:
+
+- `key`, the type used to identify the different rows of a `Record`.
+  A `key` must implement `DecEq` interface (to avoid duplicate fields),
+  and `Ord` (to allow field declaration in any order).
+- `header` can be seen as a list of `(key, Type)` pairs, that identify
+  the type of each row in the Record.
+
 ### Record creation
 
-Two functions can be used to create `Record`s, `rec` and `namedRec`.
-
-`rec` relies on the type signature to associate provided values to a field.
-For example, if you want to create a `Person` with a `Firstname` and an
-`Age`, you can write:
-
 ```
-johnDoe : Record ["Firstname" := String, "Age" :=  Nat])
-johnDoe = rec ["John", 42]
+johnDoe : Record String ["Firstname" ::: String, "Age" ::: Nat])
+johnDoe = ["Firstname" := "John", "Age" := 42]
 ```
-
-Depending on the scenarios, it may be easier to declare the row names
-along with the data.
-It's the purpose of `namedRec`. To build the same record, this time, the syntax is:
-
-```
-namedJohnDoe : Record ["Firstname" := String, "Age" :=  Nat])
-namedJohnDoe = namedRec ["Firstname" ::= "John", "Age" ::=  the Nat 42]
-```
-
-You don't see any difference there but in this last case,
-the type would have been infered, while it wouldn't in the first case.
 
 ### Record extension
 
-Suppose that we want to add a lastname to the previous example,
-we can suse the usual `::` operator:
-
 ```
-agedJohn : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
-agedJohn =  42 :: namedJohnDoe
-```
-
-And again, there's an equivalent for named field:
-
-```
-namedAgedJohn : Record ["Age" := Nat, "Lastname" := String, "Firstname" := String]
-namedAgedJohn = ("Age" ::= the Nat 42) :+: namedJohn
+agedJohn : Record String ["Age" ::: Nat, "Lastname" ::: String, "Firstname" ::: String]
+agedJohn = ("Lastname" := "Doe") :: johnDoe
 ```
 
 We can also append disjoints records with `++`:
 
 ```
-idJohn : Record [("ID", Nat), ("Firstname", String), ("Lastname", String), ("Age", Nat)]
-idJohn = namedRec ["ID" ::= the Nat 1, "Firstname" ::= "John"]
-      ++ namedRec ["Lastname" ::= "Doe", "Age" ::= the Nat 42]
+idJohn : Record String ["ID" ::: Nat, "Firstname" ::: String, "Lastname" ::: String, "Age" ::: Nat]
+idJohn = ["ID" := the Nat 1, "Firstname" := "John"] ++ ["Lastname" := "Doe", "Age" := the Nat 42]
 ```
 
-## Record projection and reordering
-
-We can also easily delete rows or reorder them.
-As in many libraries support of extensible records,
-the rows order is significant in `Flexidisc`.
-Although, in many situations, we don't want to consider
-this order.
-A workaround is to provide a way to easily reorder a record:
+## Record projection
 
 ```
-ageLast : Record [("Lastname", String), ("Firstname", String), ("Age", Nat)]
-ageLast = reorder agedJohn
+johnsName : Record ["Lastname" ::: String, "Firstname" ::: String]
+johnsName = project agedJohn
 ```
 
-`reorder` ensures that all the rows are still in the record after the
-preservation.
-You can, however, decide to use a more permisive functions, `project`,
-if you want to skip som of the rows of the original record:
-
 ```
-john : Record ["Firstname" ::= String]
-john = project ageLast
-```
-
-or the named alternative:
-
-```
-keepJohn : Record ["Firstname" ::= String]
+keepJohn : Record ["Firstname" ::: String]
 keepJohn = keep "Firstname" ageLast
 ```
 
-You can also decide to drop a specific row:
-
 ```
 backToJohnDoe : Record ["Firstname" ::= String, "LastName" ::= String]
-backToJohnDoe = dropByName "Age" agedJohn
+backToJohnDoe = drop "Age" agedJohn
 ```
-
-or specific row**s**:
 
 ```
 john : Record ["Firstname" ::= String]
-john = dropN ["Lastname", "Age"] agedJohn
+john = discard ["Lastname", "Age"] agedJohn
 ```
 
 # Type-Safety
@@ -164,10 +128,10 @@ Here are a few examples of type checking failure
 get "Age" johnDoe
 
 -- Can't create a duplicate label
-("Firstname" ::= "Nicolas") :+: johnDoe
+("Firstname" := "Nicolas") :: johnDoe
 
 -- Can't create labels during a projecttion
-the (Record ["Firstname" := String, "Age" := Nat]) (project johnDoe)
+the (Record ["Firstname" ::: String, "Age" ::: Nat]) (project johnDoe)
 
 -- Can't merge two records with a common field
 john ++ johnDoe
