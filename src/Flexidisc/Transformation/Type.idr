@@ -47,20 +47,35 @@ toTarget : OrdList k o MapValue -> OrdHeader k o
 toTarget [] = []
 toTarget ((k, s :-> t) :: xs) = (k, t) :: toTarget xs
 
-mapRecordM : (o : Ord k, Applicative m) =>
-             (trans : MapValuesM m k o mapper) ->
-             (xs : RecordContent k o (toSource mapper)) ->
-             m (RecordContent k o (toTarget mapper))
-mapRecordM [] [] = pure []
-mapRecordM ((k := f) :: fs) ((k := x) :: xs) =
-  mapHead k <$> f x <*> mapRecordM fs xs
+mapRecord : (o : Ord k) =>
+            (trans : MapValuesM m k o mapper) ->
+            (xs : RecordContent k o (toSource mapper)) ->
+            RecordContentM m k o (toTarget mapper)
+mapRecord [] [] = []
+mapRecord (k := f :: fs) (k := x :: xs) = k := f x :: mapRecord fs xs
+
+traverseRecord : (o : Ord k, Applicative m) =>
+                 (trans : MapValuesM m k o mapper) ->
+                 (xs : RecordContent k o (toSource mapper)) ->
+                 m (RecordContent k o (toTarget mapper))
+traverseRecord [] [] = pure []
+traverseRecord ((k := f) :: fs) ((k := x) :: xs) =
+  mapHead k <$> f x <*> traverseRecord fs xs
     where
       mapHead k' x' xs' = k' := x' :: xs'
 
-patchM : (DecEq k, Applicative m) =>
-         (trans : MapValuesM m k o mapper) ->
-         (xs : RecordContent k o header) ->
-         (prf : Sub (toSource mapper) header) ->
-         m (RecordContent k o (patch (toTarget mapper) header))
-patchM trans xs {prf} =
-  (\p => p |> xs) <$> mapRecordM trans (project xs prf)
+patchRecord : (DecEq k, Applicative m) =>
+              (trans : MapValuesM m k o mapper) ->
+              (xs : RecordContent k o header) ->
+              (prf : Sub (toSource mapper) header) ->
+              m (RecordContent k o (patch (toTarget mapper) header))
+patchRecord trans xs {prf} =
+  (\p => p |> xs) <$> traverseRecord trans (project xs prf)
+
+patchRecord' : DecEq k =>
+               (trans : MapValues k o mapper) ->
+               (xs : RecordContent k o header) ->
+               (prf : Sub (toSource mapper) header) ->
+               RecordContent k o (patch (toTarget mapper) header)
+patchRecord' trans xs {prf} =
+  mapRecord trans (project xs prf) |> xs

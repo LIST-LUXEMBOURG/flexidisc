@@ -113,6 +113,14 @@ optional _ (Rec xs nubXS) {prf = HN prf} {postNub} =
 toTHList : RecordM m k header -> THList m k (toList header)
 toTHList (Rec xs _) = toTHList xs
 
+||| lift field of a Record
+lift : (f: {a : _} -> a -> m a) -> (xs : Record k header) -> RecordM m k header
+lift f (Rec xs nubXS) = Rec (lift f xs) nubXS
+
+||| extract an effect from a record
+sequence : Applicative m => (xs : RecordM m k header) -> m (Record k header)
+sequence (Rec xs nubXS) = flip Rec nubXS <$> sequence xs
+
 -- Foldmap
 
 public export

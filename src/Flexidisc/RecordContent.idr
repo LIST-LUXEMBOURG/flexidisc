@@ -130,10 +130,10 @@ toTHList : RecordContentM m k o header -> THList m k (toList header)
 toTHList [] = []
 toTHList ((_ := x) :: xs) = x :: toTHList xs
 
-sequence : (Applicative m, Applicative n) =>
-           RecordContentM m k o header -> m (RecordContentM n k o header)
+sequence : Applicative m =>
+           RecordContentM m k o header -> m (RecordContent k o header)
 sequence [] = pure []
-sequence ((k' := x) :: xs) = (map (cons . (k' :=) . pure) x) <*> (sequence xs)
+sequence ((k' := x) :: xs) = (map (cons . (k' :=)) x) <*> (sequence xs)
 
 implementation Eq (RecordContentM m k o []) where
   (==) x y = True

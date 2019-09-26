@@ -24,7 +24,7 @@ data TransformationM : (m : Type -> Type) -> (k : Type) ->
 
 public export
 Transformation : (k : Type) -> (header : TransHeader k) -> Type
-Transformation = TransformationM Identity
+Transformation = TransformationM id
 
 ||| Monomorphic `id` to help inference
 transM : TransformationM m k header -> TransformationM m k header
@@ -54,37 +54,41 @@ transPreservesNub [] xs = xs
 transPreservesNub ((l, s :-> t) :: xs) (y::ys) = transPreservesFresh xs y :: transPreservesNub xs ys
 
 ||| Map all the field of a record
-mapRecordM : Applicative m =>
-             (trans : TransformationM m k mapper) ->
-             (xs : Record k (toSource mapper)) ->
-             m (Record k (toTarget mapper))
-mapRecordM (Trans trans nubT) (Rec xs nubXS) {mapper = T mapper} =
-  map (flip Rec (transPreservesNub mapper nubXS)) (mapRecordM trans xs)
-
-mapRecord : (trans : Transformation k mapper) ->
+mapRecord : (trans : TransformationM m k mapper) ->
             (xs : Record k (toSource mapper)) ->
-            Record k (toTarget mapper)
-mapRecord trans xs = runIdentity (mapRecordM trans xs)
+            RecordM m k (toTarget mapper)
 
+||| Map all the field of a record
+traverseRecord : Applicative m =>
+                 (trans : TransformationM m k mapper) ->
+                 (xs : Record k (toSource mapper)) ->
+                 m (Record k (toTarget mapper))
+traverseRecord (Trans trans nubT) (Rec xs nubXS) {mapper = T mapper} =
+  map (flip Rec (transPreservesNub mapper nubXS)) (traverseRecord trans xs)
 
 ||| Map a subset of a record
-patchM : (DecEq k, Applicative m) =>
-         (trans : TransformationM m k mapper) ->
-         (xs : Record k header) ->
-         {auto prf : Sub (toSource mapper) header} ->
-         m (Record k (patch (toTarget mapper) header))
-patchM (Trans trans nubT) (Rec xs nubXS) {prf = S prf} {mapper = T mapper} = let
+patchRecord : (DecEq k, Applicative m) =>
+              (trans : TransformationM m k mapper) ->
+              (xs : Record k header) ->
+              {auto prf : Sub (toSource mapper) header} ->
+              m (Record k (patch (toTarget mapper) header))
+patchRecord (Trans trans nubT) (Rec xs nubXS) {prf = S prf} {mapper = T mapper} = let
   nubProof = disjointNub diffIsDisjoint
                          (isNubFromSub diffIsSub nubXS)
                          (transPreservesNub mapper (isNubFromSub prf nubXS))
-  in map (flip Rec nubProof) (patchM trans xs prf)
+  in map (flip Rec nubProof) (patchRecord trans xs prf)
 
-patch : DecEq k =>
-        (trans : Transformation k mapper) ->
-        (xs : Record k header) ->
-        {auto prf : Sub (toSource mapper) header} ->
-        Record k (patch (toTarget mapper) header)
-patch trans xs = runIdentity (patchM trans xs)
+||| Map a subset of a record
+patchRecord' : DecEq k =>
+               (trans : Transformation k mapper) ->
+               (xs : Record k header) ->
+               {auto prf : Sub (toSource mapper) header} ->
+               Record k (patch (toTarget mapper) header)
+patchRecord' (Trans trans nubT) (Rec xs nubXS) {prf = S prf} {mapper = T mapper} = let
+  nubProof = disjointNub diffIsDisjoint
+                         (isNubFromSub diffIsSub nubXS)
+                         (transPreservesNub mapper (isNubFromSub prf nubXS))
+  in (flip Rec nubProof) (patchRecord' trans xs prf)
 
 -- Operators
 

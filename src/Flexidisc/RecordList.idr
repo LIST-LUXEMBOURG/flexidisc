@@ -50,7 +50,7 @@ firstWith f (xs :: xss) {prf = p::_} = checkOne <|> firstWith f xss
   where
     checkOne = do
       toSub p
-      res <- patchM f xs
+      res <- patchRecord f xs
       pure (_ ** res)
 
 foldAll : (Ord k, DecEq k) => RecordFunc req opt a -> RecordList k xss ->
