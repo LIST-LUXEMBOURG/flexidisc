@@ -23,7 +23,7 @@ data MapValuesM : (m : Type -> Type) -> (k : Type) -> (o : Ord k) ->
 
 public export
 MapValues :  (k : Type) -> (o : Ord k) -> OrdList k o MapValue -> Type
-MapValues = MapValuesM Identity
+MapValues = MapValuesM id
 
 insert : TaggedValue k' (s -> m t) -> MapValuesM m k o header ->
          MapValuesM m k o (insert (k', s :-> t) header)

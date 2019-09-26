@@ -19,24 +19,24 @@ import public Flexidisc.THList
 |||
 ||| Complexity is _O(n)_ where _n_ is the length of the longest record.
 |||
-merge : (xs : Record k header) -> (ys : Record k header') ->
+merge : (xs : RecordM m k header) -> (ys : RecordM m k header') ->
         {auto prf : Disjoint header header'} ->
-        Record k (merge header header')
+        RecordM m k (merge header header')
 merge (Rec xs nubX) (Rec ys nubY) {prf = D prf} =
   Rec (merge xs ys) (disjointNub prf nubX nubY)
 
 ||| Alias for `merge`
-(++) : (xs : Record k header) -> (ys : Record k header') ->
+(++) : (xs : RecordM m k header) -> (ys : RecordM m k header') ->
        {auto prf : Disjoint header header'} ->
-       Record k (merge header header')
+       RecordM m k (merge header header')
 (++) = merge
 
 
 ||| Patch the right-hand side record with the values on the left-hand side
 (|>) : DecEq k =>
-       (xs : Record k header) -> (ys : Record k header') ->
+       (xs : RecordM m k header) -> (ys : RecordM m k header') ->
        {default (S Same) prf : SameOrd header header'} ->
-        Record k (patch header header')
+        RecordM m k (patch header header')
 (|>) (Rec xs nubX) (Rec ys nubY) {prf = S prf} = let
   nubProof = disjointNub diffIsDisjoint (isNubFromSub diffIsSub nubY) nubX
   in Rec (xs |> ys) nubProof
@@ -49,8 +49,8 @@ merge (Rec xs nubX) (Rec ys nubY) {prf = D prf} =
 |||
 ||| @ xs the record
 ||| @ loc  the proof that the row is in it
-dropByLabel : (xs : Record k header) -> (loc : Label query header) ->
-              Record k (dropLabel header loc)
+dropByLabel : (xs : RecordM m k header) -> (loc : Label query header) ->
+              RecordM m k (dropLabel header loc)
 dropByLabel (Rec xs nub) (L prf) =
   Rec (drop xs prf) (dropPreservesNub nub prf)
 
@@ -61,9 +61,9 @@ dropByLabel (Rec xs nub) (L prf) =
 ||| @ query  the row name
 ||| @ xs     the record
 ||| @ loc    the proof that the row is in it
-drop : (query : k) -> (xs : Record k header) ->
+drop : (query : k) -> (xs : RecordM m k header) ->
        {auto loc : Label query header} ->
-       Record k (dropLabel header loc)
+       RecordM m k (dropLabel header loc)
 drop _ xs {loc} = dropByLabel xs loc
 
 -- TRANSFORM
@@ -72,7 +72,7 @@ drop _ xs {loc} = dropByLabel xs loc
 |||
 ||| Complexity is _O(n)_
 |||
-project : Record k header -> {auto prf : Sub sub header} -> Record k sub
+project : RecordM m k header -> {auto prf : Sub sub header} -> RecordM m k sub
 project (Rec xs nub) {prf = S prf} = Rec (project xs prf) (isNubFromSub prf nub)
 
 ||| Build a projection with the given keys
@@ -80,9 +80,9 @@ project (Rec xs nub) {prf = S prf} = Rec (project xs prf) (isNubFromSub prf nub)
 ||| @keys The rows to keep
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
-keep : (keys : List k) -> (xs : Record k pre) ->
+keep : (keys : List k) -> (xs : RecordM m k pre) ->
        {auto prf : SubWithKeys keys post pre} ->
-       Record k post
+       RecordM m k post
 keep keys (Rec xs nub) {prf = S prf} =
   Rec (keep xs prf) (isNubFromSub (toSub prf) nub)
 
@@ -91,13 +91,13 @@ keep keys (Rec xs nub) {prf = S prf} =
 ||| @keys The rows to skip
 ||| @xs The record to project
 ||| @prf Proof that the rows are parts of the record
-discard : (keys : List k) -> (xs : Record k pre) ->
+discard : (keys : List k) -> (xs : RecordM m k pre) ->
           {auto prf : CompWithKeys keys post pre} ->
-          Record k post
+          RecordM m k post
 discard keys (Rec xs nub) {prf = S prf} =
   Rec (discard xs prf) (isNubFromSub (toSub prf) nub)
 
-decLabel : DecEq k => (l : k) -> (xs : Record k header) -> Dec (Label l header)
+decLabel : DecEq k => (l : k) -> (xs : RecordM m k header) -> Dec (Label l header)
 decLabel l _ {header} = decLabel l header
 
 ||| Create a record of Maybe type, with the values of the initial record,
@@ -106,19 +106,20 @@ optional : DecEq k => (post : Header k) ->
            (xs : Record k header) ->
            {auto prf : HereOrNot post header} ->
            {default SoTrue postNub : IsNub post} ->
-           Record k (optional post)
+           RecordM Maybe k post
 optional _ (Rec xs nubXS) {prf = HN prf} {postNub} =
-  Rec (optional xs prf) (mapValuesPreservesNub (getProof postNub))
+  Rec (optional xs prf) (getProof postNub)
 
-toTHList : Record k header -> THList k (toList header)
+toTHList : RecordM m k header -> THList m k (toList header)
 toTHList (Rec xs _) = toTHList xs
 
 -- Foldmap
 
 public export
-data RecordFunc : (required : Header k) -> (optional : Header k) ->
-                  (reasult : Type) -> Type where
-  Func : (Record k required -> Record k (optional opt) -> a) ->
+data RecordFunc : (required : Header k) ->
+                  (optional : Header k) ->
+                  (result : Type) -> Type where
+  Func : (Record k required -> RecordM Maybe k opt -> a) ->
          RecordFunc required opt a
 
 ||| Apply a function on a known set of data
@@ -137,7 +138,7 @@ foldRecord (Func f) xs {opt} {decomp = D sub op} {optNub} =
 -- COMPARE
 
 implementation
-Eq (THList k (toList header)) => Eq (Record k header) where
+Eq (THList m k (toList header)) => Eq (RecordM m k header) where
   (==) xs ys = toTHList xs == toTHList ys
   (/=) xs ys = toTHList xs /= toTHList ys
 
@@ -145,5 +146,5 @@ Eq (THList k (toList header)) => Eq (Record k header) where
 -- SHOW
 
 implementation
-Show (THList k (toList header)) => Show (Record k header) where
+Show (THList m k (toList header)) => Show (RecordM m k header) where
   show xs = show (toTHList xs)

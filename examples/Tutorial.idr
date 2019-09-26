@@ -24,7 +24,7 @@ person0Name' = person0 !! "Firstname"
 
 ||| you can even lookup for fields that my or may not be there
 person0Age : Maybe Nat
-person0Age = lookup "Age" person0
+person0Age = Read.lookup "Age" person0
 
 ||| We can of course extend records:
 person1 : Record String ["Age" ::: Nat, "Lastname" ::: String, "Firstname" ::: String]

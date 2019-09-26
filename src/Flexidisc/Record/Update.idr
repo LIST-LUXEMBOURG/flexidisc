@@ -14,8 +14,9 @@ import public Flexidisc.Record.Type
 ||| @ xs  the record
 ||| @ loc the proof that the row is in it
 ||| @ new the new value for the row
-setByLabel : (xs : Record k header) -> (loc : Label query header) -> (new : ty) ->
-      Record k (changeType header loc ty)
+setByLabel : (xs : RecordM m k header) -> (loc : Label query header) ->
+             (new : m ty) ->
+             RecordM m k (changeType header loc ty)
 setByLabel (Rec xs nub) (L loc) new =
   Rec (set xs loc new) (changeValuePreservesNub nub)
 
@@ -27,9 +28,9 @@ setByLabel (Rec xs nub) (L loc) new =
 ||| @ xs    the record
 ||| @ loc   the proof that the row is in it
 ||| @ new   the new value for the row
-set : (query : k) -> (new : ty) -> (xs : Record k header) ->
+set : (query : k) -> (new : m ty) -> (xs : RecordM m k header) ->
       {auto loc : Label query header} ->
-      Record k (changeType header loc ty)
+      RecordM m k (changeType header loc ty)
 set _ new xs {loc} = setByLabel xs loc new
 
 ||| Update a row at a given `Row`, can change its type.
@@ -39,9 +40,9 @@ set _ new xs {loc} = setByLabel xs loc new
 ||| @ xs     the record
 ||| @ loc    the proof that the row is in it
 ||| @ f      the update function
-updateByLabel : (xs : Record k header) -> (loc : Row query a header) ->
-                (f : a -> b) ->
-                Record k (changeType header loc b)
+updateByLabel : (xs : RecordM m k header) -> (loc : Row query a header) ->
+                (f : m a -> m b) ->
+                RecordM m k (changeType header loc b)
 updateByLabel (Rec xs nub) (R loc) f =
   Rec (update xs loc f) (changeValuePreservesNub nub)
 
@@ -53,7 +54,7 @@ updateByLabel (Rec xs nub) (R loc) f =
 ||| @ xs     the record
 ||| @ loc    the proof that the row is in it
 ||| @ f      the update function
-update : (query : k) -> (f : a -> b) -> (xs : Record k header) ->
+update : (query : k) -> (f : m a -> m b) -> (xs : RecordM m k header) ->
          {auto loc : Row query a header} ->
-         Record k (changeType header loc b)
+         RecordM m k (changeType header loc b)
 update _ f xs {loc} = updateByLabel xs loc f

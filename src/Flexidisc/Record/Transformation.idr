@@ -96,4 +96,3 @@ is expected = keepIf (== expected)
 
 isnot : (Eq a, Alternative m, Applicative m) => a -> a -> m a
 isnot expected = keepIf (/= expected)
-
