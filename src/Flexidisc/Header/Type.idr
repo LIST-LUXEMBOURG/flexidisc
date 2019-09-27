@@ -15,9 +15,13 @@ import Flexidisc.OrdHeader
 %default total
 %access public export
 
+||| Wrapper for `OrdList` that hide the order relationship
+data Header' : (k : Type) -> (t : Type) -> Type where
+  H : (o : Ord k) => OrdList k o t -> Header' k t
+
 ||| Wrapper for `OrdHeader` that hide the order relationship
-data Header : (k : Type) -> Type where
-  H : (o : Ord k) => OrdHeader k o -> Header k
+Header : (k : Type) -> Type
+Header k = Header' k Type
 
 ||| Extract the wrapped `OrdHeader` along with it's order relation
 unwrap : Header k -> (o ** OrdHeader k o)
