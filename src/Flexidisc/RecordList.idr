@@ -7,15 +7,19 @@ import Flexidisc.Record.Transformation
 %access export
 
 public export
-data RecordList : (label : Type) -> List (Header label) -> Type where
-  Nil  : RecordList label []
-  (::) : Record label header -> RecordList label headers ->
-         RecordList label (header :: headers)
+data RecordListM : (m : Type -> Type) -> (label : Type) -> List (Header label) -> Type where
+  Nil  : RecordListM m label []
+  (::) : RecordM m label header -> RecordListM m label headers ->
+         RecordListM m label (header :: headers)
 
-%name RecordList xss, yss, zss
+%name RecordListM xss, yss, zss
 
 public export
-recordList : RecordList label xss -> RecordList label xss
+RecordList : (label : Type) -> List (Header label) -> Type
+RecordList = RecordListM id
+
+public export
+recordList : RecordListM m label xss -> RecordListM m label xss
 recordList = id
 
 namespace ContentConstraint
@@ -32,13 +36,13 @@ namespace ContentConstraint
     Here  : cst xs -> One cst xs (xs :: xss)
     There : One cst ys xss -> One cst ys (xs::xss)
 
-toList : RecordList label xss -> {auto prf : All (Sub subset) xss} ->
-         List (Record label subset)
+toList : RecordListM m label xss -> {auto prf : All (Sub subset) xss} ->
+         List (RecordM m label subset)
 toList [] = []
 toList (x :: xs) {prf = _ :: prf} = project x :: toList xs
 
-get : (xss : RecordList label headers) -> One cst header headers ->
-      Record label header
+get : (xss : RecordListM m label headers) -> One cst header headers ->
+      RecordM m label header
 get (xs :: _)  (Here prf) = xs
 get (_ :: xss) (There later) = get xss later
 
