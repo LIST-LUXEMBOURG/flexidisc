@@ -90,6 +90,10 @@ patchRecord' (Trans trans nubT) (Rec xs nubXS) {prf = S prf} {mapper = T mapper}
                          (transPreservesNub mapper (isNubFromSub prf nubXS))
   in (flip Rec nubProof) (patchRecord' trans xs prf)
 
+||| Apply a modifier Record to a record
+(<**>) : RecordM (endoM m n) k header -> RecordM m k header -> RecordM n k header
+(<**>) (Rec fs _) (Rec xs nubXS) = Rec (fs <**> xs) nubXS
+
 -- Operators
 
 keepIf : (Alternative m, Applicative m) => (a -> Bool) -> a -> m a
