@@ -18,7 +18,7 @@ implementation Semigroup e => Applicative (Validation e) where
 
 implementation (Show e, Show a) => Show (Validation e a) where
   show (Error x) = "❌ " <+> show x
-  show (Valid x) = "✅ " <+> show x:
+  show (Valid x) = "✅ " <+> show x
 
 export
 validate : (a -> e) -> (a -> Bool) -> a -> Validation e a
