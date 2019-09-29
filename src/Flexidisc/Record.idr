@@ -1,5 +1,7 @@
 module Flexidisc.Record
 
+import Control.Monad.Identity
+
 import        Flexidisc.RecordContent
 
 import public Flexidisc.Dec.IsYes
@@ -113,13 +115,26 @@ optional _ (Rec xs nubXS) {prf = HN prf} {postNub} =
 toTHList : RecordM m k header -> THList m k (toList header)
 toTHList (Rec xs _) = toTHList xs
 
+||| Change the effect
+hoist : (f: {a : _} -> m a -> n a) -> (xs : RecordM m k header) -> RecordM n k header
+hoist f (Rec xs nubXS) = Rec (hoist f xs) nubXS
+
+||| Perform a `Record` transformation under the `Identity` Monad
+withIdentity : (RecordM Identity k pre -> RecordM Identity k post) ->
+               Record k pre -> Record k post
+withIdentity f = hoist runIdentity . f . hoist Id
+
 ||| lift field of a Record
 lift : (f: {a : _} -> a -> m a) -> (xs : Record k header) -> RecordM m k header
-lift f (Rec xs nubXS) = Rec (lift f xs) nubXS
+lift = hoist
 
 ||| extract an effect from a record
 sequence : Applicative m => (xs : RecordM m k header) -> m (Record k header)
 sequence (Rec xs nubXS) = flip Rec nubXS <$> sequence xs
+
+||| embed the effect in the values, directly
+unlift : RecordM m k header -> Record k (mapType m header)
+unlift (Rec values nubProof) = Rec (unlift values) (mapValuesPreservesNub nubProof)
 
 -- Foldmap
 

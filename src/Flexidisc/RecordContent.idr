@@ -119,6 +119,10 @@ lift : (f : {a : _} -> a -> m a) -> RecordContent k o header ->
         RecordContentM m k o header
 lift = hoist
 
+unlift : RecordContentM m k o header -> RecordContent k o (map m header)
+unlift [] = []
+unlift (x :: ys) = x :: unlift ys
+
 optional : (xs : RecordContent k o pre) -> (opt : HereOrNot post pre) ->
            RecordContentM Maybe k o post
 optional [] Empty = []

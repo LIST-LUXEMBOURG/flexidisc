@@ -14,7 +14,7 @@ unwrap (F f) = f
 Functor ((|->) b) where
   map g (F f) = F (g . f)
 
-Applicative ((|->) b) where
+Applicative ((|->) a) where
   pure x = F (const x)
   (<*>) (F f) (F x) = F (\y => f y (x y))
 

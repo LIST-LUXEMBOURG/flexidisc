@@ -25,6 +25,9 @@ data Fresh : (l : label) -> (xs : Header label) -> Type where
 
 %name Header.Fresh fresh, prf, new
 
+mapType : (f : Type -> Type) -> Header k -> Header k
+mapType f (H xs) = H (map f xs)
+
 IsFresh : (DecEq label) => (l : label) -> (xs : Header label) -> Type
 IsFresh l (H xs) = IsYes (decFresh l xs)
 
