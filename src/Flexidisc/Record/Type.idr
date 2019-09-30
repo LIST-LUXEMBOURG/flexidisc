@@ -56,6 +56,10 @@ public export
 (::) = cons
 
 ||| It's just monomorphic `id` with a fancy name, to help type inference
+recM : (m : Type -> Type) -> RecordM m k header -> RecordM m k header
+recM _ = id
+
+||| It's just monomorphic `id` with a fancy name, to help type inference
 rec : Record k header -> Record k header
 rec = id
 

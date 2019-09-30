@@ -27,8 +27,8 @@ Transformation : (k : Type) -> (header : TransHeader k) -> Type
 Transformation = TransformationM id
 
 ||| Monomorphic `id` to help inference
-transM : TransformationM m k header -> TransformationM m k header
-transM = id
+transM : (m : Type -> Type) -> TransformationM m k header -> TransformationM m k header
+transM _ = id
 
 ||| Monomorphic `id` to help inference
 trans : TransformationM Identity k header -> TransformationM Identity k header
@@ -57,6 +57,8 @@ transPreservesNub ((l, s :-> t) :: xs) (y::ys) = transPreservesFresh xs y :: tra
 mapRecord : (trans : TransformationM m k mapper) ->
             (xs : Record k (toSource mapper)) ->
             RecordM m k (toTarget mapper)
+mapRecord (Trans trans nubT) (Rec xs nubXS) {mapper = T mapper} =
+  Rec (mapRecord trans xs) (transPreservesNub mapper nubXS)
 
 ||| Map all the field of a record
 traverseRecord : Applicative m =>
@@ -65,6 +67,12 @@ traverseRecord : Applicative m =>
                  m (Record k (toTarget mapper))
 traverseRecord (Trans trans nubT) (Rec xs nubXS) {mapper = T mapper} =
   map (flip Rec (transPreservesNub mapper nubXS)) (traverseRecord trans xs)
+
+||| Map all the field of a record
+traverseRecord' : (trans : Transformation k mapper) ->
+                  (xs : Record k (toSource mapper)) ->
+                  Record k (toTarget mapper)
+traverseRecord' = mapRecord
 
 ||| Map a subset of a record
 patchRecord : (DecEq k, Applicative m) =>
