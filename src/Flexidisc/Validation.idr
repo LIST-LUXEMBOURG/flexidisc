@@ -5,6 +5,9 @@ module Flexidisc.Validation
 
 data Validation e a = Error e | Valid a
 
+ValidationL : (e :Type) -> (a : Type) -> Type
+ValidationL e a = Validation (List e) a
+
 implementation Functor (Validation e) where
   map func (Error x) = Error x
   map func (Valid x) = Valid (func x)

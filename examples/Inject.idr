@@ -29,3 +29,6 @@ record Person where
 
 inject : Person -> Record String ["firstname" ::: String, "lastname" ::: String, "age" ::: Nat]
 inject = unwrap $ sequence ["firstname" ~~ firstname, "lastname" ~~ lastname, "age" ~~ age]
+
+demote : Record String ["firstname" ::: String, "lastname" ::: String, "age" ::: Nat] -> Person
+demote xs = MkPerson (xs !! "firstname") (xs !! "lastname") (xs !! "age")
