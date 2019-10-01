@@ -44,6 +44,12 @@ atRow : RecordContentM m k o header -> (loc : OrdRow l ty header) -> m ty
 atRow ((l := x) :: _) Here      = x
 atRow (_ :: xs) (There later) = atRow xs later
 
+update : RecordContentM m k o header -> (loc : OrdRow l a header) ->
+         (f : m a -> m b) ->
+         RecordContentM m k o (changeValue header loc b)
+update ((l := x) :: xs) Here f = (l := f x) :: xs
+update (x :: xs) (There later) f = x :: update xs later f
+
 set : RecordContentM m k o header ->
       (loc : OrdLabel l header) -> (new : m ty) ->
       RecordContentM m k o (changeType header loc ty)
@@ -53,14 +59,7 @@ set (x :: xs)        (There later) new = x          :: set xs later new
 setByRow : RecordContentM m k o header ->
            (loc : OrdRow l tOld header) -> (new : m tNew) ->
            RecordContentM m k o (changeValue header loc tNew)
-setByRow ((l := x) :: xs) Here          new = (l := new) :: xs
-setByRow (x :: xs)        (There later) new = x :: setByRow xs later new
-
-update : RecordContentM m k o header -> (loc : OrdRow l a header) ->
-         (f : m a -> m b) ->
-         RecordContentM m k o (changeValue header loc b)
-update ((l := x) :: xs) Here f = (l := f x) :: xs
-update (x :: xs) (There later) f = x :: update xs later f
+setByRow xs loc new = update xs loc (const new)
 
 merge : (xs : RecordContentM m k o header) ->
         (ys : RecordContentM m k o header') ->
@@ -91,14 +90,14 @@ infixl 7 |>
 
 drop : RecordContentM m k o header -> (loc : OrdLabel l header) ->
        RecordContentM m k o (dropLabel header loc)
-drop ((l := x) :: xs) Here = xs
+drop (_ :: xs) Here = xs
 drop (x :: xs) (There later) = x :: drop xs later
 
 
 project : RecordContentM m k o header -> Sub sub header ->
           RecordContentM m k o sub
 project [] Empty = []
-project (x :: ys) (Skip sub) = project ys sub
+project (_ :: ys) (Skip sub) = project ys sub
 project (x :: ys) (Keep sub) = x :: project ys sub
 
 keep : (xs : RecordContentM m k o pre) -> (sub : SubWithKeys keys post pre) ->

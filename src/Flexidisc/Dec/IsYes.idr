@@ -15,7 +15,6 @@ getProof : {witness : Dec prop} -> IsYes witness -> prop
 getProof yes {witness = (Yes prf)} = prf
 getProof yes {witness = (No contra)} impossible
 
-
 ||| If I can prove two times that a property doesn't hold,
 ||| the two proofs are equal
 export

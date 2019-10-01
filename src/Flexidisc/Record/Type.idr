@@ -40,13 +40,20 @@ public export
 Nil : Ord k => RecordM m k []
 Nil = Rec empty []
 
+||| Insert a new row in a record (with explicit proof)
+public export
+cons' : (DecEq k, Ord k) => TaggedValue k' (m ty) -> RecordM m k header ->
+        (fresh : Fresh k' header) ->
+        RecordM m k ((k', ty) :: header)
+cons' x (Rec xs isnub) (F fresh) =
+  Rec (insert x xs) (freshInsert fresh isnub)
+
 ||| Insert a new row in a record
 public export
 cons : (DecEq k, Ord k) => TaggedValue k' (m ty) -> RecordM m k header ->
        {default SoTrue fresh : IsFresh k' header} ->
        RecordM m k ((k', ty) :: header)
-cons x (Rec xs isnub) {fresh} =
-  Rec (insert x xs) (freshInsert (getProof fresh) isnub)
+cons x xs {fresh} = cons' x xs (getProof fresh)
 
 ||| Insert a new row in a record
 public export

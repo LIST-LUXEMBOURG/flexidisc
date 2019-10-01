@@ -20,17 +20,22 @@ data Disjoint : (xs : Header k) -> (ys : Header k) -> Type where
       Disjoint xs ys -> Disjoint (H xs) (H ys)
 
 
-data Fresh : (l : label) -> (xs : Header label) -> Type where
-  F : {xs : OrdHeader k o} -> Fresh l xs -> Fresh l (H xs)
+data Fresh : (l : label) -> (xs : Header' label a) -> Type where
+  F : {xs : OrdList k o a} -> Fresh l xs -> Fresh l (H xs)
 
 %name Header.Fresh fresh, prf, new
 
 mapType : (f : Type -> Type) -> Header k -> Header k
 mapType f (H xs) = H (map f xs)
 
-IsFresh : (DecEq label) => (l : label) -> (xs : Header label) -> Type
-IsFresh l (H xs) = IsYes (decFresh l xs)
+decFresh : (DecEq label) => (l : label) -> (xs : Header' label a) ->
+           Dec (Fresh l xs)
+decFresh l (H xs) with (decFresh l xs)
+  | (Yes prf) = Yes (F prf)
+  | (No contra) = No (\(F x) => contra x)
 
+IsFresh : (DecEq label) => (l : label) -> (xs : Header' label a) -> Type
+IsFresh l xs = IsYes (decFresh l xs)
 
 data HereOrNot : (xs : Header k) -> (ys : Header k) -> Type where
   HN : {xs : OrdHeader k o} -> {ys : OrdHeader k o} ->
@@ -40,10 +45,10 @@ toSub : {xs : Header k} -> HereOrNot xs ys -> Maybe (Sub xs ys)
 toSub (HN compat) = map S (toSub compat)
 
 
-data Nub : (Header label) -> Type where
-  N : {xs : OrdHeader k o} -> Nub xs -> Nub (H xs)
+data Nub : (Header' label a) -> Type where
+  N : {xs : OrdList k o a} -> Nub xs -> Nub (H xs)
 
-IsNub : DecEq label => (xs : Header label) -> Type
+IsNub : DecEq label => (xs : Header' label a) -> Type
 IsNub (H xs) = IsYes (decNub xs)
 
 namespace SubWithKeys

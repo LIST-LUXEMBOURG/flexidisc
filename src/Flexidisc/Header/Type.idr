@@ -33,13 +33,13 @@ Nil = H []
 
 ||| Append actually called insert on the underlying `OrdList`, to ensure that
 ||| the header labels are sorted
-(::) : (k, Type) -> Header k -> Header k
+(::) : (k, a) -> Header' k a -> Header' k a
 (::) x (H h) = H (insert x h)
 
-merge : Header k -> Header k -> Header k
+merge : Header' k a -> Header' k a -> Header' k a
 merge (H xs) (H ys) = H (merge xs ys)
 
-toList : Header k -> List (k, Type)
+toList : Header' k a -> List (k, a)
 toList (H xs) = toList xs
 
 optional : Header k -> Header k

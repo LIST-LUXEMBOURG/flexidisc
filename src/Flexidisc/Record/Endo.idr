@@ -7,33 +7,6 @@ import public Flexidisc.Record.Type
 %access export
 
 
-||| Replace a row, can change its type
-|||
-||| Complexity is _O(n)_
-|||
-||| @ xs  the record
-||| @ loc the proof that the row is in it
-||| @ new the new value for the row
-setByLabel : (xs : Record k header) -> (loc : Row query ty header) ->
-             (new : ty) ->
-             Record k header
-setByLabel (Rec xs nub) (R loc) new =
-  rewrite sym (changeWithSameTypeIsUnchanged loc) in
-          Rec (setByRow xs loc new) (changeValuePreservesNub nub)
-
-||| Update a row, the update can change the row type.
-|||
-||| Complexity is _O(n)_
-|||
-||| @ query the row name
-||| @ xs    the record
-||| @ loc   the proof that the row is in it
-||| @ new   the new value for the row
-set : (query : k) -> (new : ty) -> (xs : Record k header) ->
-      {auto loc : Row query ty header} ->
-      Record k header
-set _ new xs {loc} = setByLabel xs loc new
-
 ||| Update a row at a given `Row`, can change its type.
 |||
 ||| Complexity is _O(n)_
@@ -60,3 +33,28 @@ update : (query : k) -> (f : a -> a) -> (xs : Record k header) ->
          {auto loc : Row query a header} ->
          Record k header
 update _ f xs {loc} = updateByLabel xs loc f
+
+||| Replace a row, can change its type
+|||
+||| Complexity is _O(n)_
+|||
+||| @ xs  the record
+||| @ loc the proof that the row is in it
+||| @ new the new value for the row
+setByLabel : (xs : Record k header) -> (loc : Row query ty header) ->
+             (new : ty) ->
+             Record k header
+setByLabel xs loc new = updateByLabel xs loc (const new)
+
+||| Update a row, the update can change the row type.
+|||
+||| Complexity is _O(n)_
+|||
+||| @ query the row name
+||| @ xs    the record
+||| @ loc   the proof that the row is in it
+||| @ new   the new value for the row
+set : (query : k) -> (new : ty) -> (xs : Record k header) ->
+      {auto loc : Row query ty header} ->
+      Record k header
+set _ new xs {loc} = updateByLabel xs loc (const new)

@@ -73,7 +73,7 @@ update : (query : k) -> (f : m a -> m b) -> (xs : RecordM m k header) ->
          RecordM m k (changeType header loc b)
 update _ f xs {loc} = updateByLabel xs loc f
 
-||| Map a row at a given `Row`, can change its type.
+||| Map at a given `Row`, can change its type.
 |||
 ||| Complexity is _O(n)_
 |||
