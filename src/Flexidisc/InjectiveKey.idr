@@ -5,8 +5,6 @@
 ||| Most of the time, you will end up writing O(n) statements instead of O(n^2).
 module Flexidisc.InjectiveKey
 
-import public Decidable.Order
-
 %default total
 %access public export
 

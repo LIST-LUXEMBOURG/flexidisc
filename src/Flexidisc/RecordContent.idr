@@ -1,12 +1,16 @@
 module Flexidisc.RecordContent
 
 import Control.Monad.Identity
-import Flexidisc.OrdHeader
+import Flexidisc.OrdList
 import Flexidisc.TaggedValue
 import Flexidisc.THList
 
 %default total
 %access export
+
+public export
+OrdHeader : (k : Type) -> (o : Ord k) -> Type
+OrdHeader k o = OrdList k o Type
 
 public export
 data RecordContentM : (m : Type -> Type) ->
@@ -52,7 +56,7 @@ update (x :: xs) (There later) f = x :: update xs later f
 
 set : RecordContentM m k o header ->
       (loc : OrdLabel l header) -> (new : m ty) ->
-      RecordContentM m k o (changeType header loc ty)
+      RecordContentM m k o (changeValue header loc ty)
 set ((l := x) :: xs) Here          new = (l := new) :: xs
 set (x :: xs)        (There later) new = x          :: set xs later new
 

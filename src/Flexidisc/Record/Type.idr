@@ -3,7 +3,6 @@ module Flexidisc.Record.Type
 import        Flexidisc.RecordContent
 import public Flexidisc.THList
 
-import public Flexidisc.OrdHeader
 import public Flexidisc.Dec.IsYes
 import public Flexidisc.Header
 import public Flexidisc.TaggedValue

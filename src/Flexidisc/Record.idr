@@ -6,7 +6,6 @@ import        Flexidisc.RecordContent
 
 import public Flexidisc.Dec.IsYes
 import public Flexidisc.Header
-import public Flexidisc.OrdHeader
 import public Flexidisc.Record.Type
 import public Flexidisc.Record.Read
 import public Flexidisc.Record.Update

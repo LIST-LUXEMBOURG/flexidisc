@@ -3,7 +3,6 @@ module Flexidisc.Transformation.TransHeader
 import Flexidisc.Dec.IsYes
 import Flexidisc.Header.Type
 import Flexidisc.OrdList
-import Flexidisc.OrdHeader
 import Flexidisc.Transformation.Type
 
 %default total

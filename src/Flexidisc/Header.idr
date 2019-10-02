@@ -5,18 +5,17 @@ import public Flexidisc.Header.Label
 import public Flexidisc.Header.Row
 import public Flexidisc.Header.Sub
 import public Flexidisc.Header.Type
-
-import Flexidisc.OrdHeader
+import public Flexidisc.OrdList
 
 %default total
 %access public export
 
-data CompWithKeys : (List k) -> (xs : Header k) -> (ys : Header k) -> Type where
-  S : {xs : OrdHeader k o} -> {ys : OrdHeader k o} ->
+data CompWithKeys : (List k) -> (xs : Header' k a) -> (ys : Header' k a) -> Type where
+  S : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
       CompWithKeys keys xs ys -> CompWithKeys keys (H xs) (H ys)
 
-data Disjoint : (xs : Header k) -> (ys : Header k) -> Type where
-  D : {xs : OrdHeader k o} -> {ys : OrdHeader k o} ->
+data Disjoint : (xs : Header' k a) -> (ys : Header' k a) -> Type where
+  D : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
       Disjoint xs ys -> Disjoint (H xs) (H ys)
 
 
@@ -37,8 +36,8 @@ decFresh l (H xs) with (decFresh l xs)
 IsFresh : (DecEq label) => (l : label) -> (xs : Header' label a) -> Type
 IsFresh l xs = IsYes (decFresh l xs)
 
-data HereOrNot : (xs : Header k) -> (ys : Header k) -> Type where
-  HN : {xs : OrdHeader k o} -> {ys : OrdHeader k o} ->
+data HereOrNot : (xs : Header' k a) -> (ys : Header' k a) -> Type where
+  HN : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
        HereOrNot xs ys -> HereOrNot (H xs) (H ys)
 
 toSub : {xs : Header k} -> HereOrNot xs ys -> Maybe (Sub xs ys)
@@ -53,14 +52,16 @@ IsNub (H xs) = IsYes (decNub xs)
 
 namespace SubWithKeys
 
-  data SubWithKeys : (List k) -> (xs : Header k) -> (ys : Header k) -> Type where
-    S : {xs : OrdHeader k o } -> {ys : OrdHeader k o } ->
+  data SubWithKeys : (List k) -> (xs : Header' k a) -> (ys : Header' k a) ->
+                     Type where
+    S : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
         SubWithKeys keys xs ys -> SubWithKeys keys (H xs) (H ys)
 
 namespace SameOrd
 
-  data SameOrd : (xs : Header k) -> (ys : Header k) -> Type where
-    S : {xs : OrdHeader k o} -> {ys : OrdHeader k o} -> SameOrd xs ys -> SameOrd (H xs) (H ys)
+  data SameOrd : (xs : Header' k a) -> (ys : Header' k a) -> Type where
+    S : {xs : OrdList k o a} -> {ys : OrdList k o a} -> SameOrd xs ys ->
+        SameOrd (H xs) (H ys)
 
 namespace Decomp
 

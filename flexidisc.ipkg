@@ -16,7 +16,7 @@ opts = "--warnreach --total"
 
 modules = Flexidisc
         , Flexidisc
-        , Flexidisc.InjectiveDecEq
+        , Flexidisc.InjectiveKey
         , Flexidisc.Validation
         , Flexidisc.Record.Endo
         , Flexidisc.Record.Read
@@ -32,7 +32,6 @@ modules = Flexidisc
         , Flexidisc.TaggedValue
         , Flexidisc.Dec.IsNo
         , Flexidisc.Dec.IsYes
-        , Flexidisc.OrdHeader
         , Flexidisc.THList
         , Flexidisc.Record
         , Flexidisc.OrdList.SubWithKeys

@@ -1,6 +1,6 @@
 module Flexidisc.Transformation.Type
 
-import Flexidisc.OrdHeader
+import Flexidisc.OrdList
 import Flexidisc.RecordContent
 import Flexidisc.TaggedValue
 
@@ -38,12 +38,12 @@ toLabels [] = []
 toLabels ((k, s :-> t) :: xs) = k :: toLabels xs
 
 public export
-toSource : OrdList k o MapValue -> OrdHeader k o
+toSource : OrdList k o MapValue -> OrdList k o Type
 toSource [] = []
 toSource ((k, s :-> t) :: xs) = (k, s) :: toSource xs
 
 public export
-toTarget : OrdList k o MapValue -> OrdHeader k o
+toTarget : OrdList k o MapValue -> OrdList k o Type
 toTarget [] = []
 toTarget ((k, s :-> t) :: xs) = (k, t) :: toTarget xs
 

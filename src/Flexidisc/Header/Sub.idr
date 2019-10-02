@@ -3,16 +3,13 @@ module Flexidisc.Header.Sub
 import Flexidisc.Header.Label
 import Flexidisc.Header.Row
 import Flexidisc.Header.Type
-import Flexidisc.OrdList.Label
-import Flexidisc.OrdList.Row
-import Flexidisc.OrdList.Sub
-import Flexidisc.OrdHeader
+import Flexidisc.OrdList
 
 %default total
 %access public export
 
-data Sub : (xs : Header k) -> (ys : Header k) -> Type where
-  S : {xs : OrdHeader k o } -> {ys : OrdHeader k o } ->
+data Sub : (xs : Header' k a) -> (ys : Header' k a) -> Type where
+  S : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
       Sub xs ys -> Sub (H xs) (H ys)
 
 %hint
