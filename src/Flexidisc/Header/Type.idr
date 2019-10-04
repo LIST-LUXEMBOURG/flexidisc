@@ -19,6 +19,11 @@ import Flexidisc.OrdList
 data Header' : (k : Type) -> (t : Type) -> Type where
   H : (o : Ord k) => OrdList k o t -> Header' k t
 
+implementation Functor (Header' k) where
+
+  map f (H xs) = H (map f xs)
+
+
 ||| Wrapper for `OrdList` that hide the order relationship
 Header : (k : Type) -> Type
 Header k = Header' k Type
