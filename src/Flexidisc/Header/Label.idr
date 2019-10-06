@@ -13,7 +13,7 @@ data Label : (l : k) -> (xs : Header' k a) -> Type where
 
 decLabel : DecEq k => (l : k) -> (xs : Header' k a) -> Dec (Label l xs)
 decLabel l (H xs) with (decLabel l xs)
-  | (Yes prf) = Yes (L ?cvr1) -- (L prf)
+  | (Yes prf) = Yes (L prf)
   | (No contra) = No (\(L p) => contra p)
 
 atLabel : (xs : Header' l a) -> (loc : Label k xs) -> a
