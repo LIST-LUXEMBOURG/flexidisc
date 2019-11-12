@@ -164,6 +164,6 @@ Of course, the same goes with functions like `project` or `reorder`, for which
 there are many possibilities ofr the result type.
 
 
-[tutorial file]: tree/master/examples/Tutorial.idr
-[examples]: tree/master/examples
+[tutorial file]: https://git.list.lu/nbiri/flexidisc/tree/master/examples/Tutorial.idr
+[examples]: https://git.list.lu/nbiri/flexidisc/tree/master/examples
 [automatic proof generation]: http://docs.idris-lang.org/en/latest/tutorial/miscellany.html#auto-implicit-arguments
