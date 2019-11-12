@@ -2,8 +2,6 @@
 ||| We use a custom datatype for labels instead of `String`.
 module Flexidisc.CustomLabels
 
-import public Decidable.Order
-
 import Flexidisc
 import Flexidisc.InjectiveKey
 
@@ -64,7 +62,7 @@ person0Name' = person0 !! Firstname
 
 ||| you can even lookup for fields that my or may not be there
 person0age : Maybe Nat
-person0age = lookup Age person0
+person0age = Read.lookup Age person0
 
 ||| We can of course extend records:
 ||| we can use either the definition below or `person1 = ["Biri", "Nicolas"]

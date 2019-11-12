@@ -35,7 +35,7 @@ theGrey : String
 theGrey = gandalf !! "nickname"
 
 gandalfWho : Maybe String
-gandalfWho = lookup "lastname" gandalf -- Nothing
+gandalfWho = Read.lookup "lastname" gandalf -- Nothing
 
 bilbo : Record' [ "firstname" ::: String
                 , "lastname"  ::: String
