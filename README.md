@@ -12,7 +12,7 @@ in a record.
 It allows the developper to add, remove and change types of a field in a
 record.
 
-Aside these core capabilities, `Flexidisc also` provides more advanced extensible
+Aside these core capabilities, `Flexidisc` also provides more advanced extensible
 manipulation function to modify, validate extensible records and to handle
 heterogeneous list of records.
 
@@ -123,7 +123,12 @@ john : Record ["Firstname" ::= String]
 john = discard ["Lastname", "Age"] agedJohn
 ```
 
-# Type-Safety
+### Going further
+
+The [examples] contains several usage examples of more advanced use of the library.
+
+
+## Type-Safety
 
 Manipulation functions provided in the library are type safe.
 
@@ -146,9 +151,9 @@ john ++ johnDoe
 -- Can't merge two records with a common field
 ```
 
-# Limitations
+## Limitations
 
-## Type inference
+### Type inference
 
 The result type of some functions such as `keep` or `patch` cant be inferred
 from the function parameters.
@@ -160,4 +165,5 @@ there are many possibilities ofr the result type.
 
 
 [tutorial file]: blob/master/examples/Tutorial.idr
+[examples]: blob/master/examples
 [automatic proof generation]: http://docs.idris-lang.org/en/latest/tutorial/miscellany.html#auto-implicit-arguments
