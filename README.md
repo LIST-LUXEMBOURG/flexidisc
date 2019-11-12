@@ -2,17 +2,58 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+Typesafe extensible records (and more) for Idris.
 
+## About
 
-`Flexidisc` is an typesafe implementation of extensible records in Idris.
-An extensible record is a record that can be extended, shrink or modified on demand.
+This library proposed an implementation of extensible records in Idris.
+Extensible records provide a way to consider labels as first class objects
+in a record.
+It allows the developper to add, remove and change types of a field in a
+record.
 
-### Why?
+Aside these core capabilities, `Flexidisc also` provides more advanced extensible
+manipulation function to modify, validate extensible records and to handle
+heterogeneous list of records.
 
-The initial motivation was to handle data transformation pipeline, where you want to
-create, modify and delete fields from records while presesrving type safety.
+## Getting started
 
-### Features
+### Prerequisites
+
+As `flexidisc` is an [Idris](https://www.idris-lang.org) library, your supposed to have
+a working version of `idris` on your computer.
+`flexidisc` was teste on `idris` 1.3.2, but should work on prior version of `idris`.
+
+`flexidisc` has no other external dependencies.
+
+### Installation
+
+```
+$ git clone https://git.list.lu/nbiri/flexidisc.git
+$ cd flexidisc
+$ idris --install flexidisc.ipkg
+> :module Flexidisc
+```
+
+To include the library in idris, you can either specify it when you run the REPL:
+
+```
+$ idris -p flexidisc
+```
+
+Or add the dependency to your project `ipkg` file.
+
+If you want, you can also load the `Tutorial` file to use it as a start
+(you can also take a look now at the [tutorial file] to see example of
+record manipulations):
+
+```
+$ idris -p flexidisc examples/Tutorial.idr
+```
+
+There's no `nix` install at this stage, I should work on it.
+
+## Features
 
 - Record extension
 - Projection
@@ -22,38 +63,6 @@ create, modify and delete fields from records while presesrving type safety.
 - Order independent equality of records
 - Row polymorphic functions
 - List of heterogeneous records + operations on them
-
-## Getting started
-
-Idris sohuld be available on your computer.
-Then, the easiest way to start with Flexidisc is to clone this repository:
-
-Clone this repository, go into its dirctory, and install the `clean_record`
-package.
-
-Install it:
-
-```
-$ cd flexidisc
-$ idris --install flexidisc.ipkg
-```
-
-And then start idris REPL with the `flexidisc` package:
-
-```
-$ idris -p flexidisc
-Idris> :module Flexidisc
-```
-
-If you want, you can also load the `Tutorial` file to use it as a start
-(you can also take a look now at the [tutorial file] to see example of
-record manipulations):
-
-```
-$ idris -p clean_record examples/Tutorial.idr
-```
-
-There's no `nix` install at this stage, I should work on it.
 
 ## Usage
 
@@ -92,7 +101,7 @@ idJohn : Record String ["ID" ::: Nat, "Firstname" ::: String, "Lastname" ::: Str
 idJohn = ["ID" := the Nat 1, "Firstname" := "John"] ++ ["Lastname" := "Doe", "Age" := the Nat 42]
 ```
 
-## Record projection
+### Record projection
 
 ```
 johnsName : Record ["Lastname" ::: String, "Firstname" ::: String]
@@ -116,7 +125,7 @@ john = discard ["Lastname", "Age"] agedJohn
 
 # Type-Safety
 
-The Flexidisc manipulation functions provided in the library are type safe.
+Manipulation functions provided in the library are type safe.
 
 Type safety is mostly handled by idris [automatic proof generation].
 
@@ -124,17 +133,17 @@ Here are a few examples of type checking failure
 (more precisely, failure by not succeeding to generate a proof):
 
 ```
- -- Can't prove that "Age" is a row of johnDoe
 get "Age" johnDoe
+-- Can't prove that "Age" is a row of johnDoe
 
--- Can't create a duplicate label
 ("Firstname" := "Nicolas") :: johnDoe
+-- Can't create a duplicate label
 
--- Can't create labels during a projecttion
 the (Record ["Firstname" ::: String, "Age" ::: Nat]) (project johnDoe)
+-- Can't create labels during a projecttion
 
--- Can't merge two records with a common field
 john ++ johnDoe
+-- Can't merge two records with a common field
 ```
 
 # Limitations
