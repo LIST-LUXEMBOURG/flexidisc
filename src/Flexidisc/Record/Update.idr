@@ -24,12 +24,12 @@ setByLabel (Rec xs nub) (L loc) new =
 |||
 ||| Complexity is _O(n)_
 |||
-||| @ query the row name
+||| @ key the row name
 ||| @ xs    the record
 ||| @ loc   the proof that the row is in it
 ||| @ new   the new value for the row
-set : (query : k) -> (new : m ty) -> (xs : RecordM m k header) ->
-      {auto loc : Label query header} ->
+set : (key : k) -> (new : m ty) -> (xs : RecordM m k header) ->
+      {auto loc : Label key header} ->
       RecordM m k (changeType header loc ty)
 set _ new xs {loc} = setByLabel xs loc new
 
@@ -47,7 +47,7 @@ setA : Applicative m =>
        RecordM m k (changeType header loc ty)
 setA loc = set loc . pure
 
-||| Update a row at a given `Row`, can change its type.
+||| Update a row at a given `Label`, can change its type.
 |||
 ||| Complexity is _O(n)_
 |||
@@ -60,7 +60,7 @@ updateByLabel : (xs : RecordM m k header) -> (loc : Row query a header) ->
 updateByLabel (Rec xs nub) (R loc) f =
   Rec (update xs loc f) (changeValuePreservesNub nub)
 
-||| Update a row at a given `Row`, can change its type.
+||| Update a row at the given key, can change its type.
 |||
 ||| Complexity is _O(n)_
 |||

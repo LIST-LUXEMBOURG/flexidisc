@@ -12,7 +12,8 @@ import public Flexidisc.TaggedValue
 
 -- CREATE
 
-||| A `Record` is a set of rows
+||| A `RecordM` is a set of rows
+||| @ m      A Type constructor used to decorate all values of the record
 ||| @ k      The type of the labels
 ||| @ header The list of rows into the record, with their types
 public export
@@ -60,6 +61,21 @@ public export
        {default SoTrue fresh : IsFresh k' header} ->
        RecordM m k ((k', ty) :: header)
 (::) = cons
+
+||| Decide whether a record can be extended with the proposed key/value pair or not
+public export
+decCons : (DecEq k, Ord k) =>
+          TaggedValue k' (m ty) -> RecordM m k header ->
+          Dec (RecordM m k ((k', ty) :: header))
+decCons x (Rec xs _) {k'} {ty} {header = H hs} with (decNub (insert (k', ty) hs))
+  | (Yes prf) = Yes (Rec (insert x xs) prf)
+  | (No contra) = No (cantBuildARecordWithNonNubHeader contra)
+  where
+    cantBuildARecordWithNonNubHeader : (DecEq k, o : Ord k) =>
+                                       {hs : OrdHeader k o} ->
+                                       (contra : Nub hs -> Void) -> Not (RecordM m k (H hs))
+    cantBuildARecordWithNonNubHeader contra (Rec xs prf) = contra prf
+
 
 ||| It's just monomorphic `id` with a fancy name, to help type inference
 recM : (m : Type -> Type) -> RecordM m k header -> RecordM m k header
