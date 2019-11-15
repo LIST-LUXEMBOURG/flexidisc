@@ -14,10 +14,13 @@ sourcedir = src
 
 opts = "--warnreach --total"
 
+pkgs = contrib
+
 modules = Flexidisc
         , Flexidisc
         , Flexidisc.InjectiveKey
         , Flexidisc.Validation
+        , Flexidisc.Record.Connection
         , Flexidisc.Record.Endo
         , Flexidisc.Record.Read
         , Flexidisc.Record.Transformation

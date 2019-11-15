@@ -23,6 +23,7 @@ data CompWithKeys : (keys : List k) ->
 
 %name CompWithKeys sub, issub, ss
 
+||| Map a `CompWithKeys` to a `Sub`
 export
 toSub : CompWithKeys keys xs ys -> Sub xs ys
 toSub Empty = Empty

@@ -74,6 +74,59 @@ traverseRecord' : (trans : Transformation k mapper) ->
                   Record k (toTarget mapper)
 traverseRecord' = mapRecord
 
+
+||| Create a record of Maybe type, with the values of the initial record,
+||| if defined, or with `Nothing` if the field is not defined.
+optional : DecEq k => (post : Header k) ->
+           (xs : Record k header) ->
+           {auto prf : HereOrNot post header} ->
+           {default SoTrue postNub : IsNub post} ->
+           RecordM Maybe k post
+optional _ (Rec xs nubXS) {prf = HN prf} {postNub} =
+  Rec (optional xs prf) (getProof postNub)
+
+||| Change the effect
+hoist : (f: {a : _} -> m a -> n a) -> (xs : RecordM m k header) -> RecordM n k header
+hoist f (Rec xs nubXS) = Rec (hoist f xs) nubXS
+
+||| Perform a `Record` transformation under the `Identity` Monad
+withIdentity : (RecordM Identity k pre -> RecordM Identity k post) ->
+               Record k pre -> Record k post
+withIdentity f = hoist runIdentity . f . hoist Id
+
+||| lift fields of a Record
+lift : (f: {a : _} -> a -> m a) -> (xs : Record k header) -> RecordM m k header
+lift = hoist
+
+||| extract an effect from a record
+sequence : Applicative m => (xs : RecordM m k header) -> m (Record k header)
+sequence (Rec xs nubXS) = flip Rec nubXS <$> sequence xs
+
+||| embed the effect in the values, directly
+unlift : RecordM m k header -> Record k (map m header)
+unlift (Rec values nubProof) = Rec (unlift values) (mapValuesPreservesNub nubProof)
+
+-- Foldmap
+
+public export
+data RecordFunc : (required : Header k) ->
+                  (optional : Header k) ->
+                  (result : Type) -> Type where
+  Func : (Record k required -> RecordM Maybe k opt -> a) ->
+         RecordFunc required opt a
+
+||| Apply a function on a known set of data
+foldRecord : (Ord k, DecEq k) =>
+             RecordFunc required opt a ->
+             Record k header ->
+             {auto optNub : IsNub opt} ->
+             {auto decomp : Decomp required opt header} ->
+             a
+foldRecord (Func f) xs {opt} {decomp = D sub op} {optNub} =
+  f (project xs) (optional opt xs {postNub = optNub})
+
+
+
 ||| Map a subset of a record
 patchRecord : (DecEq k, Applicative m) =>
               (trans : TransformationM m k mapper) ->

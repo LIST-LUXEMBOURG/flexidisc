@@ -9,9 +9,10 @@
 ||| - **Lean syntax:** Take advantage of the list syntax as much as possible,
 |||   minimize the type declarations as well.
 ||| - **Custom keys:** Row labels can be any type that implements the `DecEq`
-|||   interface.
+|||   and `Ord` interface.
 module Flexidisc
 
 import public Flexidisc.Record
+import public Flexidisc.Record.Connection
 import public Flexidisc.Record.Transformation
 import public Flexidisc.RecordList
