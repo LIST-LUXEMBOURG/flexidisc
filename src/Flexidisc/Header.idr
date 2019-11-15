@@ -70,19 +70,26 @@ namespace SubWithKeys
 
 namespace SameOrd
 
+  ||| Both Header' are ordered with the same Ord typeclass
+  ||| (thank you non unique typeclasses)
   data SameOrd : (xs : Header' k a) -> (ys : Header' k a) -> Type where
     S : {xs : OrdList k o a} -> {ys : OrdList k o a} -> SameOrd xs ys ->
         SameOrd (H xs) (H ys)
 
 namespace Decomp
 
+  ||| A Decomposition of a Header' into
+  ||| a set of required values and a set of optional values
   data Decomp : (required : Header k) -> (optional : Header k) -> (xs : Header k) -> Type where
     D : Header.Sub.Sub required xs -> HereOrNot optional xs -> Decomp required optional xs
 
-
-diffKeys : DecEq k => (xs : Header k) -> (ys : Header k) -> Header k
+||| Output the keys of the first Header' that are not in the second Header'
+diffKeys : DecEq k => (xs : Header' k a) -> (ys : Header' k a) -> Header' k a
 diffKeys (H xs) (H ys) = H (diffKeys xs ys)
 
+||| Apply a patch `xs` to an `Header'` `ys`.
+||| The label of `ys` that are in `xs` are updated,
+||| and the fresh element of `xs` are added
 patch : DecEq k =>
-        (xs : Header k) -> (ys : Header k) -> Header k
+        (xs : Header' k a) -> (ys : Header' k a) -> Header' k a
 patch (H xs) (H ys) = H (patch xs ys)
