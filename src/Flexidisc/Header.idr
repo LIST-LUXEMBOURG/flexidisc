@@ -80,6 +80,9 @@ namespace Decomp
 
   ||| A Decomposition of a Header' into
   ||| a set of required values and a set of optional values
+  ||| @required the set keys and types that must be in the original header
+  ||| @optional the set keys and types that can be in the original header
+  ||| @xs the original header
   data Decomp : (required : Header k) -> (optional : Header k) -> (xs : Header k) -> Type where
     D : Header.Sub.Sub required xs -> HereOrNot optional xs -> Decomp required optional xs
 

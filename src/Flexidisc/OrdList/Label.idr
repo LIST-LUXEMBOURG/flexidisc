@@ -39,7 +39,7 @@ dropLabel : (xs : OrdList k o v) -> (loc : OrdLabel l xs) -> OrdList k o v
 dropLabel (_ :: xs) Here          = xs
 dropLabel (x :: xs) (There later) = x :: dropLabel xs later
 
-||| Update a value in the list given it's location and an update function
+||| Update a value in the list given it's location and a new value
 changeValue : (xs : OrdList k o v) -> (loc : OrdLabel l xs) ->
              (new : v) -> OrdList k o v
 changeValue ((x, old) :: xs) Here          new = (x, new) :: xs

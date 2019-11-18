@@ -6,8 +6,7 @@ import Flexidisc.OrdList.Type
 %default total
 %access public export
 
-||| Proof that a key value pair is part of an `OrdList`.
-||| If you don't need the value, use `Label`.
+||| Proof that a key value pair is part of an `OrdList`. If you don't need the value, use `Label`.
 data OrdRow : (l : k) -> (ty : v) -> OrdList k o v -> Type where
   ||| The label is in the first element of the list
   Here  :                             OrdRow l ty ((l, ty) :: xs)

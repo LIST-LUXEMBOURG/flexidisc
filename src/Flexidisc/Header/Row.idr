@@ -7,7 +7,13 @@ import Flexidisc.OrdList.Row
 %default total
 %access public export
 
+||| Proof that a key value pair is part of an `OrdList`.  If you don't need the value, use `Label`.
+|||
+||| @k the inspected key
+||| @ty its value
+||| @xs the header that contains the information
 data Row : (k : l) -> (ty : a) -> (xs : Header' l a) -> Type where
+  ||| A wrapper for an OrdList Row
   R : {xs : OrdList l o a} -> OrdRow k ty xs -> Row k ty (H xs)
 
 %name Row lbl, loc, prf, e, elem
