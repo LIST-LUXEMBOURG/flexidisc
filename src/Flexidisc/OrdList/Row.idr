@@ -24,6 +24,12 @@ Uninhabited (OrdRow k v []) where
   uninhabited Here      impossible
   uninhabited (There _) impossible
 
+||| Map a row and its header simultaneously
+mapRow : {xs : OrdList k o a} -> (f : a -> b) -> (loc : OrdRow l ty xs) -> OrdRow l (f ty) (map f xs)
+mapRow f loc {xs = []} = absurd loc
+mapRow f Here {xs = ((k, x) :: xs)} = Here
+mapRow f (There later) {xs = ((k, x) :: xs)} = There (mapRow f later)
+
 ||| Given a proof that an element is in a vector, remove it
 dropOrdRow : (xs : OrdList k o v) -> (loc : OrdRow l ty xs) -> OrdList k o v
 dropOrdRow xs = dropLabel xs . labelFromOrdRow

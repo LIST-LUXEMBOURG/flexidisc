@@ -18,6 +18,10 @@ data Row : (k : l) -> (ty : a) -> (xs : Header' l a) -> Type where
 
 %name Row lbl, loc, prf, e, elem
 
+||| Map a row and its header simultaneously
+mapRow : {xs : Header' k a} -> (f : a -> b) -> (loc : Row l ty xs) -> Row l (f ty) (map f xs)
+mapRow f (R loc) = R $ mapRow f loc
+
 ||| Given a proof that an element is in a vector, remove it
 dropRow : (xs : Header' k a) -> (loc : Row l ty xs) -> Header' k a
 dropRow (H xs) (R loc) = H (dropOrdRow xs loc)
