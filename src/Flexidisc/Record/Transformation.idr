@@ -38,7 +38,7 @@ trans = id
 Nil : Ord k => TransformationM m k []
 Nil = Trans [] []
 
-||| Insert a new row in a record
+||| Insert a new transformation function in a `Transformation`
 (::) : (DecEq k, Ord k) => TaggedValue k' (s -> m t) -> TransformationM m k header ->
        {default SoTrue fresh : IsFresh k' header} ->
        TransformationM m k ((k', s :-> t) :: header)
@@ -60,7 +60,7 @@ mapRecord : (trans : TransformationM m k mapper) ->
 mapRecord (Trans trans nubT) (Rec xs nubXS) {mapper = T mapper} =
   Rec (mapRecord trans xs) (transPreservesNub mapper nubXS)
 
-||| Map all the field of a record
+||| Map all the field of a record, extract the effect
 traverseRecord : Applicative m =>
                  (trans : TransformationM m k mapper) ->
                  (xs : Record k (toSource mapper)) ->
@@ -102,29 +102,9 @@ lift = hoist
 sequence : Applicative m => (xs : RecordM m k header) -> m (Record k header)
 sequence (Rec xs nubXS) = flip Rec nubXS <$> sequence xs
 
-||| embed the effect in the values, directly
+||| embed the effect in the values, directly into the `Record`
 unlift : RecordM m k header -> Record k (map m header)
 unlift (Rec values nubProof) = Rec (unlift values) (mapValuesPreservesNub nubProof)
-
--- Foldmap
-
-public export
-data RecordFunc : (required : Header k) ->
-                  (optional : Header k) ->
-                  (result : Type) -> Type where
-  Func : (Record k required -> RecordM Maybe k opt -> a) ->
-         RecordFunc required opt a
-
-||| Apply a function on a known set of data
-foldRecord : (Ord k, DecEq k) =>
-             RecordFunc required opt a ->
-             Record k header ->
-             {auto optNub : IsNub opt} ->
-             {auto decomp : Decomp required opt header} ->
-             a
-foldRecord (Func f) xs {opt} {decomp = D sub op} {optNub} =
-  f (project xs) (optional opt xs {postNub = optNub})
-
 
 
 ||| Map a subset of a record
@@ -150,6 +130,27 @@ patchRecord' (Trans trans nubT) (Rec xs nubXS) {prf = S prf} {mapper = T mapper}
                          (isNubFromSub diffIsSub nubXS)
                          (transPreservesNub mapper (isNubFromSub prf nubXS))
   in (flip Rec nubProof) (patchRecord' trans xs prf)
+
+-- Foldmap
+
+public export
+data RecordFunc : (required : Header k) ->
+                  (optional : Header k) ->
+                  (result : Type) -> Type where
+  Func : (Record k required -> RecordM Maybe k opt -> a) ->
+         RecordFunc required opt a
+
+||| Apply a function on a known set of data
+foldRecord : (Ord k, DecEq k) =>
+             RecordFunc required opt a ->
+             Record k header ->
+             {auto optNub : IsNub opt} ->
+             {auto decomp : Decomp required opt header} ->
+             a
+foldRecord (Func f) xs {opt} {decomp = D sub op} {optNub} =
+  f (project xs) (optional opt xs {postNub = optNub})
+
+
 
 ||| Apply a modifier Record to a record
 (<**>) : RecordM (endoM m n) k header -> RecordM m k header -> RecordM n k header

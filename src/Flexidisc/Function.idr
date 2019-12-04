@@ -23,4 +23,3 @@ Applicative ((|->) a) where
 
 (~~) : (l : k) -> (a -> b) -> TaggedValue l (a |-> b)
 (~~) l f = l := F f
-

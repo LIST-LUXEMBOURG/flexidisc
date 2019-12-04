@@ -19,7 +19,7 @@ Injector k header ty = RecordM ((|->) ty) k header
 
 ||| Use an injector to transform a rigid record into a flexible one
 toRecord : Injector k header src -> src -> Record k header
-toRecord inj = unwrap (sequence inj)
+toRecord = unwrap . sequence
 
 ||| A `TypeList` describe how to build a vector of type from a record
 data TypeList : Vect n k -> Vect n Type -> Header k -> Type where
