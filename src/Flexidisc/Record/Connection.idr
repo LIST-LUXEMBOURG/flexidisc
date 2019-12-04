@@ -9,7 +9,7 @@ import Flexidisc.Record.Transformation
 import Flexidisc.Record.Type
 
 %default total
-%access public export
+%access export
 
 ||| A type alias for `RecordM` that can be use to inject a given type in a record
 public export
