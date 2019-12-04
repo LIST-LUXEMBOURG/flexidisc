@@ -17,4 +17,3 @@ relaxPerson = toRecord ["firstname" ~~ firstname, "lastname" ~~ lastname, "age" 
 
 freezePerson : Record String ["firstname" ::: String, "lastname" ::: String, "age" ::: Nat] -> Person
 freezePerson r = fromRecord MkPerson ["firstname", "lastname", "age"] r
-

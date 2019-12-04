@@ -20,12 +20,12 @@ data OrdList : (k : Type) ->  (o : Ord k) -> (v : Type) -> Type where
 
 keys : OrdList k o v -> List k
 keys [] = []
-keys ((a, b) :: xs) = a :: keys xs
+keys (kv :: xs) = fst kv :: keys xs
 
 implementation Functor (OrdList k o) where
 
   map f [] = []
-  map f ((l, x) :: xs) = (l, f x) :: map f xs
+  map f (kv :: xs) = map f kv :: map f xs
 
 ||| Insert an element in the list before the first element that is greater than
 ||| the given one., according to the order `o`

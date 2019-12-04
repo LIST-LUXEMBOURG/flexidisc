@@ -50,7 +50,7 @@ changeValuePreservesNub (p :: pf) {loc = (There later)} =
 ||| If `Nub` holds for a list, it holds if we drop one element from the list
 export
 dropPreservesNub : Nub xs -> (loc : OrdLabel l xs) -> Nub (dropLabel xs loc)
-dropPreservesNub (yes :: x) Here = x
+dropPreservesNub (_   :: x) Here = x
 dropPreservesNub (yes :: x) (There later) =
   dropPreservesFresh yes :: dropPreservesNub x later
 

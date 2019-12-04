@@ -5,6 +5,8 @@
 ||| Most of the time, you will end up writing O(n) statements instead of O(n^2).
 module Flexidisc.InjectiveKey
 
+import Decidable.Order
+
 %default total
 %access public export
 
@@ -17,8 +19,8 @@ decEqViaInjection : DecEq b =>
                     (toInj : a -> b) -> (isInj : IsInjection a toInj) ->
                     (x,y : a) -> Dec (x = y)
 decEqViaInjection f isInj x y with (decEq (f x) (f y))
-  | (Yes prf) = Yes (isInj x y prf)
-  | (No contra) = No (contra . cong)
+  | Yes prf   = Yes $ isInj x y prf
+  | No contra = No  $ contra . cong
 
 ||| Build an injection out of a function,
 ||| an inverse function for the target elements, and an
@@ -49,12 +51,12 @@ interface (DecEq a, Eq a, Ord a,
 
   implementation Ord a where
     compare x y = compareInj inj x y
-    (<) x y = compareInj inj x y == LT
-    (>) x y = compareInj inj x y == GT
+    (<) x y  = compareInj inj x y == LT
+    (>) x y  = compareInj inj x y == GT
     (<=) x y = compareInj inj x y /= GT
     (>=) x y = compareInj inj x y /= LT
-    min x y = if compareInj inj x y == GT then y else x
-    max x y = if compareInj inj x y == LT then y else x
+    min x y  = if compareInj inj x y == GT then y else x
+    max x y  = if compareInj inj x y == LT then y else x
 
   inj : a -> b
   ret : b -> a

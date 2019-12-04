@@ -3,31 +3,13 @@ module Flexidisc.Record.Connection
 import Data.Fun
 import Data.Vect
 
+import Flexidisc.Function
 import Flexidisc.Record.Read
 import Flexidisc.Record.Transformation
 import Flexidisc.Record.Type
 
 %default total
-%access export
-
-infixr 8 |->
-infix 7 ~~
-
-||| A wrapper for functions to allow definition of typeclasses
-record (|->) (a : Type) (b : Type) where
-  constructor F
-  unwrap : (a -> b)
-
-
-Functor ((|->) a) where
-  map g (F f) = F (g . f)
-
-Applicative ((|->) a) where
-  pure x = F (const x)
-  (<*>) (F f) (F x) = F (\y => f y (x y))
-
-(~~) : (l : k) -> (a -> b) -> TaggedValue l (a |-> b)
-(~~) l f = l := F f
+%access public export
 
 ||| A type alias for `RecordM` that can be use to inject a given type in a record
 public export
@@ -47,4 +29,4 @@ data TypeList : Vect n k -> Vect n Type -> Header k -> Type where
 ||| Transform a flexible Record into a rigid one
 fromRecord : Fun ts a -> (xs : Vect n k) -> Record k header -> {auto prf : TypeList xs ts header} -> a
 fromRecord f [] r {prf = []} = f
-fromRecord f (_ :: xs) r {prf = (loc::prf)} = fromRecord (f $ r `atRow` loc) xs r
+fromRecord f (_ :: xs) r {prf = loc::_} = fromRecord (f $ r `atRow` loc) xs r

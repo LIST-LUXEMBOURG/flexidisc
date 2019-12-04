@@ -24,15 +24,15 @@ data HereOrNot : (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
 
 export
 toRow : HereOrNot [(k, v)] ys -> Maybe (OrdRow k v ys)
-toRow (Skip compat fresh) = Nothing
+toRow (Skip compat fresh)  = Nothing
 toRow (Extra compat fresh) = There <$> toRow compat
-toRow (Keep compat) = Just Here
+toRow (Keep compat)        = Just Here
 
 %name HereOrNot compat, can, prf
 
 export
 toSub : HereOrNot xs ys -> Maybe (Sub xs ys)
-toSub Empty = Just Empty
-toSub (Skip compat fresh) = Nothing
+toSub Empty                = Just Empty
+toSub (Skip compat fresh)  = Nothing
 toSub (Extra compat fresh) = map Skip $ toSub compat
-toSub (Keep compat) = map Keep $ toSub compat
+toSub (Keep compat)        = map Keep $ toSub compat

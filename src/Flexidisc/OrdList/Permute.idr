@@ -44,7 +44,7 @@ permutePreservesFresh (Keep e perm) fresh =
 
 isNubFromPermute : Permute xs ys -> Nub ys -> Nub xs
 isNubFromPermute Empty [] = []
-isNubFromPermute (Keep e perm) pf@(p::_) =
+isNubFromPermute (Keep e perm) pf =
   permutePreservesFresh perm (removeFromNubIsFresh pf (labelFromOrdRow e))
     :: isNubFromPermute perm (dropPreservesNub pf (labelFromOrdRow e))
 

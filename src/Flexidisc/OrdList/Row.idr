@@ -47,12 +47,12 @@ changeWithSameTypeIsUnchanged (There later) = cong $ changeWithSameTypeIsUnchang
 findInsertOrdRow : (l : k) -> (xs : OrdList k o v) -> OrdRow l ty (insert (l,ty) xs)
 findInsertOrdRow l [] = Here
 findInsertOrdRow l ((kx, vx) :: xs) with (l < kx)
-  | True = Here
+  | True  = Here
   | False = There (findInsertOrdRow l xs)
 
 dropInsertInv : (l : k) -> (ty : v) -> (xs : OrdList k o v) ->
                 dropOrdRow (insert (l, ty) xs) (findInsertOrdRow l xs) = xs
 dropInsertInv l ty [] = Refl
 dropInsertInv l ty ((kx,vx) :: xs) with (l < kx)
-  | True = Refl
+  | True  = Refl
   | False = cong (dropInsertInv l ty xs)

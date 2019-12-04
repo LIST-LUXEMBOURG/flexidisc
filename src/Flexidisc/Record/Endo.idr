@@ -44,7 +44,7 @@ update _ f xs {loc} = updateByLabel xs loc f
 setByLabel : (xs : Record k header) -> (loc : Row query ty header) ->
              (new : ty) ->
              Record k header
-setByLabel xs loc new = updateByLabel xs loc (const new)
+setByLabel xs loc = updateByLabel xs loc . const
 
 ||| Update a row, the update can change the row type.
 |||
