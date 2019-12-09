@@ -18,6 +18,6 @@ getProof yes {witness = (No contra)} impossible
 ||| If I can prove two times that a property doesn't hold,
 ||| the two proofs are equal
 export
-uniqueYes : (prop : Dec any) -> (x : IsYes prop) -> (y : IsYes prop) -> x = y
+uniqueYes : (prop : Dec any) -> (x, y : IsYes prop) -> x = y
 uniqueYes (Yes prf) SoTrue SoTrue = Refl
 uniqueYes (No _) SoTrue _ impossible

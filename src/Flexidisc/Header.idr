@@ -15,14 +15,14 @@ import public Flexidisc.OrdList
 ||| @subset part of thecoriginal header
 ||| @subset the original header
 data CompWithKeys : (skipped : List k) ->
-                    (subset : Header' k a) ->
-                    (orig : Header' k a) -> Type where
+                    (subset, orig : Header' k a) ->
+                     Type where
   ||| Wrap `OrdList.CompWithKeys`
   S : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
       CompWithKeys keys xs ys -> CompWithKeys keys (H xs) (H ys)
 
 ||| A proof that two `Header'` don't share a key.
-data Disjoint : (xs : Header' k a) -> (ys : Header' k a) -> Type where
+data Disjoint : (xs, ys : Header' k a) -> Type where
   D : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
       Disjoint xs ys -> Disjoint (H xs) (H ys)
 
@@ -45,8 +45,8 @@ IsFresh : (DecEq label) => (l : label) -> (xs : Header' label a) -> Type
 IsFresh l xs = IsYes (decFresh l xs)
 
 ||| A proof that labels that are in both lists have the same values
-data HereOrNot : (xs : Header' k a) -> (ys : Header' k a) -> Type where
-  HN : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
+data HereOrNot : (xs, ys : Header' k a) -> Type where
+  HN : {xs, ys : OrdList k o a} ->
        HereOrNot xs ys -> HereOrNot (H xs) (H ys)
 
 toSub : {xs : Header k} -> HereOrNot xs ys -> Maybe (Sub xs ys)
@@ -63,18 +63,16 @@ IsNub (H xs) = IsYes (decNub xs)
 namespace SubWithKeys
 
   ||| Proof that an `Header'` has some given `keys` and is a subset of an other
-  data SubWithKeys : (List k) -> (xs : Header' k a) -> (ys : Header' k a) ->
-                     Type where
-    S : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
+  data SubWithKeys : (List k) -> (xs, ys : Header' k a) -> Type where
+    S : {xs, ys : OrdList k o a} ->
         SubWithKeys keys xs ys -> SubWithKeys keys (H xs) (H ys)
 
 namespace SameOrd
 
   ||| Both Header' are ordered with the same Ord typeclass
   ||| (thank you non unique typeclasses)
-  data SameOrd : (xs : Header' k a) -> (ys : Header' k a) -> Type where
-    S : {xs : OrdList k o a} -> {ys : OrdList k o a} -> SameOrd xs ys ->
-        SameOrd (H xs) (H ys)
+  data SameOrd : (xs, ys : Header' k a) -> Type where
+    S : {xs, ys : OrdList k o a} -> SameOrd xs ys -> SameOrd (H xs) (H ys)
 
 namespace Decomp
 
@@ -83,16 +81,15 @@ namespace Decomp
   ||| @required the set keys and types that must be in the original header
   ||| @optional the set keys and types that can be in the original header
   ||| @xs the original header
-  data Decomp : (required : Header k) -> (optional : Header k) -> (xs : Header k) -> Type where
+  data Decomp : (required, optional : Header k) -> (xs : Header k) -> Type where
     D : Header.Sub.Sub required xs -> HereOrNot optional xs -> Decomp required optional xs
 
 ||| Output the keys of the first Header' that are not in the second Header'
-diffKeys : DecEq k => (xs : Header' k a) -> (ys : Header' k a) -> Header' k a
+diffKeys : DecEq k => (xs, ys : Header' k a) -> Header' k a
 diffKeys (H xs) (H ys) = H (diffKeys xs ys)
 
 ||| Apply a patch `xs` to an `Header'` `ys`.
 ||| The label of `ys` that are in `xs` are updated,
 ||| and the fresh element of `xs` are added
-patch : DecEq k =>
-        (xs : Header' k a) -> (ys : Header' k a) -> Header' k a
+patch : DecEq k => (xs, ys : Header' k a) -> Header' k a
 patch (H xs) (H ys) = H (patch xs ys)

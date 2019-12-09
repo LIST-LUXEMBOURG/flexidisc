@@ -80,7 +80,8 @@ patchRecord' : DecEq k =>
 patchRecord' trans xs {prf} =
   mapRecord trans (project xs prf) |> xs
 
-endoM : (Type -> Type) -> (Type -> Type) -> Type -> Type
+public export
+endoM : (f, g : Type -> Type) -> Type -> Type
 endoM f g a = f a -> g a
 
 infixl 4 <**>
@@ -90,6 +91,3 @@ infixl 4 <**>
          RecordContentM n k o header
 (<**>) [] [] = []
 (<**>) (k' := f :: fs) (k' := x :: xs) = k' := f x :: (fs <**> xs)
-
-
-

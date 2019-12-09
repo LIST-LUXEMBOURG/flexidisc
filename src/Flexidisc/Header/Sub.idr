@@ -8,7 +8,7 @@ import Flexidisc.OrdList
 %default total
 %access public export
 
-data Sub : (xs : Header' k a) -> (ys : Header' k a) -> Type where
+data Sub : (xs, ys : Header' k a) -> Type where
   S : {xs : OrdList k o a} -> {ys : OrdList k o a} ->
       Sub xs ys -> Sub (H xs) (H ys)
 

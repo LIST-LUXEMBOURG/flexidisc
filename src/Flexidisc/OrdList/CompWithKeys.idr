@@ -11,8 +11,7 @@ import public Data.List
 |||
 ||| Used in `discard`, probably not useful anywhere else.
 public export
-data CompWithKeys : (keys : List k) ->
-                   (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+data CompWithKeys : (keys : List k) -> (xs, ys : OrdList k v o) -> Type where
   ||| Both `OrdList`s are empty
   Empty : CompWithKeys [] [] []
   ||| The second `OrdList` contains an extra key, that is not in the first `OrdList`
@@ -26,6 +25,6 @@ data CompWithKeys : (keys : List k) ->
 ||| Map a `CompWithKeys` to a `Sub`
 export
 toSub : CompWithKeys keys xs ys -> Sub xs ys
-toSub Empty = Empty
+toSub Empty        = Empty
 toSub (Skip x sub) = Skip (toSub sub)
-toSub (Keep sub) = Keep (toSub sub)
+toSub (Keep sub)   = Keep (toSub sub)

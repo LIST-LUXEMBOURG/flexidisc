@@ -18,6 +18,6 @@ getContra x {witness = (No contra)} = contra
 ||| If I can prove two times that a property doesn't hold,
 ||| the two proofs are equal
 export
-uniqueNo : (prop : Dec any) -> (x : IsNo prop) -> (y : IsNo prop) -> x = y
+uniqueNo : (prop : Dec any) -> (x, y : IsNo prop) -> x = y
 uniqueNo (Yes _) SoFalse _ impossible
 uniqueNo (No contra) SoFalse SoFalse = Refl

@@ -19,5 +19,5 @@ import public Flexidisc.OrdList.Row
 
 ||| A witness that two OrdList are using the same order
 ||| (as well as the same key and value type, but this is more obvious)
-data SameOrd : (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+data SameOrd : (xs, ys : OrdList k v o) -> Type where
   Same : SameOrd xs ys

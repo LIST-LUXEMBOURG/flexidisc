@@ -12,7 +12,7 @@ import Flexidisc.OrdList.Type
 
 ||| A proof that labels that are in both lists have the same values
 public export
-data HereOrNot : (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+data HereOrNot : (xs, ys : OrdList k v o) -> Type where
   ||| It holds for two empty `OrdList`
   Empty : HereOrNot [] []
   ||| If an element of the first list is not in the second list, it holds

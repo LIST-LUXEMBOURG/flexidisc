@@ -77,12 +77,12 @@ traverseRecord' = mapRecord
 
 ||| Create a record of Maybe type, with the values of the initial record,
 ||| if defined, or with `Nothing` if the field is not defined.
-optional : DecEq k => (post : Header k) ->
+optional : DecEq k =>
            (xs : Record k header) ->
            {auto prf : HereOrNot post header} ->
            {default SoTrue postNub : IsNub post} ->
            RecordM Maybe k post
-optional _ (Rec xs nubXS) {prf = HN prf} {postNub} =
+optional (Rec xs nubXS) {prf = HN prf} {postNub} =
   Rec (optional xs prf) (getProof postNub)
 
 ||| Change the effect
@@ -147,8 +147,8 @@ foldRecord : (Ord k, DecEq k) =>
              {auto optNub : IsNub opt} ->
              {auto decomp : Decomp required opt header} ->
              a
-foldRecord (Func f) xs {opt} {decomp = D sub op} {optNub} =
-  f (project xs) (optional opt xs {postNub = optNub})
+foldRecord (Func f) xs {decomp = D sub op} {optNub} =
+  f (project xs) (optional xs {postNub = optNub})
 
 
 

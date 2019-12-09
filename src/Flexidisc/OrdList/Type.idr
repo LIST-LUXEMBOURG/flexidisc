@@ -36,8 +36,8 @@ insert (k, v) ((k', v') :: xs) with (k < k')
   | True  = (k,v)   :: (k',v') :: xs
 
 ||| Merge two `OrdList`, preserving the order if the initial list are ordered.
-merge :  OrdList k o v -> OrdList k o v -> OrdList k o v
-merge [] xs = xs
+merge :  (xs, ys : OrdList k o v) -> OrdList k o v
+merge [] ys = ys
 merge xs [] = xs
 merge ((k, v) :: hs) ((k', v') :: xs) with (k < k')
   | False = (k', v') :: merge ((k, v) :: hs) xs

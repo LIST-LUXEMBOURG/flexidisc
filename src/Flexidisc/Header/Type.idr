@@ -16,7 +16,7 @@ import Flexidisc.OrdList
 %access public export
 
 ||| Wrapper for `OrdList` that hide the order relationship
-data Header' : (k : Type) -> (t : Type) -> Type where
+data Header' : (k, t : Type) -> Type where
   H : (o : Ord k) => OrdList k o t -> Header' k t
 
 implementation Functor (Header' k) where
@@ -41,7 +41,7 @@ Nil = H []
 (::) : (k, a) -> Header' k a -> Header' k a
 (::) x (H h) = H (insert x h)
 
-merge : Header' k a -> Header' k a -> Header' k a
+merge : (xs, ys : Header' k a) -> Header' k a
 merge (H xs) (H ys) = H (merge xs ys)
 
 toList : Header' k a -> List (k, a)

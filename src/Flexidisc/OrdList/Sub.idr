@@ -12,7 +12,7 @@ import Flexidisc.OrdList.Type
 
 ||| Proof that an `OrdList` is a sublist of another vect
 public export
-data Sub : (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+data Sub : (xs, ys : OrdList k v o) -> Type where
   ||| The empty `Ordlist` is a sublist of the empty `OrdList`
   Empty : Sub [] []
   ||| Making the second list larger don't change the property
@@ -30,6 +30,11 @@ subEmpty' (_ :: xs) = Skip (subEmpty' xs)
 ||| An empty `OrdList` is an ordered subset of any `OrdList`
 subEmpty : Sub [] xs
 subEmpty {xs} = subEmpty' xs
+
+implementation Uninhabited (Sub (x::xs) []) where
+  uninhabited Empty impossible
+  uninhabited (Skip _) impossible
+  uninhabited (Keep _) impossible
 
 ||| A `OrdList` is an ordered subset of itself
 subRefl' : (xs : OrdList k v o) -> Sub xs xs

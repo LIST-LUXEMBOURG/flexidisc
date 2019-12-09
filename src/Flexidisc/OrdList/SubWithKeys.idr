@@ -12,8 +12,7 @@ import public Data.List
 
 ||| Proof that an `OrdList` has some given `keys` and is a sublist of an other
 public export
-data SubWithKeys : (keys : List k) ->
-                   (xs : OrdList k v o) -> (ys : OrdList k v o) -> Type where
+data SubWithKeys : (keys : List k) -> (xs, ys : OrdList k v o) -> Type where
   ||| The empty `Ordlist` is a sublist of the empty `OrdList`
   Empty : SubWithKeys [] [] []
   ||| Making the second list larger don't change the property

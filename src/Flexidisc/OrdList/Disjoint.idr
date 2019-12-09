@@ -10,7 +10,7 @@ import Flexidisc.OrdList.Type
 %access public export
 
 ||| A proof that two `OrdList` don't share a key.
-data Disjoint : (left : OrdList k v o) -> (right : OrdList k v o) -> Type where
+data Disjoint : (left, right : OrdList k v o) -> Type where
   ||| The empty `OrdList` is always `Disjoint` from another `OrdList`
   Nil : Disjoint [] right
   ||| A key in the first `OrdList` is fresh in the second `OrdList`.
